@@ -1,0 +1,38 @@
+services:
+
+  # ── Development (DEFAULT) ─────────────────────────────────────
+  # Runs Vite dev server with hot-module replacement.
+  # No profile = always starts with plain `docker compose up`.
+  #
+  #   docker compose up --build      # first run
+  #   docker compose up              # subsequent runs
+  #
+  web-dev:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app                       # live source bind-mount
+      - /app/node_modules            # preserve container node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  # ── Production ────────────────────────────────────────────────
+  # Vite build → static files served by Nginx on port 80.
+  # Only starts when --profile prod is passed explicitly.
+  #
+  #   docker compose --profile prod up --build
+  #
+  web-prod:
+    build:
+      context: .
+      target: prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    profiles: ["prod"]
+    restart: unless-stopped
