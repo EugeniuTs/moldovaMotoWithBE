@@ -15,8 +15,8 @@ const T = {
 
 const uid2 = uid;
 const today = () => new Date().toISOString().slice(0,10);
-const fmtDate = d => d ? new Date(d).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "\u2014";
-const fmtPrice = p => "\u20ac" + Number(p).toLocaleString();
+const fmtDate = d => d ? new Date(d).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—";
+const fmtPrice = p => "€" + Number(p).toLocaleString();
 
 const STATUS_COLORS = {
   active:{bg:T.greenDim,text:T.green,dot:T.green},
@@ -193,7 +193,7 @@ function Table({columns,rows,onEdit,onDelete}){
               onMouseLeave={e=>e.currentTarget.style.background=ri%2===0?"transparent":"rgba(255,255,255,0.01)"}>
               {columns.map(c=>(
                 <td key={c.key} style={{padding:"12px 14px",color:T.text,whiteSpace:"nowrap"}}>
-                  {c.render?c.render(row[c.key],row):<span style={{color:c.dim?T.muted:T.text}}>{row[c.key]??"\u2014"}</span>}
+                  {c.render?c.render(row[c.key],row):<span style={{color:c.dim?T.muted:T.text}}>{row[c.key]??"—"}</span>}
                 </td>
               ))}
               <td style={{padding:"12px 14px",textAlign:"right"}}>
@@ -457,9 +457,9 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
   // Find departure date label for a booking
   const depDate=(b)=>{
     const route=routes.find(r=>r.name===b.tour);
-    if(!route||!b.departureId)return b.date||"\u2014";
+    if(!route||!b.departureId)return b.date||"—";
     const dep=(route.departures||[]).find(d=>d.id===b.departureId);
-    return dep?fmtDate(dep.date):(b.date?fmtDate(b.date):"\u2014");
+    return dep?fmtDate(dep.date):(b.date?fmtDate(b.date):"—");
   };
 
   const displayed=data
@@ -478,7 +478,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
     {key:"tour",   label:"Tour",   render:v=><span style={{color:T.muted,fontSize:12,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",display:"block"}}>{v}</span>},
     {key:"date",   label:"Departure",render:(_,row)=><span style={{fontWeight:600}}>{depDate(row)}</span>},
     {key:"country",label:"From",   render:v=><span style={{color:T.muted}}>{v}</span>},
-    {key:"bike",   label:"Bike",   render:v=><span style={{color:T.muted,fontSize:12}}>{v||"\u2014"}</span>},
+    {key:"bike",   label:"Bike",   render:v=><span style={{color:T.muted,fontSize:12}}>{v||"—"}</span>},
     {key:"status", label:"Status", render:(v,row)=>(
       <div style={{display:"flex",alignItems:"center",gap:8}}>
         <Badge status={v}/>
@@ -508,8 +508,8 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
   ];
 
   const setF=k=>v=>setForm(f=>({...f,[k]:v}));
-  const tourOpts=[{value:"",label:"Select tour\u2026"},...routes.map(r=>({value:r.name,label:r.name})),{value:"Motorcycle Rental",label:"Motorcycle Rental (Free Riding)"}];
-  const bikeOpts=[{value:"",label:"Select bike\u2026"},...fleet.map(f=>({value:f.name,label:`${f.name} (${f.status})`}))];
+  const tourOpts=[{value:"",label:"Select tour…"},...routes.map(r=>({value:r.name,label:r.name})),{value:"Motorcycle Rental",label:"Motorcycle Rental (Free Riding)"}];
+  const bikeOpts=[{value:"",label:"Select bike…"},...fleet.map(f=>({value:f.name,label:`${f.name} (${f.status})`}))];
   const expOpts=["beginner","intermediate","advanced","expert"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
   const statOpts=["pending","confirmed","cancelled"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
   const typeOpts=[{value:"guided",label:"Guided Tour"},{value:"rental",label:"Free Riding Rental"}];
@@ -517,7 +517,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
   // Departures for selected tour in form
   const selectedRoute=routes.find(r=>r.name===form.tour);
   const depOpts=selectedRoute&&selectedRoute.dateType==="scheduled"
-    ?[{value:"",label:"Select departure\u2026"},...(selectedRoute.departures||[]).map(d=>({value:d.id,label:fmtDate(d.date)+` \u2014 ${d.maxSpots} spots`}))]
+    ?[{value:"",label:"Select departure…"},...(selectedRoute.departures||[]).map(d=>({value:d.id,label:fmtDate(d.date)+` — ${d.maxSpots} spots`}))]
     :[];
 
   return(
@@ -525,15 +525,15 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
         <div>
           <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Bookings</h2>
-          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>{data.length} total \u00b7 {pending} pending</p>
+          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>{data.length} total · {pending} pending</p>
         </div>
         <Btn onClick={openAdd}>+ New Booking</Btn>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
-        <StatCard label="Pending"   value={pending}       icon="\u23f3" accent={T.yellow}/>
-        <StatCard label="Confirmed" value={confirmed}     icon="\u2705" accent={T.green}/>
-        <StatCard label="Revenue"   value={fmtPrice(revenue)} icon="\u20ac" accent={T.orange}/>
+        <StatCard label="Pending"   value={pending}       icon="⏳" accent={T.yellow}/>
+        <StatCard label="Confirmed" value={confirmed}     icon="✅" accent={T.green}/>
+        <StatCard label="Revenue"   value={fmtPrice(revenue)} icon="€" accent={T.orange}/>
       </div>
 
       <div style={{display:"flex",gap:10,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
@@ -542,7 +542,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
             {f==="all"?"All":f.charAt(0).toUpperCase()+f.slice(1)}
           </Pill>
         ))}
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search rider or tour\u2026"
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search rider or tour…"
           style={{marginLeft:"auto",background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
             padding:"6px 12px",color:T.text,fontSize:12,fontFamily:"inherit",outline:"none",width:200}}
           onFocus={e=>e.target.style.borderColor=T.orange}
@@ -642,9 +642,9 @@ function FleetTab({data,onSave,onDelete}){
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
-        <StatCard label="Available"   value={available} icon="\ud83c\udfcd\ufe0f" accent={T.green}/>
-        <StatCard label="In Use"      value={inUse}     icon="\ud83d\udee3\ufe0f" accent={T.blue}/>
-        <StatCard label="Maintenance" value={maint}     icon="\ud83d\udd27" accent={T.yellow}/>
+        <StatCard label="Available"   value={available} icon="🏍️" accent={T.green}/>
+        <StatCard label="In Use"      value={inUse}     icon="🛣️" accent={T.blue}/>
+        <StatCard label="Maintenance" value={maint}     icon="🔧" accent={T.yellow}/>
       </div>
 
       <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden",marginBottom:20}}>
@@ -657,11 +657,11 @@ function FleetTab({data,onSave,onDelete}){
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:10}}>
               <div>
                 <div style={{fontWeight:800,fontSize:14,color:T.text}}>{bike.name}</div>
-                <div style={{fontSize:11,color:T.muted,marginTop:2}}>{bike.color} \u00b7 {bike.year}</div>
+                <div style={{fontSize:11,color:T.muted,marginTop:2}}>{bike.color} · {bike.year}</div>
               </div>
               <Badge status={bike.status}/>
             </div>
-            <div style={{fontSize:12,color:T.muted,marginBottom:10}}>{Number(bike.odometer||0).toLocaleString()} km \u00b7 Svc: {fmtDate(bike.lastService)}</div>
+            <div style={{fontSize:12,color:T.muted,marginBottom:10}}>{Number(bike.odometer||0).toLocaleString()} km · Svc: {fmtDate(bike.lastService)}</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
               {(bike.features||[]).slice(0,3).map(f=>(
                 <span key={f} style={{background:T.elevated,border:`1px solid ${T.border}`,borderRadius:5,padding:"2px 7px",fontSize:10,color:T.muted}}>{f}</span>
@@ -724,10 +724,10 @@ function DashboardTab({routes,bookings,fleet}){
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:28}}>
-        <StatCard label="Active Routes"    value={routes.filter(r=>r.status==="active").length} icon="\ud83d\uddfa\ufe0f" accent={T.orange}/>
-        <StatCard label="Pending"          value={pending}      icon="\u23f3" accent={T.yellow} sub="Awaiting confirmation"/>
-        <StatCard label="Revenue"          value={fmtPrice(revenue)} icon="\u20ac" accent={T.green} sub={`${confirmed} confirmed`}/>
-        <StatCard label="Bikes Available"  value={`${available}/${fleet.length}`} icon="\ud83c\udfcd\ufe0f" accent={T.blue}/>
+        <StatCard label="Active Routes"    value={routes.filter(r=>r.status==="active").length} icon="🗺️" accent={T.orange}/>
+        <StatCard label="Pending"          value={pending}      icon="⏳" accent={T.yellow} sub="Awaiting confirmation"/>
+        <StatCard label="Revenue"          value={fmtPrice(revenue)} icon="€" accent={T.green} sub={`${confirmed} confirmed`}/>
+        <StatCard label="Bikes Available"  value={`${available}/${fleet.length}`} icon="🏍️" accent={T.blue}/>
       </div>
 
       {/* Tour occupancy */}
@@ -756,7 +756,7 @@ function DashboardTab({routes,bookings,fleet}){
                       return(
                         <span key={dep.id} style={{fontSize:10,background:T.elevated,border:`1px solid ${T.border}`,
                           borderRadius:5,padding:"2px 7px",color:col,fontWeight:600}}>
-                          {new Date(dep.date).toLocaleDateString("en-GB",{day:"2-digit",month:"short"})} \u00b7 {left} left
+                          {new Date(dep.date).toLocaleDateString("en-GB",{day:"2-digit",month:"short"})} · {left} left
                         </span>
                       );
                     })}
@@ -901,7 +901,7 @@ function LoginScreen({onLogin}){
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               <label style={{fontSize:11,color:T.muted,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>Password</label>
               <input type="password" value={pass} onChange={e=>setPass(e.target.value)}
-                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+                placeholder="••••••••"
                 onKeyDown={e=>e.key==="Enter"&&handle()}
                 style={{background:T.bg,border:`1.5px solid ${T.border}`,borderRadius:8,padding:"10px 13px",
                   color:T.text,fontSize:13,fontFamily:"inherit",outline:"none",width:"100%",boxSizing:"border-box"}}
@@ -912,7 +912,7 @@ function LoginScreen({onLogin}){
             <button onClick={handle} disabled={loading}
               style={{width:"100%",background:T.orange,color:"#fff",border:"none",borderRadius:9,padding:"12px",
                 fontWeight:800,fontSize:14,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",opacity:loading?0.7:1}}>
-              {loading?"Signing in\u2026":"Sign in \u2192"}
+              {loading?"Signing in…":"Sign in →"}
             </button>
           </div>
         </div>
@@ -926,10 +926,10 @@ function LoginScreen({onLogin}){
 
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
 const NAV_ITEMS=[
-  {id:"dashboard",icon:"\u229e",label:"Dashboard"},
-  {id:"routes",   icon:"\ud83d\uddfa\ufe0f",label:"Routes"},
-  {id:"bookings", icon:"\ud83d\udccb",label:"Bookings"},
-  {id:"fleet",    icon:"\ud83c\udfcd\ufe0f",label:"Fleet"},
+  {id:"dashboard",icon:"⊞",label:"Dashboard"},
+  {id:"routes",   icon:"🗺️",label:"Routes"},
+  {id:"bookings", icon:"📋",label:"Bookings"},
+  {id:"fleet",    icon:"🏍️",label:"Fleet"},
 ];
 
 function Sidebar({active,setActive,onLogout,bookings}){
@@ -949,7 +949,7 @@ function Sidebar({active,setActive,onLogout,bookings}){
         <Link to="/" style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.dim,textDecoration:"none",transition:"color 0.15s"}}
           onMouseEnter={e=>e.currentTarget.style.color=T.muted}
           onMouseLeave={e=>e.currentTarget.style.color=T.dim}>
-          \u2190 Back to website
+          ← Back to website
         </Link>
       </div>
       <nav style={{flex:1,padding:"14px 10px"}}>
@@ -980,7 +980,7 @@ function Sidebar({active,setActive,onLogout,bookings}){
             border:"none",cursor:"pointer",background:"transparent",color:T.dim,fontFamily:"inherit",fontSize:12,fontWeight:600}}
           onMouseEnter={e=>{e.currentTarget.style.background=T.elevated;e.currentTarget.style.color=T.text;}}
           onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=T.dim;}}>
-          <span>\u238b</span> Sign Out
+          <span>⎋</span> Sign Out
         </button>
       </div>
     </aside>
@@ -1025,7 +1025,7 @@ export default function MoldovaMotoAdmin(){
   `;
 
   if(!authed)return(<><style>{css}</style><LoginScreen onLogin={()=>{setAuthed(true);setTab("dashboard");}}/></>);
-  if(!db)return(<div style={{minHeight:"100vh",background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",color:T.muted,fontSize:14}}>Loading\u2026</div>);
+  if(!db)return(<div style={{minHeight:"100vh",background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",color:T.muted,fontSize:14}}>Loading…</div>);
 
   return(
     <div style={{minHeight:"100vh",background:T.bg,display:"flex"}}>
