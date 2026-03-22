@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY } from "../store.js";
+import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Lora:ital@0;1&display=swap');
@@ -167,10 +167,10 @@ const mapStops = [
 // ============================================================
 const STEP_LABELS = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
 
-function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [] }) {
+function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [] }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
-    tour: defaultTour, date: "", bike: "",
+    tour: defaultTour, date: "", departureId: "", bike: "", rentalDays: 1,
     name: "", email: "", phone: "", country: "", experience: "",
     license: false
   });
@@ -182,7 +182,10 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [] }) {
   const validate = () => {
     const e = {};
     if (step === 0 && !form.tour) e.tour = "Please select a tour";
-    if (step === 1 && !form.date) e.date = "Please select a date";
+    if (step === 1) {
+      if (isOpenDate && !form.date) e.date = "Please pick a start date";
+      if (!isOpenDate && !form.departureId) e.date = "Please select a departure date";
+    }
     if (step === 3) {
       if (!form.name) e.name = "Name required";
       if (!form.email || !form.email.includes("@")) e.email = "Valid email required";
@@ -202,14 +205,20 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [] }) {
     // Persist booking to shared store so admin sees it immediately
     const db = loadDB();
     const availableBike = fleet.find(b => b.status === "available");
+    const depObj = selectedTour && form.departureId
+      ? (selectedTour.departures||[]).find(d=>d.id===form.departureId)
+      : null;
     const newBooking = {
       id: "b" + uid(),
+      type: selectedTour?.dateType === "open" ? "rental" : "guided",
       tour: form.tour,
+      departureId: form.departureId || "",
       name: form.name,
       email: form.email,
       phone: form.phone,
       country: form.country,
-      date: form.date,
+      date: depObj ? depObj.date : form.date,
+      rentalDays: isOpenDate ? (form.rentalDays || 1) : undefined,
       experience: form.experience,
       status: "pending",
       bike: form.bike || (availableBike ? availableBike.name : "CFMOTO 800MT"),
@@ -220,6 +229,9 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [] }) {
   };
 
   const today = new Date().toISOString().split("T")[0];
+  const selectedTour = tours.find(t => t.title === form.tour) || null;
+  const isOpenDate   = !selectedTour || selectedTour.dateType === "open";
+  const departures   = selectedTour ? (selectedTour.departures || []).filter(d => d.date >= today) : [];
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
@@ -285,16 +297,78 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [] }) {
 
               {step === 1 && (
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 16 }}>Choose your departure date</div>
-                  <div style={{ marginBottom: 8, fontSize: 13, color: MUTED }}>Tours depart every Friday. Minimum 48h advance booking.</div>
-                  <input type="date" className="form-input" min={today} value={form.date}
-                    onChange={e => set("date", e.target.value)}
-                    style={{ marginTop: 8, fontSize: 16, padding: "14px 16px", colorScheme: "dark" }} />
+                  {isOpenDate ? (
+                    /* ── Free / open date: date-picker + rental days ── */
+                    <>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose your date</div>
+                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>Pick any start date — your bike will be reserved for the full period.</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Start Date</label>
+                          <input type="date" className="form-input" min={today} value={form.date}
+                            onChange={e => set("date", e.target.value)}
+                            style={{ fontSize: 14, colorScheme: "dark" }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Days (1 – 14)</label>
+                          <input type="number" className="form-input" min="1" max="14" value={form.rentalDays || 1}
+                            onChange={e => set("rentalDays", Math.max(1, Math.min(14, Number(e.target.value))))}
+                            style={{ fontSize: 14 }} />
+                        </div>
+                      </div>
+                      {form.date && (
+                        <div style={{ marginTop: 14, padding: "12px 16px", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.25)", borderRadius: 10, fontSize: 13, color: "#ffb27a" }}>
+                          Total: €{((selectedTour?.priceNum || 0) * (form.rentalDays || 1)).toLocaleString()} · {form.rentalDays || 1} day{form.rentalDays > 1 ? "s" : ""} rental
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* ── Scheduled tour: predefined departure slots ── */
+                    <>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Select a departure date</div>
+                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>
+                        {departures.length} upcoming departure{departures.length !== 1 ? "s" : ""} — spots decrease as bookings are confirmed.
+                      </div>
+                      {departures.length === 0 && (
+                        <div style={{ color: MUTED, fontSize: 13, padding: "20px 0" }}>No upcoming departures scheduled yet. Contact us to arrange a custom date.</div>
+                      )}
+                      {departures.sort((a, b) => a.date.localeCompare(b.date)).map(dep => {
+                        const confirmed = allBookings.filter(b => b.departureId === dep.id && b.status === "confirmed").length;
+                        const left = Math.max(0, (dep.maxSpots || 0) - confirmed);
+                        const isFull = left === 0;
+                        const sel    = form.departureId === dep.id;
+                        return (
+                          <div key={dep.id}
+                            onClick={() => { if (!isFull) { set("departureId", dep.id); set("date", dep.date); } }}
+                            style={{
+                              border: `1.5px solid ${sel ? ORANGE : isFull ? "#333" : BORDER}`,
+                              borderRadius: 12, padding: "14px 18px", marginBottom: 10,
+                              cursor: isFull ? "not-allowed" : "pointer",
+                              background: sel ? "rgba(255,107,0,0.08)" : "#161616",
+                              opacity: isFull ? 0.5 : 1,
+                              display: "flex", alignItems: "center", justifyContent: "space-between",
+                              transition: "all 0.2s"
+                            }}>
+                            <div>
+                              <div style={{ fontWeight: 700, color: isFull ? MUTED : WHITE }}>
+                                {new Date(dep.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
+                              </div>
+                              <div style={{ fontSize: 12, color: MUTED, marginTop: 3 }}>
+                                {selectedTour?.duration} · departs Chișinău
+                              </div>
+                            </div>
+                            <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 16 }}>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: isFull ? "#555" : left <= 2 ? "#eab308" : "#22c55e" }}>
+                                {isFull ? "FULL" : `${left} spot${left !== 1 ? "s" : ""} left`}
+                              </div>
+                              <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>of {dep.maxSpots}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
                   {errors.date && <div style={{ color: "#ff4d4d", fontSize: 13, marginTop: 8 }}>{errors.date}</div>}
-                  <div style={{ marginTop: 16, padding: "14px 16px", background: "#1a1a1a", borderRadius: 10, border: `1px solid ${BORDER}` }}>
-                    <div style={{ fontSize: 13, color: MUTED, marginBottom: 4 }}>Selected Tour</div>
-                    <div style={{ fontWeight: 700, color: WHITE }}>{form.tour || "—"}</div>
-                  </div>
                 </div>
               )}
 
@@ -470,11 +544,13 @@ export default function MoldovaMotorTours() {
   // ── Live data from shared store ──────────────────────────────
   const [liveTours, setLiveTours] = useState([]);
   const [liveFleet, setLiveFleet] = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
 
   const reloadStore = () => {
     const db = loadDB();
     setLiveTours((db.routes || []).filter(r => r.status === "active").map(routeToTour));
     setLiveFleet(db.fleet || []);
+    setAllBookings(db.bookings || []);
   };
 
   useEffect(() => {
@@ -486,7 +562,7 @@ export default function MoldovaMotorTours() {
   }, []);
   // ────────────────────────────────────────────────────────────
 
-  const openBooking = (tour = "") => { setDefaultTour(tour); setShowBooking(true); };
+  const openBooking = (tour = "") => { reloadStore(); setDefaultTour(tour); setShowBooking(true); };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -1168,7 +1244,7 @@ export default function MoldovaMotorTours() {
       </footer>
 
       {/* ─── BOOKING MODAL ─── */}
-      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} />}
+      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} allBookings={allBookings} />}
     </div>
   );
 }

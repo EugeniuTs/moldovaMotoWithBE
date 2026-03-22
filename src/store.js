@@ -1,14 +1,7 @@
-// ─── Shared data layer ─────────────────────────────────────────
-// Both Home.jsx and Admin.jsx read/write from this single key.
-// Any change made in admin instantly appears on the public site
-// on next load (or immediately if the storage event fires while
-// both tabs are open).
-
-export const STORAGE_KEY = "moldovamoto_v1";
-
+// ─── Single source of truth shared by Home.jsx and Admin.jsx ────────────────
+export const STORAGE_KEY = "moldovamoto_v2";  // v2: adds predefined dates, free-rental type
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
-// Default images per seed route id (used when admin hasn't uploaded one)
 export const DEFAULT_IMGS = {
   r1: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
   r2: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
@@ -16,74 +9,129 @@ export const DEFAULT_IMGS = {
   fallback: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=600&q=80",
 };
 
-// ── Seed data (written to localStorage only once on first visit) ──
+const DIFFICULTY_TAG = { Easy: "Best Seller", Medium: "Most Popular", Hard: "Ultimate Experience" };
+
 export const SEED = {
   routes: [
     {
       id: "r1", name: "1-Day Wine Ride", price: 220, days: 1,
-      difficulty: "Easy", status: "active",
+      difficulty: "Easy", status: "active", dateType: "scheduled", capacity: 6,
+      departures: [
+        { id: "r1d1", date: "2026-04-04", maxSpots: 6 },
+        { id: "r1d2", date: "2026-04-11", maxSpots: 6 },
+        { id: "r1d3", date: "2026-04-18", maxSpots: 6 },
+        { id: "r1d4", date: "2026-04-25", maxSpots: 6 },
+        { id: "r1d5", date: "2026-05-02", maxSpots: 6 },
+      ],
       stops: ["Cricova Wine Cellars", "Vineyard roads", "Winery lunch"],
-      desc: "Cruise through sun-drenched vineyards and descend into the legendary Cricova wine cellars. A perfect taste of Moldovan soul.",
+      desc: "Cruise through sun-drenched vineyards and descend into the legendary Cricova wine cellars.",
       img: "",
     },
     {
       id: "r2", name: "3-Day Moldova Adventure", price: 650, days: 3,
-      difficulty: "Medium", status: "active",
+      difficulty: "Medium", status: "active", dateType: "scheduled", capacity: 8,
+      departures: [
+        { id: "r2d1", date: "2026-04-04", maxSpots: 8 },
+        { id: "r2d2", date: "2026-04-18", maxSpots: 8 },
+        { id: "r2d3", date: "2026-05-02", maxSpots: 8 },
+        { id: "r2d4", date: "2026-05-16", maxSpots: 8 },
+      ],
       stops: ["Orheiul Vechi Monastery", "Nistru River Route", "Village overnight stay"],
-      desc: "Monasteries carved from limestone cliffs, winding river roads and authentic village hospitality. The real Moldova unfolds.",
+      desc: "Monasteries carved from limestone cliffs, winding river roads and authentic village hospitality.",
       img: "",
     },
     {
       id: "r3", name: "5-Day Grand Moldova Tour", price: 1050, days: 5,
-      difficulty: "Hard", status: "active",
+      difficulty: "Hard", status: "active", dateType: "scheduled", capacity: 5,
+      departures: [
+        { id: "r3d1", date: "2026-04-10", maxSpots: 5 },
+        { id: "r3d2", date: "2026-05-18", maxSpots: 5 },
+        { id: "r3d3", date: "2026-06-15", maxSpots: 5 },
+      ],
       stops: ["Full country traverse", "Saharna Monastery", "Belcresti Winery", "Bender Fortress"],
-      desc: "The definitive Moldovan odyssey. North to south, village to vineyard, cliff monastery to Dniester canyon — all on two wheels.",
+      desc: "The definitive Moldovan odyssey. North to south, village to vineyard, cliff monastery to Dniester canyon.",
+      img: "",
+    },
+    {
+      id: "r4", name: "Free Motorcycle Rental", price: 120, days: 1,
+      difficulty: "Easy", status: "active", dateType: "open", capacity: 4,
+      departures: [],
+      stops: [],
+      desc: "Rent a CFMOTO 800MT Adventure and ride Moldova at your own pace — no guide, no fixed itinerary. You choose the road.",
       img: "",
     },
   ],
   bookings: [
-    { id: "b1", tour: "3-Day Moldova Adventure",  name: "Klaus Bauer",    email: "k.bauer@mail.de",   phone: "+49 170 5551234", country: "Germany", date: "2025-06-06", experience: "advanced",     status: "confirmed", bike: "CFMOTO 800MT #1", createdAt: "2025-03-01" },
-    { id: "b2", tour: "1-Day Wine Ride",           name: "Sophie Laurent", email: "s.laurent@free.fr", phone: "+33 6 1234 5678", country: "France",  date: "2025-06-13", experience: "intermediate", status: "pending",   bike: "CFMOTO 800MT #2", createdAt: "2025-03-04" },
-    { id: "b3", tour: "5-Day Grand Moldova Tour",  name: "Marco Tessari",  email: "m.tessari@tele.it", phone: "+39 347 8889001", country: "Italy",   date: "2025-06-20", experience: "expert",       status: "confirmed", bike: "CFMOTO 800MT #1", createdAt: "2025-03-06" },
+    { id:"b1", type:"guided", tour:"3-Day Moldova Adventure", departureId:"r2d1",
+      name:"Klaus Bauer",    email:"k.bauer@mail.de",   phone:"+49 170 5551234",
+      country:"Germany", date:"2025-06-06", experience:"advanced",
+      status:"confirmed", bike:"CFMOTO 800MT #1", createdAt:"2026-03-01" },
+    { id:"b2", type:"guided", tour:"1-Day Wine Ride", departureId:"r1d2",
+      name:"Sophie Laurent", email:"s.laurent@free.fr", phone:"+33 6 1234 5678",
+      country:"France",  date:"2026-04-11", experience:"intermediate",
+      status:"pending",   bike:"CFMOTO 800MT #2", createdAt:"2026-03-04" },
+    { id:"b3", type:"guided", tour:"5-Day Grand Moldova Tour", departureId:"r3d1",
+      name:"Marco Tessari",  email:"m.tessari@tele.it", phone:"+39 347 8889001",
+      country:"Italy",   date:"2026-04-20", experience:"expert",
+      status:"confirmed", bike:"CFMOTO 800MT #1", createdAt:"2026-03-06" },
   ],
   fleet: [
-    { id: "f1", name: "CFMOTO 800MT #1", model: "CFMOTO 800MT Adventure", year: 2024, status: "available",   odometer: 4200,  lastService: "2025-02-15", color: "Storm Black",   features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control"] },
-    { id: "f2", name: "CFMOTO 800MT #2", model: "CFMOTO 800MT Adventure", year: 2024, status: "in-use",      odometer: 6780,  lastService: "2025-01-20", color: "Storm Black",   features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control"] },
-    { id: "f3", name: "CFMOTO 800MT #3", model: "CFMOTO 800MT Adventure", year: 2023, status: "maintenance", odometer: 14300, lastService: "2025-03-01", color: "Glacier White", features: ["ABS", "Traction Control", "Heated Grips"] },
-    { id: "f4", name: "CFMOTO 800MT #4", model: "CFMOTO 800MT Adventure", year: 2024, status: "available",   odometer: 2100,  lastService: "2025-02-28", color: "Storm Black",   features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control", "USB-C"] },
+    { id:"f1", name:"CFMOTO 800MT #1", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
+      odometer:4200,  lastService:"2026-02-15", color:"Storm Black",
+      features:["ABS","Traction Control","Heated Grips","Cruise Control"] },
+    { id:"f2", name:"CFMOTO 800MT #2", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
+      odometer:6780,  lastService:"2026-01-20", color:"Storm Black",
+      features:["ABS","Traction Control","Heated Grips","Cruise Control"] },
+    { id:"f3", name:"CFMOTO 800MT #3", model:"CFMOTO 800MT Adventure", year:2023, status:"maintenance",
+      odometer:14300, lastService:"2026-03-01", color:"Glacier White",
+      features:["ABS","Traction Control","Heated Grips"] },
+    { id:"f4", name:"CFMOTO 800MT #4", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
+      odometer:2100,  lastService:"2026-02-28", color:"Storm Black",
+      features:["ABS","Traction Control","Heated Grips","Cruise Control","USB-C"] },
   ],
 };
 
-// ── Read ──────────────────────────────────────────────────────────
 export function loadDB() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED));
-  } catch {
-    return JSON.parse(JSON.stringify(SEED));
-  }
+    if (!raw) return JSON.parse(JSON.stringify(SEED));
+    const db = JSON.parse(raw);
+    if (db.routes) {
+      db.routes = db.routes.map(r => ({ dateType:"open", capacity:8, departures:[], ...r }));
+    }
+    if (!db.bookings) db.bookings = [];
+    if (!db.fleet)    db.fleet    = JSON.parse(JSON.stringify(SEED.fleet));
+    return db;
+  } catch { return JSON.parse(JSON.stringify(SEED)); }
 }
 
-// ── Write ─────────────────────────────────────────────────────────
 export function saveDB(db) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-  } catch { /* quota exceeded or private mode */ }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch {}
 }
 
-// ── Convert an admin route record → shape expected by Home.jsx UI ──
-const DIFFICULTY_TAG = { Easy: "Best Seller", Medium: "Most Popular", Hard: "Ultimate Experience" };
+// Confirmed spots used for a specific departure
+export function spotsLeft(departure, bookings) {
+  if (!departure) return 0;
+  const used = (bookings || []).filter(
+    b => b.departureId === departure.id && b.status === "confirmed"
+  ).length;
+  return Math.max(0, (departure.maxSpots || 0) - used);
+}
 
-export function routeToTour(r, index) {
+// Convert admin route schema to public-facing UI shape
+export function routeToTour(r) {
   return {
     id:         r.id,
     title:      r.name,
-    price:      `€${Number(r.price).toLocaleString()}`,
+    price:      "\u20ac" + Number(r.price).toLocaleString(),
     priceNum:   Number(r.price),
-    duration:   `${r.days} Day${r.days !== 1 ? "s" : ""}`,
+    duration:   r.days + " Day" + (r.days !== 1 ? "s" : ""),
     tag:        DIFFICULTY_TAG[r.difficulty] || r.difficulty,
     desc:       r.desc,
     img:        r.img || DEFAULT_IMGS[r.id] || DEFAULT_IMGS.fallback,
     highlights: (r.stops || []).slice(0, 4),
+    dateType:   r.dateType   || "open",
+    departures: r.departures || [],
+    capacity:   r.capacity   || 8,
   };
 }
