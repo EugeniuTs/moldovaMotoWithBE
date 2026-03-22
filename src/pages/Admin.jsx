@@ -885,9 +885,11 @@ function LoginScreen({onLogin}){
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui,sans-serif",padding:16}}>
       <div style={{width:"100%",maxWidth:400}}>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:36,gap:12}}>
-          <img src="/logo.png" alt="Moldova Moto Tours"
-            style={{width:96,height:96,borderRadius:"50%",objectFit:"cover",
-              boxShadow:`0 0 0 3px ${T.orange}, 0 0 24px rgba(255,107,0,0.35)`}}/>
+          <div style={{width:108,height:108,borderRadius:"50%",background:"#fff",
+            padding:4,boxShadow:`0 0 0 3px ${T.orange}, 0 0 32px rgba(255,107,0,0.5)`,flexShrink:0}}>
+            <img src="/logo.png" alt="Moldova Moto Tours"
+              style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover",display:"block"}}/>
+          </div>
           <div style={{textAlign:"center"}}>
             <div style={{fontSize:20,fontWeight:900,color:T.text,letterSpacing:"-0.02em"}}>Moldova Moto Tours</div>
             <div style={{fontSize:11,color:T.muted,marginTop:3,letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin Portal</div>
@@ -938,9 +940,11 @@ function Sidebar({active,setActive,onLogout,bookings}){
     <aside style={{width:220,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",flexShrink:0,minHeight:"100vh"}}>
       <div style={{padding:"22px 20px 14px",borderBottom:`1px solid ${T.border}`}}>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-          <img src="/logo.png" alt="MMT"
-            style={{width:38,height:38,borderRadius:"50%",objectFit:"cover",flexShrink:0,
-              boxShadow:`0 0 0 2px ${T.orange}`}}/>
+          <div style={{width:42,height:42,borderRadius:"50%",background:"#fff",
+            padding:2,boxShadow:`0 0 0 2px ${T.orange}`,flexShrink:0}}>
+            <img src="/logo.png" alt="MMT"
+              style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover",display:"block"}}/>
+          </div>
           <div>
             <div style={{fontSize:13,fontWeight:900,color:T.text,lineHeight:1}}>Moldova Moto</div>
             <div style={{fontSize:10,color:T.dim,letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin</div>
