@@ -654,8 +654,9 @@ export default function MoldovaMotorTours() {
 
       {/* ─── HERO ─── */}
       <section id="hero" style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center", overflow: "hidden" }}>
-        <img src="https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=1800&q=85"
-          alt="Motorcycle touring" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
+        <img src="/hero.jpg"
+          alt="Rider overlooking Soroca fortress and Nistru River at sunset"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 35%" }} />
         <div className="overlay-gradient" style={{ position: "absolute", inset: 0 }} />
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} />
 
