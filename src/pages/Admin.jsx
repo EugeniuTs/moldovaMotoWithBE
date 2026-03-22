@@ -224,7 +224,7 @@ function StatCard({label,value,sub,icon,accent}){
 }
 
 /* ── Routes Tab ─────────────────────────────────────────────────────────────── */
-const BLANK_ROUTE = {name:"",price:"",days:1,difficulty:"Medium",status:"active",dateType:"open",capacity:8,departures:[],stops:"",desc:""};
+const BLANK_ROUTE = {name:"",price:"",days:1,difficulty:"Medium",status:"active",dateType:"open",capacity:8,departures:[],stops:"",desc:"",img:""};
 
 function RoutesTab({data,bookings,onSave,onDelete}){
   const [modal,setModal]=useState(null);
@@ -233,7 +233,7 @@ function RoutesTab({data,bookings,onSave,onDelete}){
   const [filter,setFilter]=useState("all");
 
   const openAdd=()=>{setForm(BLANK_ROUTE);setModal("add");};
-  const openEdit=r=>{setForm({...r,stops:(r.stops||[]).join(", ")});setModal("edit");};
+  const openEdit=r=>{setForm({...r,stops:(r.stops||[]).join(", "),img:r.img||""});setModal("edit");};
   const closeModal=()=>{setModal(null);setForm(BLANK_ROUTE);};
 
   const setF=k=>v=>setForm(f=>({...f,[k]:v}));
@@ -305,6 +305,62 @@ function RoutesTab({data,bookings,onSave,onDelete}){
                 options={["active","draft"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}))}/>
               <Sel label="Date Type" value={form.dateType||"open"} onChange={setF("dateType")} options={dateTypeOpts}/>
             </div>
+
+            {/* ── Tour image ─────────────────────────────────── */}
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <label style={{fontSize:11,color:T.muted,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>
+                Tour Image
+              </label>
+              <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                {/* Preview */}
+                <div style={{flexShrink:0,width:96,height:68,borderRadius:10,overflow:"hidden",
+                  background:T.elevated,border:`1px solid ${T.border}`,display:"flex",
+                  alignItems:"center",justifyContent:"center"}}>
+                  {form.img
+                    ? <img src={form.img} alt="preview"
+                        style={{width:"100%",height:"100%",objectFit:"cover"}} />
+                    : <span style={{fontSize:22,opacity:0.3}}>🏍️</span>
+                  }
+                </div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
+                  {/* URL input */}
+                  <input type="url" value={form.img||""} onChange={e=>setF("img")(e.target.value)}
+                    placeholder="https://images.unsplash.com/... or paste any image URL"
+                    style={{background:T.bg,border:`1.5px solid ${T.border}`,borderRadius:8,
+                      padding:"9px 12px",color:T.text,fontSize:12,fontFamily:"inherit",
+                      outline:"none",width:"100%",boxSizing:"border-box"}}
+                    onFocus={e=>e.target.style.borderColor=T.orange}
+                    onBlur={e=>e.target.style.borderColor=T.border}/>
+                  {/* File upload → base64 */}
+                  <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",
+                    background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
+                    padding:"7px 12px",fontSize:12,color:T.muted,userSelect:"none",
+                    transition:"border-color 0.15s"}}
+                    onMouseEnter={e=>e.currentTarget.style.borderColor=T.orange}
+                    onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
+                    <span style={{fontSize:14}}>📁</span>
+                    <span>Upload from device</span>
+                    <input type="file" accept="image/*" style={{display:"none"}}
+                      onChange={e=>{
+                        const file=e.target.files?.[0];
+                        if(!file)return;
+                        const reader=new FileReader();
+                        reader.onload=ev=>setF("img")(ev.target.result);
+                        reader.readAsDataURL(file);
+                        e.target.value="";
+                      }}/>
+                  </label>
+                  {form.img&&(
+                    <button onClick={()=>setF("img")("")}
+                      style={{background:"none",border:"none",color:T.dim,fontSize:11,
+                        cursor:"pointer",fontFamily:"inherit",textAlign:"left",padding:0}}>
+                      ✕ Remove image
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <Inp label="Stops (comma-separated)" value={form.stops} onChange={setF("stops")} placeholder="Chisinau, Orheiul Vechi, Saharna"/>
             <Txt label="Description" value={form.desc} onChange={setF("desc")} rows={2}/>
 

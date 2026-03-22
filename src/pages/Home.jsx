@@ -276,21 +276,63 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                   {tours.length === 0 && (
                     <div style={{ color: MUTED, fontSize: 14, padding: "20px 0" }}>No active tours available right now.</div>
                   )}
-                  {tours.map(t => (
-                    <div key={t.id} onClick={() => set("tour", t.title)}
-                      style={{
-                        border: `1.5px solid ${form.tour === t.title ? ORANGE : BORDER}`,
-                        borderRadius: 12, padding: "16px 18px", marginBottom: 12, cursor: "pointer",
-                        background: form.tour === t.title ? "rgba(255,107,0,0.08)" : "#161616",
-                        display: "flex", alignItems: "center", justifyContent: "space-between", transition: "all 0.2s"
-                      }}>
-                      <div>
-                        <div style={{ fontWeight: 700, color: WHITE, marginBottom: 2 }}>{t.title}</div>
-                        <div style={{ fontSize: 13, color: MUTED }}>{t.duration}</div>
+                  {tours.map(t => {
+                    const sel = form.tour === t.title;
+                    return (
+                      <div key={t.id} onClick={() => set("tour", t.title)}
+                        style={{
+                          border: `1.5px solid ${sel ? ORANGE : BORDER}`,
+                          borderRadius: 14, marginBottom: 10, cursor: "pointer",
+                          background: sel ? "rgba(255,107,0,0.07)" : "#161616",
+                          overflow: "hidden", transition: "all 0.2s",
+                          boxShadow: sel ? `0 0 0 1px ${ORANGE}` : "none"
+                        }}>
+                        <div style={{ display: "flex", alignItems: "stretch", minHeight: 76 }}>
+                          {/* Thumbnail */}
+                          <div style={{
+                            width: 110, flexShrink: 0, position: "relative", overflow: "hidden",
+                            background: "#0e0e0e"
+                          }}>
+                            {t.img
+                              ? <img src={t.img} alt={t.title}
+                                  style={{ width: "100%", height: "100%", objectFit: "cover",
+                                    transition: "transform 0.4s", transform: sel ? "scale(1.06)" : "scale(1)" }} />
+                              : <div style={{ width: "100%", height: "100%", display: "flex",
+                                  alignItems: "center", justifyContent: "center", fontSize: 28, opacity: 0.18 }}>🏍️</div>
+                            }
+                            {/* gradient overlay so text stays readable */}
+                            <div style={{ position: "absolute", inset: 0,
+                              background: "linear-gradient(to right, rgba(0,0,0,0) 60%, rgba(22,22,22,0.85))" }} />
+                          </div>
+                          {/* Text content */}
+                          <div style={{ flex: 1, padding: "14px 16px", display: "flex",
+                            alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 800, color: sel ? WHITE : "#ddd",
+                                fontSize: 15, marginBottom: 3, lineHeight: 1.2 }}>{t.title}</div>
+                              <div style={{ fontSize: 12, color: MUTED }}>{t.duration}</div>
+                              {t.highlights && t.highlights.length > 0 && (
+                                <div style={{ fontSize: 11, color: sel ? "rgba(255,107,0,0.75)" : "#555",
+                                  marginTop: 4, whiteSpace: "nowrap", overflow: "hidden",
+                                  textOverflow: "ellipsis", maxWidth: 200 }}>
+                                  {t.highlights.slice(0,2).join(" · ")}
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ textAlign: "right", flexShrink: 0 }}>
+                              <div style={{ fontSize: 20, fontWeight: 900, color: ORANGE,
+                                lineHeight: 1 }}>{t.price}</div>
+                              {sel && (
+                                <div style={{ marginTop: 6, background: ORANGE, color: "#fff",
+                                  borderRadius: 6, padding: "2px 8px", fontSize: 10,
+                                  fontWeight: 800, letterSpacing: "0.06em" }}>SELECTED</div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: ORANGE }}>{t.price}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {errors.tour && <div style={{ color: "#ff4d4d", fontSize: 13, marginTop: 4 }}>{errors.tour}</div>}
                 </div>
               )}
