@@ -591,12 +591,9 @@ export default function MoldovaMotorTours() {
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
           <a href="#hero" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ background: ORANGE, borderRadius: 8, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l3-7h5l3-5h2"/></svg>
-              </div>
-              <span style={{ fontWeight: 900, fontSize: 18, color: WHITE, letterSpacing: "-0.02em" }}>Moldova<span style={{ color: ORANGE }}>Moto</span></span>
-            </div>
+            <img src="/logo.png" alt="Moldova Moto Tours"
+              style={{ height: 48, width: 48, borderRadius: "50%", objectFit: "cover",
+                filter: "drop-shadow(0 0 6px rgba(255,107,0,0.45))", flexShrink: 0 }} />
           </a>
           <div className="nav-links" style={{ display: "flex", gap: 36 }}>
             {[["#tours", "Tours"], ["#experience", "Experience"], ["#fleet", "Fleet"], ["#map", "Routes"], ["#contact", "Contact"]].map(([href, label]) => (
@@ -1158,11 +1155,14 @@ export default function MoldovaMotorTours() {
           <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.5fr", gap: 48, marginBottom: 60 }}>
             {/* Brand */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                <div style={{ background: ORANGE, borderRadius: 8, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l3-7h5l3-5h2"/></svg>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <img src="/logo.png" alt="Moldova Moto Tours"
+                  style={{ height: 64, width: 64, borderRadius: "50%", objectFit: "cover",
+                    filter: "drop-shadow(0 0 8px rgba(255,107,0,0.4))", flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontWeight: 900, fontSize: 18, color: WHITE, lineHeight: 1.1 }}>Moldova Moto Tours</div>
+                  <div style={{ fontSize: 11, color: MUTED, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>The Last Untamed Roads of Europe</div>
                 </div>
-                <span style={{ fontWeight: 900, fontSize: 20, color: WHITE }}>Moldova<span style={{ color: ORANGE }}>Moto</span></span>
               </div>
               <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.75, marginBottom: 24 }}>
                 The premier guided motorcycle tour company in Moldova. Connecting international riders with Eastern Europe's most authentic hidden roads since 2019.

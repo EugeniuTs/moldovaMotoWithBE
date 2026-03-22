@@ -829,12 +829,12 @@ function LoginScreen({onLogin}){
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui,sans-serif",padding:16}}>
       <div style={{width:"100%",maxWidth:400}}>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:36,gap:12}}>
-          <div style={{width:52,height:52,background:T.orange,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>
-            {"\ud83c\udfcd\ufe0f"}
-          </div>
+          <img src="/logo.png" alt="Moldova Moto Tours"
+            style={{width:96,height:96,borderRadius:"50%",objectFit:"cover",
+              boxShadow:`0 0 0 3px ${T.orange}, 0 0 24px rgba(255,107,0,0.35)`}}/>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:22,fontWeight:900,color:T.text,letterSpacing:"-0.02em"}}>Moldova<span style={{color:T.orange}}>Moto</span></div>
-            <div style={{fontSize:12,color:T.muted,marginTop:2,letterSpacing:"0.06em",textTransform:"uppercase"}}>Admin Portal</div>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,letterSpacing:"-0.02em"}}>Moldova Moto Tours</div>
+            <div style={{fontSize:11,color:T.muted,marginTop:3,letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin Portal</div>
           </div>
         </div>
         <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,padding:"32px 28px"}}>
@@ -882,11 +882,11 @@ function Sidebar({active,setActive,onLogout,bookings}){
     <aside style={{width:220,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",flexShrink:0,minHeight:"100vh"}}>
       <div style={{padding:"22px 20px 14px",borderBottom:`1px solid ${T.border}`}}>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-          <div style={{width:32,height:32,background:T.orange,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>
-            {"\ud83c\udfcd\ufe0f"}
-          </div>
+          <img src="/logo.png" alt="MMT"
+            style={{width:38,height:38,borderRadius:"50%",objectFit:"cover",flexShrink:0,
+              boxShadow:`0 0 0 2px ${T.orange}`}}/>
           <div>
-            <div style={{fontSize:14,fontWeight:900,color:T.text,lineHeight:1}}>Moldova<span style={{color:T.orange}}>Moto</span></div>
+            <div style={{fontSize:13,fontWeight:900,color:T.text,lineHeight:1}}>Moldova Moto</div>
             <div style={{fontSize:10,color:T.dim,letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin</div>
           </div>
         </div>
