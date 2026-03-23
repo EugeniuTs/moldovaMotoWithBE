@@ -658,8 +658,8 @@ export default function MoldovaMotorTours() {
       {/* ─── HERO ─── */}
       <section id="hero" style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center", overflow: "hidden" }}>
         <img src="/hero.jpg"
-          alt="Rider overlooking Soroca fortress and Nistru River at sunset"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 35%" }} />
+          alt="Motorcyclist riding past Soroca fortress with Nistru River and vineyards"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 55%" }} />
         <div className="overlay-gradient" style={{ position: "absolute", inset: 0 }} />
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} />
 
