@@ -1,5 +1,5 @@
-// ─── Single source of truth shared by Home.jsx and Admin.jsx ────────────────
-export const STORAGE_KEY = "moldovamoto_v2";  // v2: adds predefined dates, free-rental type
+// Single source of truth shared by Home.jsx, Admin.jsx and Adventures.jsx
+export const STORAGE_KEY = "moldovamoto_v2";
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
 export const DEFAULT_IMGS = {
@@ -57,63 +57,76 @@ export const SEED = {
       difficulty: "Easy", status: "active", dateType: "open", capacity: 4,
       departures: [],
       stops: [],
-      desc: "Rent a CFMOTO 800MT Adventure and ride Moldova at your own pace — no guide, no fixed itinerary. You choose the road.",
+      desc: "Rent a CFMOTO 800MT Adventure and ride Moldova at your own pace. No guide, no fixed itinerary.",
       img: "",
     },
   ],
   bookings: [
-    { id:"b1", type:"guided", tour:"3-Day Moldova Adventure", departureId:"r2d1",
-      name:"Klaus Bauer",    email:"k.bauer@mail.de",   phone:"+49 170 5551234",
-      country:"Germany", date:"2025-06-06", experience:"advanced",
-      status:"confirmed", bike:"CFMOTO 800MT #1", createdAt:"2026-03-01" },
-    { id:"b2", type:"guided", tour:"1-Day Wine Ride", departureId:"r1d2",
-      name:"Sophie Laurent", email:"s.laurent@free.fr", phone:"+33 6 1234 5678",
-      country:"France",  date:"2026-04-11", experience:"intermediate",
-      status:"pending",   bike:"CFMOTO 800MT #2", createdAt:"2026-03-04" },
-    { id:"b3", type:"guided", tour:"5-Day Grand Moldova Tour", departureId:"r3d1",
-      name:"Marco Tessari",  email:"m.tessari@tele.it", phone:"+39 347 8889001",
-      country:"Italy",   date:"2026-04-20", experience:"expert",
-      status:"confirmed", bike:"CFMOTO 800MT #1", createdAt:"2026-03-06" },
+    {
+      id: "b1", type: "guided", tour: "3-Day Moldova Adventure", departureId: "r2d1",
+      name: "Klaus Bauer", email: "k.bauer@mail.de", phone: "+49 170 5551234",
+      country: "Germany", date: "2026-04-04", experience: "advanced",
+      status: "confirmed", bike: "CFMOTO 800MT #1", createdAt: "2026-03-01",
+    },
+    {
+      id: "b2", type: "guided", tour: "1-Day Wine Ride", departureId: "r1d2",
+      name: "Sophie Laurent", email: "s.laurent@free.fr", phone: "+33 6 1234 5678",
+      country: "France", date: "2026-04-11", experience: "intermediate",
+      status: "pending", bike: "CFMOTO 800MT #2", createdAt: "2026-03-04",
+    },
+    {
+      id: "b3", type: "guided", tour: "5-Day Grand Moldova Tour", departureId: "r3d1",
+      name: "Marco Tessari", email: "m.tessari@tele.it", phone: "+39 347 8889001",
+      country: "Italy", date: "2026-04-10", experience: "expert",
+      status: "confirmed", bike: "CFMOTO 800MT #1", createdAt: "2026-03-06",
+    },
   ],
   fleet: [
-    { id:"f1", name:"CFMOTO 800MT #1", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
-      odometer:4200,  lastService:"2026-02-15", color:"Storm Black",
-      features:["ABS","Traction Control","Heated Grips","Cruise Control"] },
-    { id:"f2", name:"CFMOTO 800MT #2", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
-      odometer:6780,  lastService:"2026-01-20", color:"Storm Black",
-      features:["ABS","Traction Control","Heated Grips","Cruise Control"] },
-    { id:"f3", name:"CFMOTO 800MT #3", model:"CFMOTO 800MT Adventure", year:2023, status:"maintenance",
-      odometer:14300, lastService:"2026-03-01", color:"Glacier White",
-      features:["ABS","Traction Control","Heated Grips"] },
-    { id:"f4", name:"CFMOTO 800MT #4", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
-      odometer:2100,  lastService:"2026-02-28", color:"Storm Black",
-      features:["ABS","Traction Control","Heated Grips","Cruise Control","USB-C"] },
+    {
+      id: "f1", name: "CFMOTO 800MT #1", model: "CFMOTO 800MT Adventure", year: 2024,
+      status: "available", odometer: 4200, lastService: "2026-02-15", color: "Storm Black",
+      features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control"],
+    },
+    {
+      id: "f2", name: "CFMOTO 800MT #2", model: "CFMOTO 800MT Adventure", year: 2024,
+      status: "available", odometer: 6780, lastService: "2026-01-20", color: "Storm Black",
+      features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control"],
+    },
+    {
+      id: "f3", name: "CFMOTO 800MT #3", model: "CFMOTO 800MT Adventure", year: 2023,
+      status: "maintenance", odometer: 14300, lastService: "2026-03-01", color: "Glacier White",
+      features: ["ABS", "Traction Control", "Heated Grips"],
+    },
+    {
+      id: "f4", name: "CFMOTO 800MT #4", model: "CFMOTO 800MT Adventure", year: 2024,
+      status: "available", odometer: 2100, lastService: "2026-02-28", color: "Storm Black",
+      features: ["ABS", "Traction Control", "Heated Grips", "Cruise Control", "USB-C"],
+    },
   ],
-
   gallery: [
     {
       id: "g1", type: "image", title: "Soroca Fortress at Sunset",
       tour: "5-Day Grand Moldova Tour", date: "2026-04-20",
       src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80",
-      featured: true, caption: "The iconic Soroca fortress glowing gold above the Dniester."
+      featured: true, caption: "The iconic Soroca fortress glowing gold above the Dniester.",
     },
     {
       id: "g2", type: "image", title: "Cricova Underground Cellars",
       tour: "1-Day Wine Ride", date: "2026-04-11",
       src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80",
-      featured: false, caption: "120 km of underground roads lined with millions of bottles."
+      featured: false, caption: "120 km of underground roads lined with millions of bottles.",
     },
     {
       id: "g3", type: "image", title: "Orheiul Vechi Canyon",
       tour: "3-Day Moldova Adventure", date: "2026-04-18",
       src: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=900&q=80",
-      featured: true, caption: "The Răut river meander carved into limestone — nature's amphitheatre."
+      featured: true, caption: "The Raut river meander carved into limestone - a natural amphitheatre.",
     },
     {
       id: "g4", type: "image", title: "Vineyard Roads",
       tour: "1-Day Wine Ride", date: "2026-04-11",
       src: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=900&q=80",
-      featured: false, caption: "Empty roads threading through endless rows of vines."
+      featured: false, caption: "Empty roads threading through endless rows of vines.",
     },
   ],
 };
@@ -124,20 +137,21 @@ export function loadDB() {
     if (!raw) return JSON.parse(JSON.stringify(SEED));
     const db = JSON.parse(raw);
     if (db.routes) {
-      db.routes = db.routes.map(r => ({ dateType:"open", capacity:8, departures:[], ...r }));
+      db.routes = db.routes.map(r => ({ dateType: "open", capacity: 8, departures: [], ...r }));
     }
     if (!db.bookings) db.bookings = [];
     if (!db.fleet)    db.fleet    = JSON.parse(JSON.stringify(SEED.fleet));
     if (!db.gallery)  db.gallery  = JSON.parse(JSON.stringify(SEED.gallery));
     return db;
-  } catch { return JSON.parse(JSON.stringify(SEED)); }
+  } catch {
+    return JSON.parse(JSON.stringify(SEED));
+  }
 }
 
 export function saveDB(db) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch {}
 }
 
-// Confirmed spots used for a specific departure
 export function spotsLeft(departure, bookings) {
   if (!departure) return 0;
   const used = (bookings || []).filter(
@@ -146,7 +160,6 @@ export function spotsLeft(departure, bookings) {
   return Math.max(0, (departure.maxSpots || 0) - used);
 }
 
-// Convert admin route schema to public-facing UI shape
 export function routeToTour(r) {
   return {
     id:         r.id,
