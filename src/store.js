@@ -88,6 +88,7 @@ export const SEED = {
     { id:"f4", name:"CFMOTO 800MT #4", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
       odometer:2100,  lastService:"2026-02-28", color:"Storm Black",
       features:["ABS","Traction Control","Heated Grips","Cruise Control","USB-C"] },
+  ],
 
   gallery: [
     {
@@ -114,7 +115,6 @@ export const SEED = {
       src: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=900&q=80",
       featured: false, caption: "Empty roads threading through endless rows of vines."
     },
-  ],
   ],
 };
 
