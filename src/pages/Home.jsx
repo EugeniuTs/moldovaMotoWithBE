@@ -42,7 +42,7 @@ const style = `
   .map-stop { transition: all 0.2s; cursor: pointer; }
   .map-stop:hover circle { r: 9; fill: #ff6b00; }
   .map-stop:hover text { font-weight: 700; fill: #ff6b00; }
-  .overlay-gradient { background: linear-gradient(to right, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.15) 100%); }
+  .overlay-gradient { background: linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0.08) 100%); }
   @media (max-width: 768px) {
     .nav-links { display: none; }
     .hero-title { font-size: clamp(36px, 10vw, 72px) !important; }
@@ -662,7 +662,7 @@ export default function MoldovaMotorTours() {
           alt="Motorcyclist riding past Soroca fortress with Nistru River and vineyards"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 55%" }} />
         <div className="overlay-gradient" style={{ position: "absolute", inset: 0 }} />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.05) 100%)" }} />
 
         <div style={{ position: "relative", padding: "0 5%", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-animate" style={{ display: "inline-block", background: ORANGE, color: "#fff", fontSize: 11, fontWeight: 800, padding: "5px 14px", borderRadius: 6, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 22 }}>
