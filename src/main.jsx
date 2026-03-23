@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Admin from './pages/Admin'
+import Adventures from './pages/Adventures'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -11,6 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/"       element={<Home />} />
         <Route path="/admin"  element={<Admin />} />
         <Route path="/admin/*" element={<Admin />} />
+        <Route path="/adventures" element={<Adventures />} />
         <Route path="*"       element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

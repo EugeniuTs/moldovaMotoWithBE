@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft } from "../store.js";
+import { Link as RLink } from "react-router-dom";
 
 /* ── Design tokens ───────────────────────────────────────────── */
 const T = {
@@ -926,12 +927,225 @@ function LoginScreen({onLogin}){
   );
 }
 
+/* ── Gallery / Adventures Tab ─────────────────────────────────────────────── */
+const BLANK_MEDIA = {
+  title:"", type:"image", src:"", tour:"", date:today(), featured:false, caption:""
+};
+
+function GalleryTab({data, routes, onSave, onDelete}) {
+  const [modal,setModal]       = useState(null);
+  const [form,setForm]         = useState(BLANK_MEDIA);
+  const [confirmDel,setConfDel]= useState(null);
+  const [preview,setPreview]   = useState(null);
+  const setF = k => v => setForm(f=>({...f,[k]:v}));
+
+  const openAdd  = () => { setForm(BLANK_MEDIA); setPreview(null); setModal("add"); };
+  const openEdit = item => {
+    setForm(item);
+    setPreview(item.type==="image" ? item.src : null);
+    setModal("edit");
+  };
+  const close = () => { setModal(null); setForm(BLANK_MEDIA); setPreview(null); };
+
+  const handleFile = e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { setF("src")(ev.target.result); setPreview(ev.target.result); };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleSave = () => {
+    if (!form.title || !form.src) return;
+    onSave({...form, id: form.id || "g"+uid()}, modal==="edit");
+    close();
+  };
+
+  const typeOpts  = [{value:"image",label:"📷 Photo"},{value:"video",label:"🎬 Video"}];
+  const tourOpts  = [{value:"",label:"Not linked to a tour"},...routes.map(r=>({value:r.name,label:r.name}))];
+  const imgCount  = data.filter(i=>i.type==="image").length;
+  const vidCount  = data.filter(i=>i.type==="video").length;
+
+  return (
+    <>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
+        <div>
+          <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Adventures Gallery</h2>
+          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>{data.length} items · {imgCount} photos · {vidCount} videos</p>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <RLink to="/adventures" target="_blank"
+            style={{display:"flex",alignItems:"center",gap:6,background:"transparent",
+              border:`1.5px solid ${T.border}`,borderRadius:9,padding:"8px 14px",
+              color:T.muted,fontSize:12,fontWeight:700,textDecoration:"none",fontFamily:"inherit"}}>
+            🔗 View Page
+          </RLink>
+          <Btn onClick={openAdd}>+ Add Media</Btn>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
+        <StatCard label="Photos"   value={imgCount}                      icon="📷" accent={T.orange}/>
+        <StatCard label="Videos"   value={vidCount}                      icon="🎬" accent={T.blue}/>
+        <StatCard label="Featured" value={data.filter(i=>i.featured).length} icon="⭐" accent={T.yellow}/>
+      </div>
+
+      {/* Grid */}
+      {data.length === 0 ? (
+        <div style={{textAlign:"center",padding:"60px 0",color:T.dim}}>
+          <div style={{fontSize:40,marginBottom:12}}>🖼️</div>
+          <div style={{fontSize:14,color:T.muted}}>No media yet. Click "+ Add Media" to get started.</div>
+        </div>
+      ) : (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:14}}>
+          {data.map(item=>(
+            <div key={item.id} style={{background:T.card,border:`1px solid ${T.border}`,
+              borderRadius:14,overflow:"hidden",position:"relative"}}>
+              {/* Thumbnail */}
+              <div style={{height:150,background:T.elevated,position:"relative",overflow:"hidden"}}>
+                {item.type==="image" ? (
+                  <img src={item.src} alt={item.title}
+                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                ) : (
+                  <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",
+                    justifyContent:"center",background:T.bg}}>
+                    <span style={{fontSize:36}}>🎬</span>
+                  </div>
+                )}
+                {item.featured && (
+                  <div style={{position:"absolute",top:8,right:8,background:T.orange,color:"#fff",
+                    fontSize:10,fontWeight:800,padding:"2px 8px",borderRadius:5}}>★ FEATURED</div>
+                )}
+                <div style={{position:"absolute",top:8,left:8,background:"rgba(0,0,0,0.65)",
+                  color:"#ccc",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:5,
+                  textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                  {item.type==="image"?"Photo":"Video"}
+                </div>
+              </div>
+              {/* Info */}
+              <div style={{padding:"12px 14px 14px"}}>
+                <div style={{fontWeight:700,fontSize:13,color:T.text,marginBottom:4,
+                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.title}</div>
+                {item.tour && <div style={{fontSize:11,color:T.orange,marginBottom:4,
+                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.tour}</div>}
+                <div style={{fontSize:11,color:T.dim,marginBottom:10}}>{item.date||"—"}</div>
+                <div style={{display:"flex",gap:8}}>
+                  <Btn size="sm" variant="ghost" onClick={()=>openEdit(item)}>Edit</Btn>
+                  <Btn size="sm" variant="danger" onClick={()=>setConfDel(item)}>Delete</Btn>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {modal && (
+        <Modal title={modal==="add"?"Add Media":"Edit Media"} onClose={close} width={640}>
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+            {/* Title + Type row */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:14,alignItems:"end"}}>
+              <Inp label="Title" value={form.title} onChange={setF("title")} required placeholder="e.g. Saharna Monastery at Dawn"/>
+              <Sel label="Type" value={form.type} onChange={v=>{setF("type")(v);setPreview(null);}} options={typeOpts}/>
+            </div>
+
+            {/* Media source */}
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <label style={{fontSize:11,color:T.muted,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>
+                {form.type==="image" ? "Image Source" : "Video URL or File"}
+              </label>
+
+              {/* Preview */}
+              {preview && (
+                <div style={{width:"100%",height:180,borderRadius:10,overflow:"hidden",
+                  background:T.elevated,marginBottom:4}}>
+                  <img src={preview} alt="preview"
+                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                </div>
+              )}
+
+              {/* URL input */}
+              <input type="url" value={form.src||""} onChange={e=>{setF("src")(e.target.value);if(form.type==="image")setPreview(e.target.value);}}
+                placeholder={form.type==="image"
+                  ? "https://... image URL"
+                  : "https://youtube.com/watch?v=... or direct video URL"}
+                style={{background:T.bg,border:`1.5px solid ${T.border}`,borderRadius:8,
+                  padding:"10px 13px",color:T.text,fontSize:13,fontFamily:"inherit",
+                  outline:"none",width:"100%",boxSizing:"border-box"}}
+                onFocus={e=>e.target.style.borderColor=T.orange}
+                onBlur={e=>e.target.style.borderColor=T.border}/>
+
+              {/* File upload (images only) */}
+              {form.type==="image" && (
+                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",
+                  background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
+                  padding:"8px 14px",fontSize:12,color:T.muted,userSelect:"none"}}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor=T.orange}
+                  onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
+                  <span>📁</span><span>Upload from device</span>
+                  <input type="file" accept="image/*" style={{display:"none"}} onChange={handleFile}/>
+                </label>
+              )}
+            </div>
+
+            {/* Tour + Date row */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+              <Sel label="Link to Tour" value={form.tour||""} onChange={setF("tour")} options={tourOpts}/>
+              <Inp label="Date" value={form.date||""} onChange={setF("date")} type="date"/>
+            </div>
+
+            {/* Caption */}
+            <Txt label="Caption (optional)" value={form.caption||""} onChange={setF("caption")} rows={2}/>
+
+            {/* Featured toggle */}
+            <div onClick={()=>setF("featured")(!form.featured)}
+              style={{display:"flex",alignItems:"center",gap:14,padding:"12px 16px",cursor:"pointer",
+                background:form.featured?"rgba(255,107,0,0.07)":T.elevated,
+                border:`1.5px solid ${form.featured?T.orange:T.border}`,
+                borderRadius:10,transition:"all 0.2s",userSelect:"none"}}>
+              <div style={{width:20,height:20,borderRadius:5,flexShrink:0,
+                background:form.featured?T.orange:"transparent",
+                border:`2px solid ${form.featured?T.orange:T.dim}`,
+                display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
+                {form.featured&&<span style={{fontSize:11,color:"#fff"}}>✓</span>}
+              </div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:T.text}}>Mark as Featured</div>
+                <div style={{fontSize:11,color:T.muted,marginTop:2}}>Featured items are highlighted with a star badge on the gallery page</div>
+              </div>
+            </div>
+
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end",paddingTop:4}}>
+              <Btn variant="ghost" onClick={close}>Cancel</Btn>
+              <Btn onClick={handleSave} disabled={!form.title||!form.src}>
+                {modal==="add"?"Add to Gallery":"Save Changes"}
+              </Btn>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {confirmDel && (
+        <Confirm message={`Delete "${confirmDel.title}"? This cannot be undone.`}
+          onConfirm={()=>{onDelete(confirmDel.id,"gallery");setConfDel(null);}}
+          onCancel={()=>setConfDel(null)}/>
+      )}
+    </>
+  );
+}
+
+
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
 const NAV_ITEMS=[
   {id:"dashboard",icon:"⊞",label:"Dashboard"},
   {id:"routes",   icon:"🗺️",label:"Routes"},
   {id:"bookings", icon:"📋",label:"Bookings"},
   {id:"fleet",    icon:"🏍️",label:"Fleet"},
+  {id:"gallery",  icon:"🖼️", label:"Adventures"},
 ];
 
 function Sidebar({active,setActive,onLogout,bookings}){
@@ -1055,6 +1269,7 @@ export default function MoldovaMotoAdmin(){
           {tab==="routes"   &&<RoutesTab    data={db.routes} bookings={db.bookings} onSave={handleSave("routes")} onDelete={handleDelete}/>}
           {tab==="bookings" &&<BookingsTab  data={db.bookings} routes={db.routes} fleet={db.fleet} onSave={handleSave("bookings")} onDelete={handleDelete}/>}
           {tab==="fleet"    &&<FleetTab     data={db.fleet} onSave={handleSave("fleet")} onDelete={handleDelete}/>}
+          {tab==="gallery"  &&<GalleryTab   data={db.gallery||[]} routes={db.routes||[]} onSave={handleSave("gallery")} onDelete={handleDelete}/>}
         </div>
       </main>
       <Toast msg={toast.msg} type={toast.type}/>

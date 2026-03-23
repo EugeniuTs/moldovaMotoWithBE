@@ -88,6 +88,33 @@ export const SEED = {
     { id:"f4", name:"CFMOTO 800MT #4", model:"CFMOTO 800MT Adventure", year:2024, status:"available",
       odometer:2100,  lastService:"2026-02-28", color:"Storm Black",
       features:["ABS","Traction Control","Heated Grips","Cruise Control","USB-C"] },
+
+  gallery: [
+    {
+      id: "g1", type: "image", title: "Soroca Fortress at Sunset",
+      tour: "5-Day Grand Moldova Tour", date: "2026-04-20",
+      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80",
+      featured: true, caption: "The iconic Soroca fortress glowing gold above the Dniester."
+    },
+    {
+      id: "g2", type: "image", title: "Cricova Underground Cellars",
+      tour: "1-Day Wine Ride", date: "2026-04-11",
+      src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80",
+      featured: false, caption: "120 km of underground roads lined with millions of bottles."
+    },
+    {
+      id: "g3", type: "image", title: "Orheiul Vechi Canyon",
+      tour: "3-Day Moldova Adventure", date: "2026-04-18",
+      src: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=900&q=80",
+      featured: true, caption: "The Răut river meander carved into limestone — nature's amphitheatre."
+    },
+    {
+      id: "g4", type: "image", title: "Vineyard Roads",
+      tour: "1-Day Wine Ride", date: "2026-04-11",
+      src: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=900&q=80",
+      featured: false, caption: "Empty roads threading through endless rows of vines."
+    },
+  ],
   ],
 };
 
@@ -101,6 +128,7 @@ export function loadDB() {
     }
     if (!db.bookings) db.bookings = [];
     if (!db.fleet)    db.fleet    = JSON.parse(JSON.stringify(SEED.fleet));
+    if (!db.gallery)  db.gallery  = JSON.parse(JSON.stringify(SEED.gallery));
     return db;
   } catch { return JSON.parse(JSON.stringify(SEED)); }
 }

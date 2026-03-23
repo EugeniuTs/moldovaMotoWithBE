@@ -644,6 +644,7 @@ export default function MoldovaMotorTours() {
             {[["#tours", "Tours"], ["#experience", "Experience"], ["#fleet", "Fleet"], ["#map", "Routes"], ["#contact", "Contact"]].map(([href, label]) => (
               <a key={href} href={href} className="nav-link">{label}</a>
             ))}
+            <Link to="/adventures" className="nav-link" style={{ color: ORANGE }}>Adventures</Link>
           </div>
           <button onClick={() => openBooking()} className="cta-pulse" style={{
             background: ORANGE, color: "#fff", border: "none", borderRadius: 10,
