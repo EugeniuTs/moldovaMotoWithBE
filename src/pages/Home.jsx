@@ -148,17 +148,17 @@ const fleetFeatures = [
 // x = 20 + (lon − 26.62) × 74.07  |  y = 390 − (lat − 45.47) × 124.17
 // ViewBox: 0 0 300 420
 const mapStops = [
-  { x: 186, y: 199, name: "Chișinău", label: "Capital City", sub: "Tour Start / End",
+  { lat: 47.0056,  lng: 28.8575, name: "Chișinău",     label: "Capital City",              sub: "Tour Start / End",
     desc: "Your tour begins in Moldova's vibrant capital. Pick up your CFMOTO 800MT, meet your guide, and ride out." },
-  { x: 195, y: 148, name: "Orheiul Vechi", label: "Cliff Monastery", sub: "★ Unmissable",
+  { lat: 47.3644,  lng: 28.9767, name: "Orheiul Vechi", label: "Cliff Monastery",           sub: "★ Unmissable",
     desc: "A 6th-century monastery carved into limestone cliffs above the Răut River — one of Europe's most dramatic natural amphitheatres." },
-  { x: 187, y: 183, name: "Cricova", label: "Underground Wine City", sub: "1-Day Tour",
+  { lat: 47.1361,  lng: 28.8594, name: "Cricova",       label: "Underground Wine City",     sub: "1-Day Tour",
     desc: "120 km of underground galleries turned wine cellar. The Soviet-era labyrinth holds millions of bottles beneath rolling vineyards." },
-  { x: 194, y: 104, name: "Saharna", label: "Nistru Canyon & Monastery", sub: "3 & 5-Day Tour",
+  { lat: 47.8611,  lng: 28.9750, name: "Saharna",       label: "Nistru Canyon & Monastery", sub: "3 & 5-Day Tour",
     desc: "An 18th-century monastery tucked above a dramatic Dniester canyon waterfall. Remote, pristine, and completely unforgettable." },
-  { x: 144, y: 57,  name: "Soroca", label: "Medieval Fortress", sub: "5-Day Tour",
+  { lat: 48.1569,  lng: 28.2886, name: "Soroca",        label: "Medieval Fortress",         sub: "5-Day Tour",
     desc: "Moldova's perfectly preserved 16th-century Genoese-Ottoman fortress, sitting on the Dniester riverbank at the Ukrainian border." },
-  { x: 232, y: 221, name: "Bender", label: "Ottoman Fortress", sub: "5-Day Tour",
+  { lat: 46.8264,  lng: 29.4847, name: "Bender",        label: "Ottoman Fortress",          sub: "5-Day Tour",
     desc: "A massive 16th-century Ottoman citadel commanding the Dniester with centuries of turbulent history etched into every stone bastion." }
 ];
 
@@ -571,6 +571,142 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
   );
 }
 
+
+// ============================================================
+// LEAFLET MAP — real OpenStreetMap tiles + custom orange pins
+// ============================================================
+function LeafletMap({ stops, activeIdx, onHover }) {
+  const mapRef    = useRef(null);
+  const mapObj    = useRef(null);
+  const markers   = useRef([]);
+  const circles   = useRef([]);
+
+  // Build map once on mount
+  useEffect(() => {
+    if (mapObj.current) return;
+
+    // Dynamically load Leaflet CSS
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id   = "leaflet-css";
+      link.rel  = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
+
+    // Dynamically load Leaflet JS then init
+    if (window.L) {
+      initMap();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.onload = initMap;
+      document.head.appendChild(script);
+    }
+
+    function initMap() {
+      const L = window.L;
+
+      // Fit Moldova — centre ~47.4°N 28.4°E, zoom 7
+      const map = L.map(mapRef.current, {
+        center: [47.4, 28.4],
+        zoom: 7,
+        zoomControl: true,
+        attributionControl: true,
+      });
+
+      // OpenStreetMap tile layer (dark variant for visual harmony)
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+      }).addTo(map);
+
+      mapObj.current = map;
+
+      // Create markers for each stop
+      stops.forEach((stop, i) => {
+        const isHub = i === 0;
+        const color = isHub ? "#ff6b00" : "#cc4400";
+        const size  = isHub ? 18 : 14;
+
+        // Custom div icon — orange pin
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="
+            width:${size}px;height:${size}px;
+            background:${color};
+            border:2.5px solid #fff;
+            border-radius:50% 50% 50% 0;
+            transform:rotate(-45deg);
+            box-shadow:0 2px 6px rgba(0,0,0,0.5);
+            cursor:pointer;
+          "></div>`,
+          iconSize:   [size, size],
+          iconAnchor: [size / 2, size],
+          popupAnchor:[0, -size],
+        });
+
+        const marker = L.marker([stop.lat, stop.lng], { icon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="font-family:sans-serif;min-width:160px">
+              <strong style="font-size:13px">${stop.name}</strong><br/>
+              <span style="font-size:11px;color:#888">${stop.label}</span><br/>
+              <span style="font-size:11px;color:#ff6b00;font-weight:600">${stop.sub}</span>
+            </div>
+          `, { maxWidth: 200 });
+
+        marker.on("mouseover", () => onHover(i));
+        marker.on("mouseout",  () => onHover(null));
+        marker.on("click",     () => map.flyTo([stop.lat, stop.lng], 12, { duration: 1 }));
+
+        // Pulse circle for hub
+        if (isHub) {
+          const c = L.circle([stop.lat, stop.lng], {
+            radius: 8000, color: "#ff6b00",
+            fillColor: "#ff6b00", fillOpacity: 0.08,
+            weight: 1.5, dashArray: "4 4",
+          }).addTo(map);
+          circles.current.push(c);
+        }
+
+        markers.current.push(marker);
+      });
+    }
+
+    return () => {
+      if (mapObj.current) {
+        mapObj.current.remove();
+        mapObj.current = null;
+        markers.current = [];
+        circles.current = [];
+      }
+    };
+  }, []);
+
+  // React to hover — open popup and highlight
+  useEffect(() => {
+    if (!mapObj.current || !window.L) return;
+    markers.current.forEach((m, i) => {
+      if (i === activeIdx) {
+        m.openPopup();
+        mapObj.current.flyTo(
+          [stops[i].lat, stops[i].lng],
+          mapObj.current.getZoom() < 9 ? 9 : mapObj.current.getZoom(),
+          { duration: 0.6 }
+        );
+      } else {
+        m.closePopup();
+      }
+    });
+  }, [activeIdx]);
+
+  return (
+    <div ref={mapRef}
+      style={{ width: "100%", height: "100%", minHeight: 520, background: "#111" }} />
+  );
+}
+
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
@@ -823,272 +959,21 @@ export default function MoldovaMotorTours() {
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Tour Routes</div>
             <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em" }}>The Moldova Map</h2>
-            <p style={{ color: MUTED, marginTop: 14, fontSize: 16 }}>Hover any stop to explore your destination — all coordinates are geographically accurate.</p>
+            <p style={{ color: MUTED, marginTop: 14, fontSize: 16 }}>Real map powered by OpenStreetMap. Click any stop to fly to it.</p>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 36, alignItems: "start" }}>
 
-            {/* ── Accurate Moldova SVG ── */}
-            <div style={{ background: "#060d16", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "20px 16px", position: "relative", overflow: "hidden" }}>
-              {/* Legend */}
-              <div style={{ display: "flex", gap: 18, marginBottom: 14, paddingLeft: 4, flexWrap: "wrap" }}>
-                {[["#2a6090","Prut River"], ["#1e7ab0","Nistru River"], ["#1a3550","Răut River"]].map(([c, l]) => (
-                  <div key={l} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: MUTED }}>
-                    <div style={{ width: 20, height: 2.5, background: c, borderRadius: 2 }} />{l}
-                  </div>
-                ))}
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: MUTED }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: ORANGE }} /> Tour Stop
-                </div>
-              </div>
-
-              {/*
-                Coordinate system (ViewBox 0 0 300 420):
-                  x = 20 + (lon − 26.62) × 74.07
-                  y = 390 − (lat − 45.47) × 124.17
-                Moldova border traced from real WGS-84 boundary waypoints.
-                Key lon/lat → SVG anchors:
-                  Lipcani    48.26N 26.81E → (34, 44)
-                  Ocnița     48.39N 27.44E → (81, 28)
-                  Soroca     48.15N 28.29E → (144, 57)
-                  NE corner  48.48N 28.99E → (196, 16)
-                  E bulge    47.70N 30.10E → (278,113)
-                  Bender     46.83N 29.48E → (232,221)
-                  Giurgiul.  45.47N 28.55E → (163,390)
-                  Cahul      45.90N 28.25E → (141,337)
-                  Ungheni    47.21N 27.80E → (107,174)
-                  Costești   47.86N 27.67E → (98, 93)
-              */}
-              <svg viewBox="0 0 300 420" style={{ width: "100%", height: "auto", display: "block" }}>
-                <defs>
-                  <filter id="stopGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="4" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                  <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="2" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                  <linearGradient id="moldovaBg" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0f2035"/>
-                    <stop offset="100%" stopColor="#0a1825"/>
-                  </linearGradient>
-                </defs>
-
-                {/* Subtle grid */}
-                <g stroke="#ffffff" strokeWidth="0.3" opacity="0.04">
-                  {[50,100,150,200,250,300,350,400].map(y => <line key={y} x1="0" y1={y} x2="300" y2={y}/>)}
-                  {[50,100,150,200,250].map(x => <line key={x} x1={x} y1="0" x2={x} y2="420"/>)}
-                </g>
-
-                {/* ── Moldova country fill ──
-                    Border path clockwise from NW (Lipcani):
-                    N border → NE corner → E border (Transnistria bulge) → S border → W border (Prut) */}
-                <path
-                  d={[
-                    "M 34,44",          // Lipcani NW
-                    "L 54,30",          // Briceni
-                    "L 81,28",          // Ocnița
-                    "L 93,49",          // dip S
-                    "L 144,57",         // Soroca (on Dniester)
-                    "L 182,19",         // NE bulge
-                    "L 196,16",         // NE corner
-                    "L 233,45",         // E border descending
-                    "L 259,76",
-                    "L 278,113",        // Transnistria eastern extreme
-                    "L 262,153",
-                    "L 248,185",
-                    "L 232,221",        // Bender / Tighina
-                    "L 233,262",
-                    "L 248,297",
-                    "L 241,337",
-                    "L 219,355",
-                    "L 189,378",        // SE
-                    "L 163,390",        // Giurgiulești (S)
-                    "L 137,390",        // SW tip
-                    "L 141,337",        // Cahul (W border going N)
-                    "L 142,263",        // Leova
-                    "L 126,213",
-                    "L 107,174",        // Ungheni
-                    "L 89,178",         // Sculeni (Prut meander W)
-                    "L 91,162",
-                    "L 94,137",
-                    "L 93,119",
-                    "L 98,93",          // Costești
-                    "L 87,82",
-                    "L 72,70",
-                    "L 63,64",
-                    "Z"
-                  ].join(" ")}
-                  fill="url(#moldovaBg)"
-                  stroke="#1e3f60"
-                  strokeWidth="1.8"
-                  strokeLinejoin="round"
-                />
-
-                {/* ── Transnistria region overlay ──
-                    Shaded area east of Dniester, controlled territory */}
-                <path
-                  d={[
-                    "M 208,168",   // Dubăsari (N of Transnistria)
-                    "L 218,182",
-                    "L 232,221",   // Bender
-                    "L 233,262",
-                    "L 248,297",
-                    "L 241,337",
-                    "L 219,355",
-                    "L 210,366",   // follow Dniester exit
-                    "L 218,340",
-                    "L 222,310",
-                    "L 218,286",
-                    "L 222,265",
-                    "L 218,235",
-                    "L 215,215",   // Grigoriopol
-                    "L 208,190",
-                    "L 208,168"
-                  ].join(" ")}
-                  fill="#0d1f30"
-                  stroke="#1a3348"
-                  strokeWidth="1"
-                  opacity="0.7"
-                />
-                {/* Transnistria label */}
-                <text x="236" y="275" fill="#304860" fontSize="7" fontFamily="Archivo,sans-serif"
-                  fontWeight="600" letterSpacing="0.06em" textAnchor="middle"
-                  transform="rotate(-78, 236, 275)" opacity="0.7">TRANSNISTRIA</text>
-
-                {/* ── Prut River (western border with Romania) ──
-                    Flows S along the western boundary */}
-                <path
-                  d="M 35,46 C 48,56 60,63 65,66 C 70,70 80,79 87,85 C 92,92 97,101 96,111
-                     C 95,119 94,128 93,137 C 91,148 89,161 90,170 C 91,177 97,179 107,175
-                     C 116,185 122,203 126,214 C 130,228 136,248 142,264 C 143,279 142,299
-                     141,314 C 140,326 140,333 141,338 C 140,354 139,373 137,390"
-                  fill="none" stroke="#2a6090" strokeWidth="1.8" opacity="0.75" strokeLinecap="round"
-                />
-
-                {/* ── Nistru / Dniester River ──
-                    Enters at Ocnița (81,28) → Soroca (144,57) → Rezina (194,108)
-                    → Dubăsari (208,168) → Bender (232,221) → exits near (189,378) */}
-                <path
-                  d="M 81,28 C 100,36 122,47 144,57 C 160,66 178,87 194,108
-                     C 200,127 206,148 208,168 L 218,182
-                     C 222,192 228,208 232,221 C 232,239 233,253 232,263
-                     C 233,275 238,287 240,299 C 239,313 234,329 228,343
-                     C 220,356 210,367 199,374 L 189,378"
-                  fill="none" stroke="#1e7ab0" strokeWidth="2.2" opacity="0.85" strokeLinecap="round"
-                />
-
-                {/* ── Răut River (tributary through Orheiul Vechi) ──
-                    Flows from Bălți (116,105) SE through Orhei, joins Nistru near (200,149) */}
-                <path
-                  d="M 116,105 C 126,115 138,126 152,136 C 164,145 180,149 195,148 C 199,148 203,149 207,152"
-                  fill="none" stroke="#1a5070" strokeWidth="1.3" opacity="0.7" strokeLinecap="round"
-                />
-
-                {/* ── Tour route lines ── */}
-                <g fill="none" stroke={ORANGE} strokeWidth="1.4" strokeDasharray="5,4" opacity="0.45">
-                  {/* Chișinău ↔ Cricova */}
-                  <line x1="186" y1="199" x2="187" y2="183"/>
-                  {/* Cricova ↔ Orheiul Vechi */}
-                  <line x1="187" y1="183" x2="195" y2="148"/>
-                  {/* Orheiul Vechi ↔ Saharna */}
-                  <line x1="195" y1="148" x2="194" y2="104"/>
-                  {/* Saharna ↔ Soroca */}
-                  <line x1="194" y1="104" x2="144" y2="57"/>
-                  {/* Chișinău ↔ Bender */}
-                  <line x1="186" y1="199" x2="232" y2="221"/>
-                </g>
-
-                {/* ── Neighbouring country labels ── */}
-                <text x="26" y="220" fill="#1e3a58" fontSize="8.5" fontFamily="Archivo,sans-serif"
-                  fontWeight="700" letterSpacing="0.12em" textAnchor="middle"
-                  transform="rotate(-90, 26, 220)">ROMANIA</text>
-                <text x="155" y="9" fill="#1a3050" fontSize="8.5" fontFamily="Archivo,sans-serif"
-                  fontWeight="700" letterSpacing="0.12em" textAnchor="middle">UKRAINE</text>
-                <text x="265" y="9" fill="#1a3050" fontSize="8.5" fontFamily="Archivo,sans-serif"
-                  fontWeight="700" letterSpacing="0.12em" textAnchor="middle">UKRAINE</text>
-
-                {/* River labels */}
-                <text x="55" y="178" fill="#2a6090" fontSize="7.5" fontFamily="Archivo,sans-serif"
-                  fontWeight="600" textAnchor="middle" transform="rotate(-82, 55, 178)" opacity="0.8">Prut R.</text>
-                <text x="226" y="135" fill="#1e7ab0" fontSize="7.5" fontFamily="Archivo,sans-serif"
-                  fontWeight="600" textAnchor="middle" transform="rotate(-72, 226, 135)" opacity="0.85">Nistru R.</text>
-                <text x="161" y="143" fill="#1a5070" fontSize="7" fontFamily="Archivo,sans-serif"
-                  fontWeight="600" textAnchor="middle" transform="rotate(-15, 161, 143)" opacity="0.75">Răut R.</text>
-
-                {/* ── Tour stop markers ── */}
-                {mapStops.map((stop, i) => {
-                  const active = mapHover === i;
-                  const isHub  = i === 0;
-                  // label anchor: stops on right side of map get label on left
-                  const onRight = stop.x > 190;
-                  const lx = onRight ? stop.x - 13 : stop.x + 13;
-                  const anchor = onRight ? "end" : "start";
-                  return (
-                    <g key={i} className="map-stop"
-                      onMouseEnter={() => setMapHover(i)}
-                      onMouseLeave={() => setMapHover(null)}>
-                      {/* Pulse ring */}
-                      {(active || isHub) && (
-                        <circle cx={stop.x} cy={stop.y} r={isHub ? 14 : 12}
-                          fill="none" stroke={ORANGE} strokeWidth="1.2" opacity={active ? 0.5 : 0.3}/>
-                      )}
-                      {/* Main dot */}
-                      <circle cx={stop.x} cy={stop.y}
-                        r={active ? 8 : isHub ? 7 : 5.5}
-                        fill={active || isHub ? ORANGE : "#1a3f65"}
-                        stroke={ORANGE}
-                        strokeWidth={active ? 0 : 1.5}
-                        style={{ transition: "all 0.22s", filter: active ? "url(#stopGlow)" : "none" }}
-                      />
-                      {/* Label */}
-                      <text x={lx} y={stop.y - 2}
-                        fill={active ? ORANGE : "#cdd8e8"}
-                        fontSize={active ? "10.5" : "9.5"}
-                        fontWeight={active || isHub ? "700" : "500"}
-                        fontFamily="Archivo,sans-serif"
-                        textAnchor={anchor}
-                        style={{ transition: "all 0.22s" }}>
-                        {stop.name}
-                      </text>
-                      {/* Sub-label */}
-                      <text x={lx} y={stop.y + 9}
-                        fill={active ? "rgba(255,107,0,0.75)" : "#4a6080"}
-                        fontSize="7.5"
-                        fontFamily="Archivo,sans-serif"
-                        textAnchor={anchor}>
-                        {stop.label}
-                      </text>
-                    </g>
-                  );
-                })}
-
-                {/* MOLDOVA country label */}
-                <text x="140" y="295" fill="#1a3558" fontSize="11" fontFamily="Archivo,sans-serif"
-                  fontWeight="900" textAnchor="middle" letterSpacing="0.18em" opacity="0.5">MOLDOVA</text>
-              </svg>
-
-              {/* Compass rose */}
-              <div style={{ position: "absolute", bottom: 28, left: 28, opacity: 0.35 }}>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <line x1="16" y1="2" x2="16" y2="30" stroke="#aaa" strokeWidth="1"/>
-                  <line x1="2" y1="16" x2="30" y2="16" stroke="#aaa" strokeWidth="1"/>
-                  <polygon points="16,2 13,10 19,10" fill="#aaa"/>
-                  <text x="16" y="8" textAnchor="middle" fontSize="6" fill="#ccc" fontFamily="Archivo,sans-serif" fontWeight="700">N</text>
-                </svg>
-              </div>
-              {/* Scale bar */}
-              <div style={{ position: "absolute", bottom: 30, right: 28, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, opacity: 0.4 }}>
-                <div style={{ width: 48, height: 2, background: "#aaa", borderRadius: 1 }}/>
-                <span style={{ fontSize: 9, color: "#aaa", fontFamily: "Archivo,sans-serif" }}>≈ 50 km</span>
-              </div>
+            {/* ── Real OpenStreetMap via Leaflet ── */}
+            <div style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${BORDER}`,
+              position: "relative", height: 520 }}>
+              <LeafletMap stops={mapStops} activeIdx={mapHover} onHover={setMapHover} />
             </div>
 
             {/* ── Stop detail cards ── */}
             <div>
               <div style={{ fontSize: 13, color: MUTED, marginBottom: 18, lineHeight: 1.6 }}>
-                Every stop below is pinned to its real GPS location on the map. Hover to cross-highlight.
+                Every pin is placed at its real GPS coordinates. Click a card or pin to zoom in.
               </div>
               {mapStops.map((stop, i) => (
                 <div key={i}
@@ -1117,7 +1002,6 @@ export default function MoldovaMotorTours() {
                     </div>
                     <div style={{ color: mapHover === i ? ORANGE : BORDER, fontSize: 18, fontWeight: 700, flexShrink: 0 }}>›</div>
                   </div>
-                  {/* Expandable description on hover */}
                   {mapHover === i && (
                     <div style={{ padding: "0 18px 14px 72px", fontSize: 13, color: "#b0b8c8", lineHeight: 1.65, animation: "fadeIn 0.2s ease" }}>
                       {stop.desc}
@@ -1126,7 +1010,6 @@ export default function MoldovaMotorTours() {
                 </div>
               ))}
 
-              {/* Quick route legend */}
               <div style={{ marginTop: 20, padding: "16px 18px", background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14 }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>Tour Coverage</div>
                 {[
