@@ -615,11 +615,45 @@ function LeafletMap({ stops, activeIdx, onHover }) {
         attributionControl: true,
       });
 
-      // OpenStreetMap tile layer (dark variant for visual harmony)
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18,
+      // CartoDB Dark Matter — dark tiles that match the site palette
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19,
       }).addTo(map);
+
+      // Inject dark popup CSS once
+      if (!document.getElementById("leaflet-dark-style")) {
+        const st = document.createElement("style");
+        st.id = "leaflet-dark-style";
+        st.textContent = `
+          .leaflet-popup-content-wrapper {
+            background: #16161a !important;
+            border: 1px solid #2a2a32 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
+            color: #f0f0f4 !important;
+          }
+          .leaflet-popup-tip { background: #16161a !important; }
+          .leaflet-popup-close-button { color: #72727a !important; }
+          .leaflet-popup-close-button:hover { color: #ff6b00 !important; }
+          .leaflet-control-zoom a {
+            background: #16161a !important;
+            color: #f0f0f4 !important;
+            border-color: #2a2a32 !important;
+          }
+          .leaflet-control-zoom a:hover { background: #ff6b00 !important; color: #fff !important; }
+          .leaflet-control-attribution {
+            background: rgba(10,10,11,0.75) !important;
+            color: #44444c !important;
+            font-size: 9px !important;
+          }
+          .leaflet-control-attribution a { color: #72727a !important; }
+          .leaflet-bar { border: 1px solid #26262d !important; border-radius: 8px !important; overflow: hidden; }
+          @keyframes pulse-ring { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,107,0,0)} }
+        `;
+        document.head.appendChild(st);
+      }
 
       mapObj.current = map;
 
@@ -629,32 +663,56 @@ function LeafletMap({ stops, activeIdx, onHover }) {
         const color = isHub ? "#ff6b00" : "#cc4400";
         const size  = isHub ? 18 : 14;
 
-        // Custom div icon — orange pin
+        // Glowing dot markers — match site orange accent
+        const outerSize = isHub ? 32 : 24;
+        const innerSize = isHub ? 12 : 8;
         const icon = L.divIcon({
           className: "",
           html: `<div style="
-            width:${size}px;height:${size}px;
-            background:${color};
-            border:2.5px solid #fff;
-            border-radius:50% 50% 50% 0;
-            transform:rotate(-45deg);
-            box-shadow:0 2px 6px rgba(0,0,0,0.5);
+            width:${outerSize}px;height:${outerSize}px;
+            display:flex;align-items:center;justify-content:center;
             cursor:pointer;
-          "></div>`,
-          iconSize:   [size, size],
-          iconAnchor: [size / 2, size],
-          popupAnchor:[0, -size],
+          ">
+            <div style="
+              width:${outerSize}px;height:${outerSize}px;
+              background:rgba(255,107,0,${isHub?0.18:0.12});
+              border-radius:50%;
+              border:1px solid rgba(255,107,0,${isHub?0.5:0.3});
+              display:flex;align-items:center;justify-content:center;
+              animation:${isHub?'pulse-ring 2.5s infinite':'none'};
+            ">
+              <div style="
+                width:${innerSize}px;height:${innerSize}px;
+                background:#ff6b00;
+                border-radius:50%;
+                border:2px solid rgba(255,255,255,0.9);
+                box-shadow:0 0 8px rgba(255,107,0,0.8);
+              "></div>
+            </div>
+          </div>`,
+          iconSize:   [outerSize, outerSize],
+          iconAnchor: [outerSize/2, outerSize/2],
+          popupAnchor:[0, -(outerSize/2 + 4)],
         });
 
+        const badgeColor = i === 0 ? "#ff6b00" : "rgba(255,107,0,0.15)";
+        const badgeText  = i === 0 ? "★" : i + 1;
         const marker = L.marker([stop.lat, stop.lng], { icon })
           .addTo(map)
           .bindPopup(`
-            <div style="font-family:sans-serif;min-width:160px">
-              <strong style="font-size:13px">${stop.name}</strong><br/>
-              <span style="font-size:11px;color:#888">${stop.label}</span><br/>
-              <span style="font-size:11px;color:#ff6b00;font-weight:600">${stop.sub}</span>
+            <div style="font-family:-apple-system,sans-serif;min-width:170px;padding:2px 0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="width:22px;height:22px;border-radius:6px;background:${badgeColor};
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:11px;font-weight:700;color:${i===0?"#fff":"#ff6b00"};flex-shrink:0">
+                  ${badgeText}
+                </div>
+                <strong style="font-size:13px;color:#f0f0f4">${stop.name}</strong>
+              </div>
+              <div style="font-size:11px;color:#72727a;margin-bottom:3px">${stop.label}</div>
+              <div style="font-size:11px;color:#ff6b00;font-weight:600">${stop.sub}</div>
             </div>
-          `, { maxWidth: 200 });
+          `, { maxWidth: 210, className: "" });
 
         marker.on("mouseover", () => onHover(i));
         marker.on("mouseout",  () => onHover(null));
@@ -965,8 +1023,10 @@ export default function MoldovaMotorTours() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 36, alignItems: "start" }}>
 
             {/* ── Real OpenStreetMap via Leaflet ── */}
-            <div style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${BORDER}`,
-              position: "relative", height: 520 }}>
+            <div style={{ borderRadius: 20, overflow: "hidden",
+              border: `1px solid ${BORDER}`,
+              position: "relative", height: 520,
+              boxShadow: "0 0 0 1px rgba(255,107,0,0.08), inset 0 0 60px rgba(0,0,0,0.3)" }}>
               <LeafletMap stops={mapStops} activeIdx={mapHover} onHover={setMapHover} />
             </div>
 
