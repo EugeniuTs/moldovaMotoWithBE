@@ -784,7 +784,7 @@ export default function MoldovaMotorTours() {
 
   const reloadStore = () => {
     const db = loadDB();
-    setLiveTours((db.routes || []).filter(r => r.status === "active").map(routeToTour));
+    setLiveTours((db.routes || []).filter(r => r.status === "active" && r.visible !== false).map(routeToTour));
     setLiveFleet(db.fleet || []);
     setAllBookings(db.bookings || []);
   };

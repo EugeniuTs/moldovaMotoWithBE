@@ -29,7 +29,7 @@ export const SEED = {
     },
     {
       id: "r2", name: "3-Day Moldova Adventure", price: 650, days: 3,
-      difficulty: "Medium", status: "active", dateType: "scheduled", capacity: 8,
+      difficulty: "Medium", status: "active", visible: true, dateType: "scheduled", capacity: 8,
       departures: [
         { id: "r2d1", date: "2026-04-04", maxSpots: 8 },
         { id: "r2d2", date: "2026-04-18", maxSpots: 8 },
@@ -54,7 +54,7 @@ export const SEED = {
     },
     {
       id: "r4", name: "Free Motorcycle Rental", price: 120, days: 1,
-      difficulty: "Easy", status: "active", dateType: "open", capacity: 4,
+      difficulty: "Easy", status: "active", visible: true, dateType: "open", capacity: 4,
       departures: [],
       stops: [],
       desc: "Rent a CFMOTO 800MT Adventure and ride Moldova at your own pace. No guide, no fixed itinerary.",

@@ -199,6 +199,16 @@ function Table({columns,rows,onEdit,onDelete}){
               ))}
               <td style={{padding:"12px 14px",textAlign:"right"}}>
                 <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+                  <button
+                    title={row.visible!==false?"Hide from public":"Show to public"}
+                    onClick={()=>{const updated={...row,visible:row.visible===false?true:false};onSave(updated,true);}}
+                    style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:7,
+                      padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+                      color:row.visible!==false?T.green:T.red,transition:"all 0.15s"}}
+                    onMouseEnter={e=>e.currentTarget.style.borderColor=row.visible!==false?T.green:T.red}
+                    onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
+                    {row.visible!==false?"👁 Visible":"🚫 Hidden"}
+                  </button>
                   <Btn variant="ghost" size="sm" onClick={()=>onEdit(row)}>Edit</Btn>
                   <Btn variant="danger" size="sm" onClick={()=>onDelete(row)}>Delete</Btn>
                 </div>
@@ -225,7 +235,7 @@ function StatCard({label,value,sub,icon,accent}){
 }
 
 /* ── Routes Tab ─────────────────────────────────────────────────────────────── */
-const BLANK_ROUTE = {name:"",price:"",days:1,difficulty:"Medium",status:"active",dateType:"open",capacity:8,departures:[],stops:"",desc:"",img:""};
+const BLANK_ROUTE = {name:"",price:"",days:1,difficulty:"Medium",status:"active",visible:true,dateType:"open",capacity:8,departures:[],stops:"",desc:"",img:""};
 
 function RoutesTab({data,bookings,onSave,onDelete}){
   const [modal,setModal]=useState(null);
@@ -234,7 +244,7 @@ function RoutesTab({data,bookings,onSave,onDelete}){
   const [filter,setFilter]=useState("all");
 
   const openAdd=()=>{setForm(BLANK_ROUTE);setModal("add");};
-  const openEdit=r=>{setForm({...r,stops:(r.stops||[]).join(", "),img:r.img||""});setModal("edit");};
+  const openEdit=r=>{setForm({...r,stops:(r.stops||[]).join(", "),img:r.img||"",visible:r.visible!==false});setModal("edit");};
   const closeModal=()=>{setModal(null);setForm(BLANK_ROUTE);};
 
   const setF=k=>v=>setForm(f=>({...f,[k]:v}));
@@ -358,6 +368,29 @@ function RoutesTab({data,bookings,onSave,onDelete}){
                       ✕ Remove image
                     </button>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* Visibility toggle */}
+            <div onClick={()=>setF("visible")(form.visible===false?true:false)}
+              style={{display:"flex",alignItems:"center",gap:14,padding:"12px 16px",cursor:"pointer",
+                background:form.visible!==false?"rgba(34,197,94,0.06)":"rgba(239,68,68,0.06)",
+                border:`1.5px solid ${form.visible!==false?T.green:T.red}`,
+                borderRadius:10,transition:"all 0.2s",userSelect:"none"}}>
+              <div style={{width:20,height:20,borderRadius:5,flexShrink:0,
+                background:form.visible!==false?T.green:T.red,
+                display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
+                <span style={{fontSize:11,color:"#fff"}}>{form.visible!==false?"✓":"✕"}</span>
+              </div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:T.text}}>
+                  {form.visible!==false?"Visible to customers":"Hidden from customers"}
+                </div>
+                <div style={{fontSize:11,color:T.muted,marginTop:2}}>
+                  {form.visible!==false
+                    ?"This tour appears on the public site and booking modal."
+                    :"Tour is saved but not shown publicly. Bookings are paused."}
                 </div>
               </div>
             </div>
