@@ -897,20 +897,33 @@ function DashboardTab({routes,bookings,fleet}){
 }
 
 /* ── Login Screen ────────────────────────────────────────────────────────── */
+const loginAttempts = { count: 0, lockedUntil: 0 };
+
 function LoginScreen({onLogin}){
   const [user,setUser]=useState("");
   const [pass,setPass]=useState("");
   const [err,setErr]=useState("");
   const [loading,setLoading]=useState(false);
 
+  const ADMIN_USER = import.meta.env.VITE_ADMIN_USER ?? "";
+  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS ?? "";
+
   const handle=async()=>{
     if(!user||!pass){setErr("Please fill all fields.");return;}
+    const now=Date.now();
+    if(loginAttempts.lockedUntil>now){
+      const secs=Math.ceil((loginAttempts.lockedUntil-now)/1000);
+      setErr(`Too many attempts. Try again in ${secs}s.`);return;
+    }
     setLoading(true);setErr("");
-    await new Promise(r=>setTimeout(r,600));
-    if(user==="admin"&&pass==="moldova2024"){
+    await new Promise(r=>setTimeout(r,800));
+    if(ADMIN_USER&&user===ADMIN_USER&&ADMIN_PASS&&pass===ADMIN_PASS){
+      loginAttempts.count=0;
       onLogin();
     }else{
-      setErr("Invalid credentials. Hint: admin / moldova2024");
+      loginAttempts.count++;
+      if(loginAttempts.count>=5) loginAttempts.lockedUntil=Date.now()+60000;
+      setErr(loginAttempts.count>=5?"Locked for 60s after 5 failed attempts.":"Invalid credentials.");
       setLoading(false);
     }
   };
@@ -953,7 +966,7 @@ function LoginScreen({onLogin}){
           </div>
         </div>
         <div style={{textAlign:"center",marginTop:16,fontSize:11,color:T.dim}}>
-          Demo credentials: <span style={{color:T.muted}}>admin / moldova2024</span>
+          Contact your administrator for access.
         </div>
       </div>
     </div>

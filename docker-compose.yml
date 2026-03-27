@@ -18,6 +18,8 @@ services:
       - /app/node_modules            # preserve container node_modules
     environment:
       - NODE_ENV=development
+      - VITE_ADMIN_USER=${VITE_ADMIN_USER:-admin}
+      - VITE_ADMIN_PASS=${VITE_ADMIN_PASS:-moldova2024}
     restart: unless-stopped
 
   # ── Production ────────────────────────────────────────────────

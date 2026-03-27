@@ -66,26 +66,42 @@ const MUTED = "#888";
 
 // --- SVG Icons ---
 const IconBike = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-    <circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/>
-    <path d="M6 17l3-6h4l3-4h2M9 11l1 6M12 5h3"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <path d="M12 3C9.5 3 7.5 4.8 7.5 7c0 1.2.5 2.2 1.3 3H5l-2 4h18l-2-4h-7.2c.8-.8 1.2-1.8 1.2-3C15 4.8 14.5 3 12 3z" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 14c0 0 1 1.5 1 3s-1 3-1 3M21 14c0 0-1 1.5-1 3s1 3 1 3" strokeLinecap="round" strokeOpacity="0.5"/>
+    <line x1="5" y1="14" x2="19" y2="14"/>
+    <path d="M8 10 Q6 15 5 17M16 10 Q18 15 19 17" strokeLinecap="round" strokeOpacity="0.7"/>
   </svg>
 );
 const IconGuide = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-    <circle cx="12" cy="7" r="3"/><path d="M5.5 21v-2a4 4 0 014-4h5a4 4 0 014 4v2M12 14v7M9 17h6"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <circle cx="8" cy="6" r="2.8" strokeLinejoin="round"/>
+    <path d="M2 20v-1c0-2.2 2.7-4 6-4s6 1.8 6 4v1" strokeLinecap="round"/>
+    <path d="M18 2c-2 0-3.5 1.5-3.5 3.5 0 2.5 3.5 6 3.5 6s3.5-3.5 3.5-6C21.5 3.5 20 2 18 2z" strokeLinejoin="round"/>
+    <circle cx="18" cy="5.5" r="1.2" fill="currentColor" stroke="none"/>
   </svg>
 );
 const IconMoto = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-    <path d="M5 13l2-6h7l2 4 3 1v4"/><circle cx="5.5" cy="16.5" r="2.5"/><circle cx="18.5" cy="16.5" r="2.5"/>
-    <path d="M15 7V4l3 1"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
+    <circle cx="5.5" cy="17.5" r="3" strokeWidth="1.7"/>
+    <circle cx="18.5" cy="17.5" r="3" strokeWidth="1.7"/>
+    <path d="M8.5 14.5 L10 9 L14 9 L16 14.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M14 9 L16 6.5 L19 7 L20 9 L18 11 L16 14.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8.5 14.5 L16 14.5" strokeLinecap="round"/>
+    <path d="M10 12 L6 12" strokeLinecap="round" strokeWidth="1.3"/>
+    <path d="M5.5 14.5 L8.5 14.5" strokeLinecap="round" strokeWidth="1.2"/>
+    <path d="M17 6.5 L17.5 4.5 L20 5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.3"/>
+    <path d="M10 9 L10 7 L13 7" strokeLinecap="round" strokeWidth="1.2"/>
   </svg>
 );
 const IconRoute = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-    <path d="M3 17c3-4 5-8 9-8s6 4 9 8"/><circle cx="3" cy="17" r="1.5"/><circle cx="21" cy="17" r="1.5"/>
-    <path d="M12 9V3M9 6l3-3 3 3"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
+    <path d="M3 19 C5 14 8 17 11 13 C13 10 16 11 20 8" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2.5 2"/>
+    <circle cx="3"  cy="19" r="2" fill="currentColor" stroke="none"/>
+    <circle cx="11" cy="13" r="1.5" strokeWidth="1.5"/>
+    <circle cx="20" cy="8"  r="2" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="3"  r="2.2" strokeWidth="1.4"/>
+    <path d="M20 1.5 L20.5 2.8 L22 3 L20.5 3.2 L20 4.5 L19.5 3.2 L18 3 L19.5 2.8 Z" fill="currentColor" stroke="none"/>
   </svg>
 );
 const IconCheck = () => (
@@ -572,6 +588,18 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 }
 
 
+// HTML entity sanitiser (char-code loop — no regex, no problematic delimiters)
+function esc(s) {
+  const ENTITIES = {"38":"&amp;","60":"&lt;","62":"&gt;","34":"&quot;","39":"&#39;"};
+  const str = String(s);
+  let out = "";
+  for (let j = 0; j < str.length; j++) {
+    const k = String(str.charCodeAt(j));
+    out += ENTITIES[k] !== undefined ? ENTITIES[k] : str[j];
+  }
+  return out;
+}
+
 // ============================================================
 // LEAFLET MAP — real OpenStreetMap tiles + custom orange pins
 // ============================================================
@@ -591,6 +619,8 @@ function LeafletMap({ stops, activeIdx, onHover }) {
       link.id   = "leaflet-css";
       link.rel  = "stylesheet";
       link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
+      link.crossOrigin = "anonymous";
       document.head.appendChild(link);
     }
 
@@ -600,6 +630,8 @@ function LeafletMap({ stops, activeIdx, onHover }) {
     } else {
       const script = document.createElement("script");
       script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs=";
+      script.crossOrigin = "anonymous";
       script.onload = initMap;
       document.head.appendChild(script);
     }
@@ -616,9 +648,9 @@ function LeafletMap({ stops, activeIdx, onHover }) {
       });
 
       // CartoDB Dark Matter — dark tiles that match the site palette
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
-        subdomains: "abcd",
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> \u00a9 <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 19,
       }).addTo(map);
 
@@ -696,23 +728,27 @@ function LeafletMap({ stops, activeIdx, onHover }) {
         });
 
         const badgeColor = i === 0 ? "#ff6b00" : "rgba(255,107,0,0.15)";
-        const badgeText  = i === 0 ? "★" : i + 1;
+        const badgeTxtColor = i === 0 ? "#fff" : "#ff6b00";
+        const badgeText  = i === 0 ? "\u2605" : String(i + 1);
+        const stopName = esc(stop.name);
+        const stopLabel = esc(stop.label);
+        const stopSub = esc(stop.sub);
+        const popupHtml = [
+          "<div style=\"font-family:-apple-system,sans-serif;min-width:170px;padding:2px 0\">",
+          "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px\">",
+          "<div style=\"width:22px;height:22px;border-radius:6px;background:" + badgeColor + ";",
+          "display:flex;align-items:center;justify-content:center;",
+          "font-size:11px;font-weight:700;color:" + badgeTxtColor + ";flex-shrink:0\">",
+          badgeText + "</div>",
+          "<strong style=\"font-size:13px;color:#f0f0f4\">" + stopName + "</strong>",
+          "</div>",
+          "<div style=\"font-size:11px;color:#72727a;margin-bottom:3px\">" + stopLabel + "</div>",
+          "<div style=\"font-size:11px;color:#ff6b00;font-weight:600\">" + stopSub + "</div>",
+          "</div>"
+        ].join("");
         const marker = L.marker([stop.lat, stop.lng], { icon })
           .addTo(map)
-          .bindPopup(`
-            <div style="font-family:-apple-system,sans-serif;min-width:170px;padding:2px 0">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                <div style="width:22px;height:22px;border-radius:6px;background:${badgeColor};
-                  display:flex;align-items:center;justify-content:center;
-                  font-size:11px;font-weight:700;color:${i===0?"#fff":"#ff6b00"};flex-shrink:0">
-                  ${badgeText}
-                </div>
-                <strong style="font-size:13px;color:#f0f0f4">${stop.name}</strong>
-              </div>
-              <div style="font-size:11px;color:#72727a;margin-bottom:3px">${stop.label}</div>
-              <div style="font-size:11px;color:#ff6b00;font-weight:600">${stop.sub}</div>
-            </div>
-          `, { maxWidth: 210, className: "" });
+          .bindPopup(popupHtml, { maxWidth: 210, className: "" });
 
         marker.on("mouseover", () => onHover(i));
         marker.on("mouseout",  () => onHover(null));
