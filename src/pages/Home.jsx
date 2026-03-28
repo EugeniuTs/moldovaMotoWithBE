@@ -68,8 +68,10 @@ const MUTED = "#888";
 const IconBike = () => (
   <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="9.5"/>
-    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
-    <polygon points="9,9 12,7 15,15 12,17" strokeLinejoin="round" strokeLinecap="round"/>
+    <path d="M12 2.5C12 2.5 9 6.5 9 12s3 9.5 3 9.5M12 2.5C12 2.5 15 6.5 15 12s-3 9.5-3 9.5" strokeLinecap="round"/>
+    <line x1="2.5" y1="12" x2="21.5" y2="12"/>
+    <path d="M4 7.5h16M4 16.5h16" strokeOpacity="0.5"/>
+    <path d="M17.5 6 L15 11 L20 9.5 Z" fill="currentColor" stroke="none"/>
   </svg>
 );
 const IconGuide = () => (
