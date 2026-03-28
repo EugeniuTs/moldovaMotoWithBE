@@ -46,7 +46,7 @@ const style = `
   @media (max-width: 768px) {
     .nav-links { display: none !important; }
     .nav-book-btn { display: none !important; }
-    .hamburger { display: flex !important; }
+    .hamburger { display: flex !important; flex-direction: column; }
     .hero-title { font-size: clamp(32px, 9vw, 64px) !important; }
     .hero-sub { font-size: 15px !important; }
     .hero-stats { gap: 20px !important; }
@@ -841,34 +841,94 @@ export default function MoldovaMotorTours() {
       {/* ─── STICKY NAV ─── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? "rgba(10,10,10,0.97)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? `1px solid ${BORDER}` : "none",
-        transition: "all 0.35s ease", padding: "0 5%"
+        background: scrolled || menuOpen ? "rgba(10,10,10,0.97)" : "transparent",
+        backdropFilter: scrolled || menuOpen ? "blur(12px)" : "none",
+        borderBottom: scrolled || menuOpen ? `1px solid ${BORDER}` : "none",
+        transition: "all 0.3s"
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
-          <a href="#hero" style={{ textDecoration: "none" }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#fff",
-              padding: 3, flexShrink: 0,
-              boxShadow: "0 0 0 2px #ff6b00, 0 0 16px rgba(255,107,0,0.45)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex",
+          alignItems: "center", justifyContent: "space-between",
+          height: 68, padding: "0 5%" }}>
+
+          {/* Logo */}
+          <a href="#hero" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fff",
+              padding: 3, boxShadow: "0 0 0 2px #ff6b00, 0 0 16px rgba(255,107,0,0.45)" }}>
               <img src="/logo.png" alt="Moldova Moto Tours"
                 style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />
             </div>
           </a>
-          <div className="nav-links" style={{ display: "flex", gap: 36 }}>
-            {[["#tours", "Tours"], ["#experience", "Experience"], ["#fleet", "Fleet"], ["#map", "Routes"], ["#contact", "Contact"]].map(([href, label]) => (
+
+          {/* Desktop links — hidden on mobile via CSS */}
+          <div className="nav-links" style={{ display: "flex", gap: 32 }}>
+            {[["#tours","Tours"],["#experience","Experience"],["#fleet","Fleet"],["#map","Routes"],["#contact","Contact"]].map(([href, label]) => (
               <a key={href} href={href} className="nav-link">{label}</a>
             ))}
             <Link to="/adventures" className="nav-link" style={{ color: ORANGE }}>Adventures</Link>
           </div>
-          <button onClick={() => openBooking()} className="cta-pulse" style={{
+
+          {/* Desktop book button — hidden on mobile */}
+          <button onClick={() => openBooking()} className="nav-book-btn cta-pulse" style={{
             background: ORANGE, color: "#fff", border: "none", borderRadius: 10,
-            padding: "10px 22px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit",
-            letterSpacing: "0.04em", textTransform: "uppercase"
+            padding: "10px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer",
+            fontFamily: "inherit", letterSpacing: "0.04em", textTransform: "uppercase"
           }}>
             Book Your Tour
           </button>
+
+          {/* Hamburger — mobile only, shown via CSS */}
+          <button
+            className={"hamburger" + (menuOpen ? " open" : "")}
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Open menu"
+            style={{ background: "transparent", border: "1.5px solid rgba(255,255,255,0.25)",
+              borderRadius: 8, width: 42, height: 42, cursor: "pointer",
+              display: "none", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", gap: 5, padding: 0, flexShrink: 0 }}>
+            <span style={{ display: "block", width: 18, height: 2, background: "#f4f4f4",
+              borderRadius: 2, transition: "all 0.3s",
+              transform: menuOpen ? "translateY(7px) rotate(45deg)" : "none" }} />
+            <span style={{ display: "block", width: 18, height: 2, background: "#f4f4f4",
+              borderRadius: 2, transition: "all 0.3s",
+              opacity: menuOpen ? 0 : 1, transform: menuOpen ? "scaleX(0)" : "none" }} />
+            <span style={{ display: "block", width: 18, height: 2, background: "#f4f4f4",
+              borderRadius: 2, transition: "all 0.3s",
+              transform: menuOpen ? "translateY(-7px) rotate(-45deg)" : "none" }} />
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <div style={{ background: "rgba(10,10,10,0.98)", backdropFilter: "blur(16px)",
+            borderTop: `1px solid ${BORDER}`, padding: "8px 0 16px",
+            display: "flex", flexDirection: "column" }}>
+            {[["#tours","Tours"],["#experience","Experience"],["#fleet","Fleet"],
+              ["#map","Routes"],["#contact","Contact"]].map(([href, label]) => (
+              <a key={href} href={href}
+                onClick={() => setMenuOpen(false)}
+                style={{ padding: "14px 24px", fontSize: 15, fontWeight: 700,
+                  color: "#ccc", textDecoration: "none", borderBottom: `1px solid ${BORDER}`,
+                  letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                {label}
+              </a>
+            ))}
+            <Link to="/adventures"
+              onClick={() => setMenuOpen(false)}
+              style={{ padding: "14px 24px", fontSize: 15, fontWeight: 700,
+                color: ORANGE, textDecoration: "none", borderBottom: `1px solid ${BORDER}`,
+                letterSpacing: "0.06em", textTransform: "uppercase" }}>
+              Adventures
+            </Link>
+            <button
+              onClick={() => { setMenuOpen(false); openBooking(); }}
+              style={{ margin: "14px 20px 0", background: ORANGE, color: "#fff",
+                border: "none", borderRadius: 10, padding: "15px", fontSize: 15,
+                fontWeight: 800, cursor: "pointer", fontFamily: "inherit",
+                letterSpacing: "0.04em" }}>
+              Book Your Tour →
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* ─── HERO ─── */}
