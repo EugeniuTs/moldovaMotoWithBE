@@ -463,6 +463,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
   const [confirmDel,setConfirmDel]=useState(null);
   const [filter,setFilter]=useState("all");
   const [search,setSearch]=useState("");
+  const [view,setView]=useState("list");
 
   const openAdd=()=>{setForm(BLANK_BOOKING);setModal("add");};
   const openEdit=b=>{setForm(b);setModal("edit");};
@@ -556,6 +557,36 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
     ?[{value:"",label:"Select departure…"},...(selectedRoute.departures||[]).map(d=>({value:d.id,label:fmtDate(d.date)+` — ${d.maxSpots} spots`}))]
     :[];
 
+  // Build departure summary for the Departures view
+  const departureSummary = [];
+  (routes||[]).forEach(route => {
+    (route.departures||[]).forEach(dep => {
+      const booked = (data||[]).filter(b =>
+        b.departureId === dep.id && b.status === "confirmed"
+      ).length;
+      const pending2 = (data||[]).filter(b =>
+        b.departureId === dep.id && b.status === "pending"
+      ).length;
+      const left = Math.max(0, (dep.maxSpots||0) - booked);
+      const pct  = dep.maxSpots > 0 ? Math.round((booked / dep.maxSpots) * 100) : 0;
+      departureSummary.push({
+        routeName: route.name,
+        routeId:   route.id,
+        depId:     dep.id,
+        date:      dep.date,
+        dateLabel: fmtDate(dep.date),
+        maxSpots:  dep.maxSpots||0,
+        booked,
+        pending:   pending2,
+        left,
+        pct,
+        isFull:    left === 0,
+        isSoon:    dep.date >= new Date().toISOString().slice(0,10),
+      });
+    });
+  });
+  departureSummary.sort((a,b) => a.date.localeCompare(b.date));
+
   return(
     <>
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
@@ -563,7 +594,21 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
           <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Bookings</h2>
           <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>{data.length} total · {pending} pending</p>
         </div>
-        <Btn onClick={openAdd}>+ New Booking</Btn>
+        <div style={{display:"flex",gap:8}}>
+          {/* View toggle */}
+          <div style={{display:"flex",background:T.elevated,borderRadius:10,border:`1px solid ${T.border}`,overflow:"hidden"}}>
+            {[["list","☰ List"],["departures","📅 Departures"]].map(([v,label])=>(
+              <button key={v} onClick={()=>setView(v)}
+                style={{padding:"7px 16px",fontSize:12,fontWeight:700,cursor:"pointer",
+                  fontFamily:"inherit",border:"none",transition:"all 0.15s",
+                  background:view===v?T.orange:"transparent",
+                  color:view===v?"#fff":T.muted}}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <Btn onClick={openAdd}>+ New Booking</Btn>
+        </div>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
@@ -572,22 +617,105 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
         <StatCard label="Revenue"   value={fmtPrice(revenue)} icon="€" accent={T.orange}/>
       </div>
 
-      <div style={{display:"flex",gap:10,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
-        {["all","pending","confirmed","cancelled"].map(f=>(
-          <Pill key={f} active={filter===f} onClick={()=>setFilter(f)}>
-            {f==="all"?"All":f.charAt(0).toUpperCase()+f.slice(1)}
-          </Pill>
-        ))}
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search rider or tour…"
-          style={{marginLeft:"auto",background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
-            padding:"6px 12px",color:T.text,fontSize:12,fontFamily:"inherit",outline:"none",width:200}}
-          onFocus={e=>e.target.style.borderColor=T.orange}
-          onBlur={e=>e.target.style.borderColor=T.border}/>
-      </div>
+      {/* ── DEPARTURES VIEW ─────────────────────────────────────────────── */}
+      {view==="departures" && (
+        <div>
+          {departureSummary.length===0 ? (
+            <div style={{textAlign:"center",padding:"60px 0",color:T.dim}}>
+              <div style={{fontSize:40,marginBottom:12}}>📅</div>
+              <div style={{fontSize:14,color:T.muted}}>No scheduled departures yet. Add departure dates in the Routes tab.</div>
+            </div>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {departureSummary.map((dep,i)=>{
+                const barColor = dep.isFull ? T.red : dep.pct>=80 ? T.yellow : T.green;
+                const riders = (data||[]).filter(b => b.departureId===dep.depId && b.status==="confirmed");
+                return (
+                  <div key={i} style={{background:T.card,border:`1px solid ${dep.isFull?T.red:T.border}`,
+                    borderRadius:14,padding:"18px 20px",transition:"border-color 0.2s"}}>
+                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12,gap:12,flexWrap:"wrap"}}>
+                      <div>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                          <span style={{fontWeight:800,fontSize:15,color:T.text}}>{dep.routeName}</span>
+                          <span style={{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:5,
+                            background:dep.isFull?"rgba(239,68,68,0.12)":dep.pct>=80?"rgba(234,179,8,0.12)":"rgba(34,197,94,0.1)",
+                            color:dep.isFull?T.red:dep.pct>=80?T.yellow:T.green}}>
+                            {dep.isFull?"FULL":dep.pct>=80?"Filling fast":"Open"}
+                          </span>
+                        </div>
+                        <div style={{fontSize:13,color:T.muted}}>📅 {dep.dateLabel}</div>
+                      </div>
+                      <div style={{textAlign:"right",flexShrink:0}}>
+                        <div style={{fontSize:26,fontWeight:900,color:dep.isFull?T.red:T.orange,lineHeight:1}}>
+                          {dep.booked}<span style={{fontSize:14,color:T.muted,fontWeight:400}}>/{dep.maxSpots}</span>
+                        </div>
+                        <div style={{fontSize:11,color:T.muted,marginTop:2}}>
+                          {dep.left} spot{dep.left!==1?"s":""} left
+                          {dep.pending>0&&<span style={{color:T.yellow,marginLeft:6}}>· {dep.pending} pending</span>}
+                        </div>
+                      </div>
+                    </div>
 
-      <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden"}}>
-        <Table columns={cols} rows={displayed} onEdit={openEdit} onDelete={r=>setConfirmDel(r)}/>
-      </div>
+                    {/* Progress bar */}
+                    <div style={{height:8,background:T.elevated,borderRadius:4,overflow:"hidden",marginBottom:12}}>
+                      <div style={{height:"100%",width:dep.pct+"%",background:barColor,
+                        borderRadius:4,transition:"width 0.5s ease"}}/>
+                    </div>
+
+                    {/* Confirmed riders list */}
+                    {riders.length>0 ? (
+                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                        {riders.map((r,j)=>(
+                          <span key={j} style={{background:T.elevated,border:`1px solid ${T.border}`,
+                            borderRadius:6,padding:"3px 10px",fontSize:11,color:T.text,
+                            display:"flex",alignItems:"center",gap:5}}>
+                            <span style={{width:18,height:18,borderRadius:"50%",background:"rgba(255,107,0,0.15)",
+                              display:"inline-flex",alignItems:"center",justifyContent:"center",
+                              fontSize:9,fontWeight:800,color:T.orange,flexShrink:0}}>
+                              {(r.name||"?")[0].toUpperCase()}
+                            </span>
+                            {r.name}
+                            {r.country&&<span style={{color:T.dim}}>· {r.country}</span>}
+                          </span>
+                        ))}
+                        {Array.from({length:dep.left}).map((_,j)=>(
+                          <span key={"e"+j} style={{background:"transparent",border:`1px dashed ${T.border}`,
+                            borderRadius:6,padding:"3px 10px",fontSize:11,color:T.dim}}>
+                            Open seat
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{fontSize:12,color:T.dim,fontStyle:"italic"}}>No confirmed riders yet</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── LIST VIEW ───────────────────────────────────────────────────── */}
+      {view==="list" && (
+        <>
+          <div style={{display:"flex",gap:10,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
+            {["all","pending","confirmed","cancelled"].map(f=>(
+              <Pill key={f} active={filter===f} onClick={()=>setFilter(f)}>
+                {f==="all"?"All":f.charAt(0).toUpperCase()+f.slice(1)}
+              </Pill>
+            ))}
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search rider or tour…"
+              style={{marginLeft:"auto",background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
+                padding:"6px 12px",color:T.text,fontSize:12,fontFamily:"inherit",outline:"none",width:200}}
+              onFocus={e=>e.target.style.borderColor=T.orange}
+              onBlur={e=>e.target.style.borderColor=T.border}/>
+          </div>
+          <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden"}}>
+            <Table columns={cols} rows={displayed} onEdit={openEdit} onDelete={r=>setConfirmDel(r)}/>
+          </div>
+        </>
+      )}
 
       {modal&&(
         <Modal title={modal==="add"?"New Booking":"Edit Booking"} onClose={closeModal}>
