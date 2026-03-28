@@ -170,7 +170,7 @@ function Toast({msg,type}){
   );
 }
 
-function Table({columns,rows,onEdit,onDelete}){
+function Table({columns,rows,onEdit,onDelete,onToggleVisible}){
   return(
     <div style={{overflowX:"auto"}}>
       <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
@@ -199,16 +199,18 @@ function Table({columns,rows,onEdit,onDelete}){
               ))}
               <td style={{padding:"12px 14px",textAlign:"right"}}>
                 <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-                  <button
-                    title={row.visible!==false?"Hide from public":"Show to public"}
-                    onClick={()=>{const updated={...row,visible:row.visible===false?true:false};onSave(updated,true);}}
-                    style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:7,
-                      padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
-                      color:row.visible!==false?T.green:T.red,transition:"all 0.15s"}}
-                    onMouseEnter={e=>e.currentTarget.style.borderColor=row.visible!==false?T.green:T.red}
-                    onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
-                    {row.visible!==false?"👁 Visible":"🚫 Hidden"}
-                  </button>
+                  {onToggleVisible && (
+                    <button
+                      title={row.visible!==false?"Hide from public":"Show to public"}
+                      onClick={()=>onToggleVisible(row)}
+                      style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:7,
+                        padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+                        color:row.visible!==false?T.green:T.red,transition:"all 0.15s"}}
+                      onMouseEnter={e=>e.currentTarget.style.borderColor=row.visible!==false?T.green:T.red}
+                      onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
+                      {row.visible!==false?"👁 Visible":"🚫 Hidden"}
+                    </button>
+                  )}
                   <Btn variant="ghost" size="sm" onClick={()=>onEdit(row)}>Edit</Btn>
                   <Btn variant="danger" size="sm" onClick={()=>onDelete(row)}>Delete</Btn>
                 </div>
@@ -297,7 +299,7 @@ function RoutesTab({data,bookings,onSave,onDelete}){
         {["all","active","draft"].map(f=><Pill key={f} active={filter===f} onClick={()=>setFilter(f)}>{f==="all"?"All":f.charAt(0).toUpperCase()+f.slice(1)}</Pill>)}
       </div>
       <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden"}}>
-        <Table columns={cols} rows={displayed} onEdit={openEdit} onDelete={r=>setConfirmDel(r)}/>
+        <Table columns={cols} rows={displayed} onEdit={openEdit} onDelete={r=>setConfirmDel(r)} onToggleVisible={r=>{const updated={...r,visible:r.visible===false?true:false};onSave(updated,true);}}/>
       </div>
 
       {modal&&(
