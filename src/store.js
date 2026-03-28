@@ -137,7 +137,7 @@ export function loadDB() {
     if (!raw) return JSON.parse(JSON.stringify(SEED));
     const db = JSON.parse(raw);
     if (db.routes) {
-      db.routes = db.routes.map(r => ({ dateType: "open", capacity: 8, departures: [], ...r }));
+      db.routes = db.routes.map(r => ({ dateType: "open", capacity: 8, departures: [], visible: true, ...r }));
     }
     if (!db.bookings) db.bookings = [];
     if (!db.fleet)    db.fleet    = JSON.parse(JSON.stringify(SEED.fleet));
