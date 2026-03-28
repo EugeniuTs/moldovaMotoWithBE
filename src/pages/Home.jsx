@@ -44,16 +44,46 @@ const style = `
   .map-stop:hover text { font-weight: 700; fill: #ff6b00; }
   .overlay-gradient { background: linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0.08) 100%); }
   @media (max-width: 768px) {
-    .nav-links { display: none; }
-    .hero-title { font-size: clamp(36px, 10vw, 72px) !important; }
-    .hero-sub { font-size: 16px !important; }
+    .nav-links { display: none !important; }
+    .nav-book-btn { display: none !important; }
+    .hamburger { display: flex !important; }
+    .hero-title { font-size: clamp(32px, 9vw, 64px) !important; }
+    .hero-sub { font-size: 15px !important; }
+    .hero-stats { gap: 20px !important; }
     .tours-grid { grid-template-columns: 1fr !important; }
     .exp-grid { grid-template-columns: 1fr 1fr !important; }
     .fleet-inner { flex-direction: column !important; }
-    .footer-grid { grid-template-columns: 1fr !important; }
+    .footer-grid { grid-template-columns: 1fr 1fr !important; }
     .steps-bar { gap: 4px !important; }
     .step-label { display: none !important; }
+    .map-grid { grid-template-columns: 1fr !important; }
+    .booking-modal-inner { padding: 20px 16px !important; }
   }
+  @media (max-width: 480px) {
+    .exp-grid { grid-template-columns: 1fr !important; }
+    .footer-grid { grid-template-columns: 1fr !important; }
+    .hero-stats { flex-wrap: wrap !important; gap: 16px !important; }
+  }
+  .hamburger { display: none; align-items: center; justify-content: center;
+    width: 40px; height: 40px; background: transparent; border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 8px; cursor: pointer; flex-direction: column; gap: 5px; padding: 0; }
+  .hamburger span { display: block; width: 18px; height: 2px; background: #f4f4f4;
+    border-radius: 2px; transition: all 0.3s; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-menu { display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: rgba(10,10,11,0.98); backdrop-filter: blur(16px);
+    border-bottom: 1px solid #252525; padding: 16px 0 20px; flex-direction: column; }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { padding: 13px 24px; font-size: 15px; font-weight: 700;
+    color: #ccc; text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase;
+    border-bottom: 1px solid #1a1a1a; transition: color 0.2s; }
+  .mobile-menu a:hover { color: #ff6b00; }
+  .mobile-menu a.orange { color: #ff6b00; }
+  .mobile-menu-book { margin: 14px 24px 0; background: #ff6b00; color: #fff;
+    border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 800;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.04em; text-align: center; }
 `;
 
 const ORANGE = "#ff6b00";
@@ -761,6 +791,7 @@ function LeafletMap({ stops, activeIdx, onHover }) {
 export default function MoldovaMotorTours() {
   const [showBooking, setShowBooking] = useState(false);
   const [defaultTour, setDefaultTour] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled]       = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [mapHover, setMapHover]       = useState(null);
@@ -1010,7 +1041,7 @@ export default function MoldovaMotorTours() {
             <p style={{ color: MUTED, marginTop: 14, fontSize: 16 }}>Real map powered by OpenStreetMap. Click any stop to fly to it.</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 36, alignItems: "start" }}>
+          <div className="map-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 36, alignItems: "start" }}>
 
             {/* ── Real OpenStreetMap via Leaflet ── */}
             <div style={{ borderRadius: 20, overflow: "hidden",
