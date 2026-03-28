@@ -67,41 +67,30 @@ const MUTED = "#888";
 // --- SVG Icons ---
 const IconBike = () => (
   <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
-    <path d="M12 3C9.5 3 7.5 4.8 7.5 7c0 1.2.5 2.2 1.3 3H5l-2 4h18l-2-4h-7.2c.8-.8 1.2-1.8 1.2-3C15 4.8 14.5 3 12 3z" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3 14c0 0 1 1.5 1 3s-1 3-1 3M21 14c0 0-1 1.5-1 3s1 3 1 3" strokeLinecap="round" strokeOpacity="0.5"/>
-    <line x1="5" y1="14" x2="19" y2="14"/>
-    <path d="M8 10 Q6 15 5 17M16 10 Q18 15 19 17" strokeLinecap="round" strokeOpacity="0.7"/>
+    <circle cx="12" cy="12" r="9.5"/>
+    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+    <polygon points="9,9 12,7 15,15 12,17" strokeLinejoin="round" strokeLinecap="round"/>
   </svg>
 );
 const IconGuide = () => (
   <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
-    <circle cx="8" cy="6" r="2.8" strokeLinejoin="round"/>
-    <path d="M2 20v-1c0-2.2 2.7-4 6-4s6 1.8 6 4v1" strokeLinecap="round"/>
-    <path d="M18 2c-2 0-3.5 1.5-3.5 3.5 0 2.5 3.5 6 3.5 6s3.5-3.5 3.5-6C21.5 3.5 20 2 18 2z" strokeLinejoin="round"/>
-    <circle cx="18" cy="5.5" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="8" r="3.8" strokeLinecap="round"/>
+    <path d="M4 20.5v-1.2C4 16 7.6 14 12 14s8 2 8 5.3v1.2" strokeLinecap="round"/>
   </svg>
 );
 const IconMoto = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-    <circle cx="5.5" cy="17.5" r="3" strokeWidth="1.7"/>
-    <circle cx="18.5" cy="17.5" r="3" strokeWidth="1.7"/>
-    <path d="M8.5 14.5 L10 9 L14 9 L16 14.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14 9 L16 6.5 L19 7 L20 9 L18 11 L16 14.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8.5 14.5 L16 14.5" strokeLinecap="round"/>
-    <path d="M10 12 L6 12" strokeLinecap="round" strokeWidth="1.3"/>
-    <path d="M5.5 14.5 L8.5 14.5" strokeLinecap="round" strokeWidth="1.2"/>
-    <path d="M17 6.5 L17.5 4.5 L20 5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.3"/>
-    <path d="M10 9 L10 7 L13 7" strokeLinecap="round" strokeWidth="1.2"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <circle cx="6" cy="16" r="3.8"/>
+    <circle cx="18" cy="16" r="3.8"/>
+    <path d="M6 16 L11 9 L18 16" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M11 9 L14 9" strokeLinecap="round"/>
+    <circle cx="12.5" cy="9" r="0" stroke="none"/>
   </svg>
 );
 const IconRoute = () => (
-  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-    <path d="M3 19 C5 14 8 17 11 13 C13 10 16 11 20 8" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2.5 2"/>
-    <circle cx="3"  cy="19" r="2" fill="currentColor" stroke="none"/>
-    <circle cx="11" cy="13" r="1.5" strokeWidth="1.5"/>
-    <circle cx="20" cy="8"  r="2" fill="currentColor" stroke="none"/>
-    <circle cx="20" cy="3"  r="2.2" strokeWidth="1.4"/>
-    <path d="M20 1.5 L20.5 2.8 L22 3 L20.5 3.2 L20 4.5 L19.5 3.2 L18 3 L19.5 2.8 Z" fill="currentColor" stroke="none"/>
+  <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 13 6 13s6-8 6-13c0-3.3-2.7-6-6-6z" strokeLinejoin="round"/>
+    <circle cx="12" cy="8" r="2.2" strokeWidth="1.5"/>
   </svg>
 );
 const IconCheck = () => (
