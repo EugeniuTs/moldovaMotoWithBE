@@ -593,189 +593,155 @@ function esc(s) {
 // LEAFLET MAP — real OpenStreetMap tiles + custom orange pins
 // ============================================================
 function LeafletMap({ stops, activeIdx, onHover }) {
-  const mapRef    = useRef(null);
-  const mapObj    = useRef(null);
-  const markers   = useRef([]);
-  const circles   = useRef([]);
+  const containerRef = useRef(null);
+  const mapRef       = useRef(null);
+  const markersRef   = useRef([]);
 
-  // Build map once on mount
   useEffect(() => {
-    if (mapObj.current) return;
+    let cancelled = false;
 
-    // Dynamically load Leaflet CSS
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link");
-      link.id   = "leaflet-css";
-      link.rel  = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
-      link.crossOrigin = "anonymous";
-      document.head.appendChild(link);
-    }
+    function boot() {
+      if (cancelled || !containerRef.current || mapRef.current) return;
 
-    // Dynamically load Leaflet JS then init
-    if (window.L) {
-      initMap();
-    } else {
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs=";
-      script.crossOrigin = "anonymous";
-      script.onload = initMap;
-      document.head.appendChild(script);
-    }
-
-    function initMap() {
       const L = window.L;
+      const el = containerRef.current;
 
-      // Fit Moldova — centre ~47.4°N 28.4°E, zoom 7
-      const map = L.map(mapRef.current, {
+      // Initialise map
+      const map = L.map(el, {
         center: [47.4, 28.4],
         zoom: 7,
         zoomControl: true,
         attributionControl: true,
       });
 
-      // CartoDB Dark Matter — dark tiles that match the site palette
+      // CartoDB Dark Matter tiles
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> \u00a9 <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 19,
       }).addTo(map);
 
-      // Inject dark popup CSS once
-      if (!document.getElementById("leaflet-dark-style")) {
-        const st = document.createElement("style");
-        st.id = "leaflet-dark-style";
-        st.textContent = `
-          .leaflet-popup-content-wrapper {
-            background: #16161a !important;
-            border: 1px solid #2a2a32 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
-            color: #f0f0f4 !important;
-          }
-          .leaflet-popup-tip { background: #16161a !important; }
-          .leaflet-popup-close-button { color: #72727a !important; }
-          .leaflet-popup-close-button:hover { color: #ff6b00 !important; }
-          .leaflet-control-zoom a {
-            background: #16161a !important;
-            color: #f0f0f4 !important;
-            border-color: #2a2a32 !important;
-          }
-          .leaflet-control-zoom a:hover { background: #ff6b00 !important; color: #fff !important; }
-          .leaflet-control-attribution {
-            background: rgba(10,10,11,0.75) !important;
-            color: #44444c !important;
-            font-size: 9px !important;
-          }
-          .leaflet-control-attribution a { color: #72727a !important; }
-          .leaflet-bar { border: 1px solid #26262d !important; border-radius: 8px !important; overflow: hidden; }
-          @keyframes pulse-ring { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,107,0,0)} }
-        `;
+      mapRef.current = map;
+
+      // Dark popup / control styles
+      if (!document.getElementById('lf-dark')) {
+        const st = document.createElement('style');
+        st.id = 'lf-dark';
+        st.textContent = [
+          '.leaflet-popup-content-wrapper{background:#16161a!important;border:1px solid #2a2a32!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,.7)!important;color:#f0f0f4!important}',
+          '.leaflet-popup-tip{background:#16161a!important}',
+          '.leaflet-popup-close-button{color:#72727a!important}',
+          '.leaflet-popup-close-button:hover{color:#ff6b00!important}',
+          '.leaflet-control-zoom a{background:#16161a!important;color:#f0f0f4!important;border-color:#2a2a32!important}',
+          '.leaflet-control-zoom a:hover{background:#ff6b00!important;color:#fff!important}',
+          '.leaflet-control-attribution{background:rgba(10,10,11,.75)!important;color:#44444c!important;font-size:9px!important}',
+          '.leaflet-control-attribution a{color:#72727a!important}',
+          '.leaflet-bar{border:1px solid #26262d!important;border-radius:8px!important;overflow:hidden}',
+          '@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,.4)}50%{box-shadow:0 0 0 8px rgba(255,107,0,0)}}',
+        ].join('');
         document.head.appendChild(st);
       }
 
-      mapObj.current = map;
+      // HTML entity sanitiser for popup content
+      function esc(s) {
+        const E = {38:'&amp;',60:'&lt;',62:'&gt;',34:'&quot;',39:'&#39;'};
+        return String(s).split('').map(ch => E[ch.charCodeAt(0)] || ch).join('');
+      }
 
-      // Create markers for each stop
+      // Add markers
       stops.forEach((stop, i) => {
-        const isHub = i === 0;
-        const color = isHub ? "#ff6b00" : "#cc4400";
-        const size  = isHub ? 18 : 14;
-
-        // Glowing dot markers — match site orange accent
+        const isHub     = i === 0;
         const outerSize = isHub ? 32 : 24;
         const innerSize = isHub ? 12 : 8;
+
         const icon = L.divIcon({
-          className: "",
-          html: `<div style="
-            width:${outerSize}px;height:${outerSize}px;
-            display:flex;align-items:center;justify-content:center;
-            cursor:pointer;
-          ">
-            <div style="
-              width:${outerSize}px;height:${outerSize}px;
-              background:rgba(255,107,0,${isHub?0.18:0.12});
-              border-radius:50%;
-              border:1px solid rgba(255,107,0,${isHub?0.5:0.3});
-              display:flex;align-items:center;justify-content:center;
-              animation:${isHub?'pulse-ring 2.5s infinite':'none'};
-            ">
-              <div style="
-                width:${innerSize}px;height:${innerSize}px;
-                background:#ff6b00;
-                border-radius:50%;
-                border:2px solid rgba(255,255,255,0.9);
-                box-shadow:0 0 8px rgba(255,107,0,0.8);
-              "></div>
-            </div>
-          </div>`,
-          iconSize:   [outerSize, outerSize],
-          iconAnchor: [outerSize/2, outerSize/2],
-          popupAnchor:[0, -(outerSize/2 + 4)],
+          className: '',
+          html: '<div style="width:' + outerSize + 'px;height:' + outerSize + 'px;display:flex;align-items:center;justify-content:center">' +
+                '<div style="width:' + outerSize + 'px;height:' + outerSize + 'px;background:rgba(255,107,0,' + (isHub ? 0.18 : 0.12) + ');border-radius:50%;border:1px solid rgba(255,107,0,' + (isHub ? 0.5 : 0.3) + ');display:flex;align-items:center;justify-content:center;animation:' + (isHub ? 'pulse-ring 2.5s infinite' : 'none') + '">' +
+                '<div style="width:' + innerSize + 'px;height:' + innerSize + 'px;background:#ff6b00;border-radius:50%;border:2px solid rgba(255,255,255,.9);box-shadow:0 0 8px rgba(255,107,0,.8)"></div>' +
+                '</div></div>',
+          iconSize:    [outerSize, outerSize],
+          iconAnchor:  [outerSize / 2, outerSize / 2],
+          popupAnchor: [0, -(outerSize / 2 + 4)],
         });
 
-        const badgeColor = i === 0 ? "#ff6b00" : "rgba(255,107,0,0.15)";
-        const badgeTxtColor = i === 0 ? "#fff" : "#ff6b00";
-        const badgeText  = i === 0 ? "\u2605" : String(i + 1);
-        const stopName = esc(stop.name);
-        const stopLabel = esc(stop.label);
-        const stopSub = esc(stop.sub);
-        const popupHtml = [
-          "<div style=\"font-family:-apple-system,sans-serif;min-width:170px;padding:2px 0\">",
-          "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px\">",
-          "<div style=\"width:22px;height:22px;border-radius:6px;background:" + badgeColor + ";",
-          "display:flex;align-items:center;justify-content:center;",
-          "font-size:11px;font-weight:700;color:" + badgeTxtColor + ";flex-shrink:0\">",
-          badgeText + "</div>",
-          "<strong style=\"font-size:13px;color:#f0f0f4\">" + stopName + "</strong>",
-          "</div>",
-          "<div style=\"font-size:11px;color:#72727a;margin-bottom:3px\">" + stopLabel + "</div>",
-          "<div style=\"font-size:11px;color:#ff6b00;font-weight:600\">" + stopSub + "</div>",
-          "</div>"
-        ].join("");
+        const bColor  = i === 0 ? '#ff6b00' : 'rgba(255,107,0,.15)';
+        const bTxt    = i === 0 ? '#fff' : '#ff6b00';
+        const badge   = i === 0 ? '\u2605' : String(i + 1);
+        const popup   =
+          '<div style="font-family:-apple-system,sans-serif;min-width:170px;padding:2px 0">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+          '<div style="width:22px;height:22px;border-radius:6px;background:' + bColor + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:' + bTxt + ';flex-shrink:0">' + badge + '</div>' +
+          '<strong style="font-size:13px;color:#f0f0f4">' + esc(stop.name)  + '</strong></div>' +
+          '<div style="font-size:11px;color:#72727a;margin-bottom:3px">'     + esc(stop.label) + '</div>' +
+          '<div style="font-size:11px;color:#ff6b00;font-weight:600">'       + esc(stop.sub)   + '</div></div>';
+
         const marker = L.marker([stop.lat, stop.lng], { icon })
           .addTo(map)
-          .bindPopup(popupHtml, { maxWidth: 210, className: "" });
+          .bindPopup(popup, { maxWidth: 210 });
 
-        marker.on("mouseover", () => onHover(i));
-        marker.on("mouseout",  () => onHover(null));
-        marker.on("click",     () => map.flyTo([stop.lat, stop.lng], 12, { duration: 1 }));
+        marker.on('mouseover', () => onHover(i));
+        marker.on('mouseout',  () => onHover(null));
+        marker.on('click',     () => map.flyTo([stop.lat, stop.lng], 12, { duration: 1 }));
 
-        // Pulse circle for hub
         if (isHub) {
-          const c = L.circle([stop.lat, stop.lng], {
-            radius: 8000, color: "#ff6b00",
-            fillColor: "#ff6b00", fillOpacity: 0.08,
-            weight: 1.5, dashArray: "4 4",
+          L.circle([stop.lat, stop.lng], {
+            radius: 8000, color: '#ff6b00', fillColor: '#ff6b00',
+            fillOpacity: 0.08, weight: 1.5, dashArray: '4 4',
           }).addTo(map);
-          circles.current.push(c);
         }
 
-        markers.current.push(marker);
+        markersRef.current.push(marker);
       });
+
+      // Force size recalc after layout settles
+      [0, 150, 500].forEach(ms =>
+        setTimeout(() => { if (mapRef.current) mapRef.current.invalidateSize(); }, ms)
+      );
     }
 
+    function loadLeaflet() {
+      // CSS
+      if (!document.getElementById('leaflet-css')) {
+        const link    = document.createElement('link');
+        link.id       = 'leaflet-css';
+        link.rel      = 'stylesheet';
+        link.href     = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+      // JS
+      if (window.L) {
+        boot();
+      } else {
+        const script = document.createElement('script');
+        script.src   = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.onload = boot;
+        script.onerror = () => console.warn('Leaflet failed to load');
+        document.head.appendChild(script);
+      }
+    }
+
+    loadLeaflet();
+
     return () => {
-      if (mapObj.current) {
-        mapObj.current.remove();
-        mapObj.current = null;
-        markers.current = [];
-        circles.current = [];
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current   = null;
+        markersRef.current = [];
       }
     };
   }, []);
 
-  // React to hover — open popup and highlight
+  // Hover sync
   useEffect(() => {
-    if (!mapObj.current || !window.L) return;
-    markers.current.forEach((m, i) => {
+    if (!mapRef.current || !window.L) return;
+    markersRef.current.forEach((m, i) => {
       if (i === activeIdx) {
         m.openPopup();
-        mapObj.current.flyTo(
+        mapRef.current.flyTo(
           [stops[i].lat, stops[i].lng],
-          mapObj.current.getZoom() < 9 ? 9 : mapObj.current.getZoom(),
+          Math.max(mapRef.current.getZoom(), 9),
           { duration: 0.6 }
         );
       } else {
@@ -784,10 +750,7 @@ function LeafletMap({ stops, activeIdx, onHover }) {
     });
   }, [activeIdx]);
 
-  return (
-    <div ref={mapRef}
-      style={{ width: "100%", height: "520px", background: "#111", display: "block" }} />
-  );
+  return <div ref={containerRef} style={{ width: '100%', height: '520px', background: '#111' }} />;
 }
 
 // ============================================================
