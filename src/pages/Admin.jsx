@@ -455,7 +455,7 @@ function RoutesTab({data,bookings,onSave,onDelete}){
 
 /* ── Bookings Tab ────────────────────────────────────────────────────────── */
 const BLANK_BOOKING={type:"guided",tour:"",departureId:"",name:"",email:"",phone:"",country:"",
-  date:today(),experience:"intermediate",status:"pending",bike:"",createdAt:today()};
+  date:today(),dateTo:"",rentalDays:1,experience:"intermediate",status:"pending",bike:"",createdAt:today()};
 
 function BookingsTab({data,routes,fleet,onSave,onDelete}){
   const [modal,setModal]=useState(null);
@@ -513,7 +513,11 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
     {key:"name",   label:"Rider",  render:v=><span style={{fontWeight:700,color:T.text}}>{v}</span>},
     {key:"type",   label:"Type",   render:(v,row)=>v==="rental"?<Badge status="rental" text="Rental"/>:<span style={{color:T.muted,fontSize:11}}>Guided</span>},
     {key:"tour",   label:"Tour",   render:v=><span style={{color:T.muted,fontSize:12,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",display:"block"}}>{v}</span>},
-    {key:"date",   label:"Departure",render:(_,row)=><span style={{fontWeight:600}}>{depDate(row)}</span>},
+    {key:"date",   label:"Period / Date",render:(_,row)=>{
+      if(row.type==="rental"&&row.date&&row.dateTo)
+        return <span style={{fontWeight:600,fontSize:11}}>{fmtDate(row.date)}<span style={{color:T.muted}}> → </span>{fmtDate(row.dateTo)}<span style={{color:T.orange,marginLeft:4}}>({row.rentalDays||1}d)</span></span>;
+      return <span style={{fontWeight:600}}>{depDate(row)}</span>;
+    }},
     {key:"country",label:"From",   render:v=><span style={{color:T.muted}}>{v}</span>},
     {key:"bike",   label:"Bike",   render:v=><span style={{color:T.muted,fontSize:12}}>{v||"—"}</span>},
     {key:"status", label:"Status", render:(v,row)=>(
@@ -872,6 +876,22 @@ function FleetTab({data,onSave,onDelete}){
 
 /* ── Dashboard ───────────────────────────────────────────────────────────── */
 function DashboardTab({routes,bookings,fleet}){
+  // Find bikes currently on rental or upcoming rental
+  const today2 = new Date().toISOString().slice(0,10);
+  const bikeRentalStatus = (fleet||[]).reduce((acc,f)=>{
+    const rental = (bookings||[]).find(b =>
+      b.bike===f.name && b.type==="rental" && b.status==="confirmed" &&
+      b.date && b.dateTo && b.date<=today2 && b.dateTo>=today2
+    );
+    const upcoming = (bookings||[]).find(b =>
+      b.bike===f.name && b.type==="rental" && b.status==="confirmed" &&
+      b.date && b.date>today2
+    );
+    acc[f.id] = rental ? {label:"On rental",color:T.yellow,sub:rental.date+"→"+rental.dateTo}
+               : upcoming ? {label:"Booked "+fmtDate(upcoming.date),color:T.blue,sub:"→"+fmtDate(upcoming.dateTo||"")}
+               : null;
+    return acc;
+  },{});
   const pending=bookings.filter(b=>b.status==="pending").length;
   const confirmed=bookings.filter(b=>b.status==="confirmed").length;
   const revenue=bookings.filter(b=>b.status==="confirmed"&&b.type!=="rental").reduce((s,b)=>{
@@ -1271,7 +1291,13 @@ function GalleryTab({data, routes, onSave, onDelete}) {
             {/* Tour + Date row */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Sel label="Link to Tour" value={form.tour||""} onChange={setF("tour")} options={tourOpts}/>
-              <Inp label="Date" value={form.date||""} onChange={setF("date")} type="date"/>
+              <Inp label="From Date" value={form.date||""} onChange={setF("date")} type="date"/>
+            {(form.type==="rental"||!form.tour)&&(
+              <Inp label="To Date" value={form.dateTo||""} onChange={v=>{setF("dateTo")(v);
+                const ms=new Date(v)-new Date(form.date);
+                if(ms>0)setF("rentalDays")(Math.round(ms/86400000));
+              }} type="date"/>
+            )}
             </div>
 
             {/* Caption */}

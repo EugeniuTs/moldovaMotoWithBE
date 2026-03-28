@@ -207,20 +207,31 @@ const STEP_LABELS = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
 function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [] }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
-    tour: defaultTour, date: "", departureId: "", bike: "", rentalDays: 1,
+    tour: defaultTour, date: "", dateTo: "", departureId: "", bike: "", rentalDays: 1,
     name: "", email: "", phone: "", country: "", experience: "",
     license: false
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => setForm(f => {
+    const next = { ...f, [k]: v };
+    // Auto-compute rental days when either date changes
+    if ((k === "date" || k === "dateTo") && next.date && next.dateTo) {
+      const ms = new Date(next.dateTo) - new Date(next.date);
+      const days = Math.max(1, Math.round(ms / 86400000));
+      next.rentalDays = days;
+    }
+    return next;
+  });
 
   const validate = () => {
     const e = {};
     if (step === 0 && !form.tour) e.tour = "Please select a tour";
     if (step === 1) {
       if (isOpenDate && !form.date) e.date = "Please pick a start date";
+      if (isOpenDate && !form.dateTo) e.dateTo = "Please pick an end date";
+      if (isOpenDate && form.date && form.dateTo && form.dateTo <= form.date) e.dateTo = "End date must be after start date";
       if (!isOpenDate && !form.departureId) e.date = "Please select a departure date";
     }
     if (step === 3) {
@@ -255,6 +266,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
       phone: form.phone,
       country: form.country,
       date: depObj ? depObj.date : form.date,
+      dateTo: isOpenDate ? form.dateTo : undefined,
       rentalDays: isOpenDate ? (form.rentalDays || 1) : undefined,
       experience: form.experience,
       status: "pending",
@@ -377,27 +389,39 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
               {step === 1 && (
                 <div>
                   {isOpenDate ? (
-                    /* ── Free / open date: date-picker + rental days ── */
+                    /* ── Free rental: from → to date range ── */
                     <>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose your date</div>
-                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>Pick any start date — your bike will be reserved for the full period.</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose your rental period</div>
+                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>Select a start and end date — your bike is reserved for the entire period.</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Start Date</label>
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>From</label>
                           <input type="date" className="form-input" min={today} value={form.date}
-                            onChange={e => set("date", e.target.value)}
+                            onChange={e => {
+                              set("date", e.target.value);
+                              if (form.dateTo && form.dateTo <= e.target.value) set("dateTo", "");
+                            }}
                             style={{ fontSize: 14, colorScheme: "dark" }} />
+                          {errors.date && <div style={{ color: "#ff4d4d", fontSize: 12, marginTop: 4 }}>{errors.date}</div>}
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Days (1 – 14)</label>
-                          <input type="number" className="form-input" min="1" max="14" value={form.rentalDays || 1}
-                            onChange={e => set("rentalDays", Math.max(1, Math.min(14, Number(e.target.value))))}
-                            style={{ fontSize: 14 }} />
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>To</label>
+                          <input type="date" className="form-input"
+                            min={form.date || today}
+                            value={form.dateTo}
+                            onChange={e => set("dateTo", e.target.value)}
+                            style={{ fontSize: 14, colorScheme: "dark" }} />
+                          {errors.dateTo && <div style={{ color: "#ff4d4d", fontSize: 12, marginTop: 4 }}>{errors.dateTo}</div>}
                         </div>
                       </div>
-                      {form.date && (
-                        <div style={{ marginTop: 14, padding: "12px 16px", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.25)", borderRadius: 10, fontSize: 13, color: "#ffb27a" }}>
-                          Total: €{((selectedTour?.priceNum || 0) * (form.rentalDays || 1)).toLocaleString()} · {form.rentalDays || 1} day{form.rentalDays > 1 ? "s" : ""} rental
+                      {form.date && form.dateTo && form.dateTo > form.date && (
+                        <div style={{ padding: "13px 16px", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.25)", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 13, color: "#ffb27a" }}>
+                            {form.rentalDays} day{form.rentalDays !== 1 ? "s" : ""} · {form.date} → {form.dateTo}
+                          </span>
+                          <span style={{ fontSize: 15, fontWeight: 800, color: ORANGE }}>
+                            €{((selectedTour?.priceNum || 0) * form.rentalDays).toLocaleString()}
+                          </span>
                         </div>
                       )}
                     </>
