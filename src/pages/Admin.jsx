@@ -1185,6 +1185,165 @@ function GalleryTab({data, routes, onSave, onDelete}) {
 }
 
 
+/* ── Users Tab ─────────────────────────────────────────────────────────────── */
+function UsersTab({ bookings }) {
+  const [search, setSearch] = useState("");
+
+  // Derive unique users from booking data
+  const usersMap = {};
+  (bookings || []).forEach(b => {
+    const key = b.email || b.name;
+    if (!key) return;
+    if (!usersMap[key]) {
+      usersMap[key] = {
+        name: b.name || "—",
+        email: b.email || "—",
+        country: b.country || "—",
+        phone: b.phone || "—",
+        bookings: 0,
+        totalSpend: 0,
+        lastBooking: b.createdAt || "—",
+        status: "active",
+      };
+    }
+    usersMap[key].bookings++;
+    usersMap[key].lastBooking = b.createdAt > usersMap[key].lastBooking
+      ? b.createdAt : usersMap[key].lastBooking;
+  });
+  const users = Object.values(usersMap);
+
+  const filtered = users.filter(u => {
+    const q = search.toLowerCase();
+    return !q || u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.country.toLowerCase().includes(q);
+  });
+
+  const countries = [...new Set(users.map(u => u.country).filter(Boolean))].sort();
+  const returning  = users.filter(u => u.bookings > 1).length;
+
+  return (
+    <>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
+        <div>
+          <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Users</h2>
+          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>
+            {users.length} unique riders from booking history
+          </p>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
+        <StatCard label="Total Users"    value={users.length}        icon="👥" accent={T.orange}/>
+        <StatCard label="Countries"      value={countries.length}     icon="🌍" accent={T.blue}/>
+        <StatCard label="Returning"      value={returning}            icon="🔄" accent={T.green}/>
+      </div>
+
+      {/* Search */}
+      <div style={{marginBottom:18}}>
+        <input
+          value={search} onChange={e=>setSearch(e.target.value)}
+          placeholder="Search by name, email or country…"
+          style={{width:"100%",background:T.bg,border:`1.5px solid ${T.border}`,
+            borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,
+            fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
+          onFocus={e=>e.target.style.borderColor=T.orange}
+          onBlur={e=>e.target.style.borderColor=T.border}
+        />
+      </div>
+
+      {/* Table */}
+      {filtered.length === 0 ? (
+        <div style={{textAlign:"center",padding:"60px 0",color:T.dim}}>
+          <div style={{fontSize:40,marginBottom:12}}>👥</div>
+          <div style={{fontSize:14,color:T.muted}}>
+            {users.length === 0
+              ? "No users yet — they appear automatically as bookings are made."
+              : "No users match your search."}
+          </div>
+        </div>
+      ) : (
+        <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden"}}>
+          {/* Table header */}
+          <div style={{display:"grid",gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr",
+            padding:"10px 18px",background:T.elevated,borderBottom:`1px solid ${T.border}`,
+            fontSize:10,fontWeight:800,color:T.dim,letterSpacing:"0.1em",textTransform:"uppercase"}}>
+            <span>Name</span>
+            <span>Email</span>
+            <span>Country</span>
+            <span>Bookings</span>
+            <span>Last Seen</span>
+          </div>
+          {filtered.map((u, i) => (
+            <div key={i}
+              style={{display:"grid",gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr",
+                padding:"13px 18px",borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none",
+                alignItems:"center",transition:"background 0.15s"}}
+              onMouseEnter={e=>e.currentTarget.style.background=T.elevated}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+              {/* Avatar + Name */}
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:32,height:32,borderRadius:"50%",flexShrink:0,
+                  background:`rgba(255,107,0,${0.1+((i*37)%4)*0.06})`,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontWeight:800,fontSize:12,color:T.orange}}>
+                  {(u.name[0]||"?").toUpperCase()}
+                </div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:T.text}}>{u.name}</div>
+                  {u.phone && u.phone !== "—" && (
+                    <div style={{fontSize:11,color:T.dim,marginTop:1}}>{u.phone}</div>
+                  )}
+                </div>
+              </div>
+              {/* Email */}
+              <div style={{fontSize:12,color:T.muted,overflow:"hidden",textOverflow:"ellipsis",
+                whiteSpace:"nowrap",paddingRight:8}}>{u.email}</div>
+              {/* Country */}
+              <div style={{fontSize:12,color:T.text}}>{u.country}</div>
+              {/* Bookings badge */}
+              <div>
+                <span style={{background:u.bookings>1?"rgba(255,107,0,0.12)":"transparent",
+                  color:u.bookings>1?T.orange:T.muted,
+                  border:`1px solid ${u.bookings>1?"rgba(255,107,0,0.3)":T.border}`,
+                  borderRadius:6,padding:"2px 10px",fontSize:11,fontWeight:700}}>
+                  {u.bookings} {u.bookings===1?"booking":"bookings"}
+                </span>
+              </div>
+              {/* Last seen */}
+              <div style={{fontSize:11,color:T.dim}}>{u.lastBooking}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Countries breakdown */}
+      {countries.length > 0 && (
+        <div style={{marginTop:24,background:T.card,border:`1px solid ${T.border}`,
+          borderRadius:14,padding:"16px 18px"}}>
+          <div style={{fontSize:11,fontWeight:800,color:T.orange,letterSpacing:"0.1em",
+            textTransform:"uppercase",marginBottom:12}}>Riders by Country</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {countries.map(country => {
+              const count = users.filter(u => u.country === country).length;
+              return (
+                <div key={country} style={{background:T.elevated,borderRadius:8,
+                  padding:"5px 12px",fontSize:12,color:T.text,
+                  border:`1px solid ${T.border}`}}>
+                  {country} <span style={{color:T.orange,fontWeight:700,marginLeft:4}}>{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
 const NAV_ITEMS=[
   {id:"dashboard",icon:"⊞",label:"Dashboard"},
@@ -1192,6 +1351,7 @@ const NAV_ITEMS=[
   {id:"bookings", icon:"📋",label:"Bookings"},
   {id:"fleet",    icon:"🏍️",label:"Fleet"},
   {id:"gallery",  icon:"🖼️", label:"Adventures"},
+  {id:"users",    icon:"👥", label:"Users"},
 ];
 
 function Sidebar({active,setActive,onLogout,bookings}){
@@ -1316,6 +1476,7 @@ export default function MoldovaMotoAdmin(){
           {tab==="bookings" &&<BookingsTab  data={db.bookings} routes={db.routes} fleet={db.fleet} onSave={handleSave("bookings")} onDelete={handleDelete}/>}
           {tab==="fleet"    &&<FleetTab     data={db.fleet} onSave={handleSave("fleet")} onDelete={handleDelete}/>}
           {tab==="gallery"  &&<GalleryTab   data={db.gallery||[]} routes={db.routes||[]} onSave={handleSave("gallery")} onDelete={handleDelete}/>}
+          {tab==="users"    &&<UsersTab     bookings={db.bookings||[]} />}
         </div>
       </main>
       <Toast msg={toast.msg} type={toast.type}/>

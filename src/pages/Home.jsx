@@ -797,7 +797,7 @@ function LeafletMap({ stops, activeIdx, onHover }) {
 
   return (
     <div ref={mapRef}
-      style={{ width: "100%", height: "100%", minHeight: 520, background: "#111" }} />
+      style={{ width: "100%", height: "520px", background: "#111", display: "block" }} />
   );
 }
 
@@ -1061,8 +1061,7 @@ export default function MoldovaMotorTours() {
             {/* ── Real OpenStreetMap via Leaflet ── */}
             <div style={{ borderRadius: 20, overflow: "hidden",
               border: `1px solid ${BORDER}`,
-              position: "relative", height: 520,
-              boxShadow: "0 0 0 1px rgba(255,107,0,0.08), inset 0 0 60px rgba(0,0,0,0.3)" }}>
+              position: "relative", height: 520 }}>
               <LeafletMap stops={mapStops} activeIdx={mapHover} onHover={setMapHover} />
             </div>
 
