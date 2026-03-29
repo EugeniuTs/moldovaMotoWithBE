@@ -280,6 +280,28 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
   const today = new Date().toISOString().split("T")[0];
   const selectedTour = tours.find(t => t.title === form.tour) || null;
   const isOpenDate   = !selectedTour || selectedTour.dateType === "open";
+
+  // Returns true if a bike has no confirmed/pending booking overlapping the selected dates
+  const bikeAvailable = (bike) => {
+    if (bike.status !== "available") return false;
+    // Determine the dates this booking would occupy
+    const from = isOpenDate ? form.date : (() => {
+      const dep = (selectedTour?.departures || []).find(d => d.id === form.departureId);
+      return dep ? dep.date : null;
+    })();
+    const to   = isOpenDate ? (form.dateTo || form.date) : from;
+    if (!from) return true; // no date chosen yet — show all available
+    // Check all bookings that use this bike and have overlapping dates
+    return !allBookings.some(b => {
+      if (b.bike !== bike.name) return false;
+      if (b.status === "cancelled") return false;
+      const bFrom = b.date || "";
+      const bTo   = b.dateTo || b.date || "";
+      if (!bFrom) return false;
+      // Overlap: bFrom <= to AND bTo >= from
+      return bFrom <= to && bTo >= from;
+    });
+  };
   const departures   = selectedTour ? (selectedTour.departures || []).filter(d => d.date >= today) : [];
 
   return (
@@ -478,20 +500,37 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
               {step === 2 && (
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose Your Ride</div>
-                  <div style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>Select an available motorcycle from our fleet.</div>
-                  {fleet.filter(b => b.status === "available").length === 0 && (
-                    <div style={{ color: MUTED, fontSize: 13, padding: "16px 0" }}>No bikes available for this date — please contact us directly.</div>
+                  <div style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>
+                    {form.date ? "Showing bikes available for your selected dates." : "Select an available motorcycle from our fleet."}
+                  </div>
+                  {fleet.filter(bikeAvailable).length === 0 && (
+                    <div style={{ padding: "20px 16px", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, fontSize: 13, color: "#fca5a5" }}>
+                      No bikes available for your selected dates — all are booked. Please try different dates or contact us directly.
+                    </div>
                   )}
-                  {fleet.filter(b => b.status === "available").map(bike => (
-                    <div key={bike.id} onClick={() => set("bike", bike.name)}
+                  {fleet.map(bike => {
+                    const avail = bikeAvailable(bike);
+                    const conflicts = !avail ? allBookings.filter(b =>
+                      b.bike === bike.name && b.status !== "cancelled" &&
+                      (b.dateTo||b.date||"") >= (isOpenDate?form.date:(selectedTour?.departures||[]).find(d=>d.id===form.departureId)?.date||"") &&
+                      (b.date||"") <= (isOpenDate?(form.dateTo||form.date):(selectedTour?.departures||[]).find(d=>d.id===form.departureId)?.date||"")
+                    ) : [];
+                    if (!avail && bike.status !== "available") return null; // hide maintenance bikes
+                    return (
+                    <div key={bike.id}
+                      onClick={() => avail && set("bike", bike.name)}
                       style={{
-                        border: `2px solid ${form.bike === bike.name ? ORANGE : BORDER}`,
-                        borderRadius: 14, overflow: "hidden", background: "#161616",
-                        marginBottom: 12, cursor: "pointer", transition: "border-color 0.2s"
+                        border: `2px solid ${!avail ? "rgba(239,68,68,0.25)" : form.bike === bike.name ? ORANGE : BORDER}`,
+                        borderRadius: 14, overflow: "hidden",
+                        background: !avail ? "rgba(239,68,68,0.04)" : "#161616",
+                        marginBottom: 12, cursor: avail ? "pointer" : "not-allowed",
+                        opacity: avail ? 1 : 0.6, transition: "border-color 0.2s, opacity 0.2s"
                       }}>
                       <div style={{ padding: "16px 20px 18px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                          <div style={{ background: ORANGE, color: "#fff", fontSize: 11, fontWeight: 800, padding: "3px 9px", borderRadius: 5, letterSpacing: "0.07em", textTransform: "uppercase" }}>Available</div>
+                          <div style={{ background: avail ? ORANGE : "#7f1d1d", color: "#fff", fontSize: 11, fontWeight: 800, padding: "3px 9px", borderRadius: 5, letterSpacing: "0.07em", textTransform: "uppercase" }}>
+                            {avail ? "Available" : "Booked"}
+                          </div>
                           <div style={{ fontSize: 17, fontWeight: 900, color: WHITE }}>{bike.name}</div>
                           <div style={{ fontSize: 12, color: MUTED, marginLeft: "auto" }}>{bike.color} · {bike.year}</div>
                         </div>
@@ -502,9 +541,16 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                             </div>
                           ))}
                         </div>
+                          {!avail && conflicts.length > 0 && (
+                            <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 2 }}>
+                              Booked {conflicts[0].date}{conflicts[0].dateTo ? ` → ${conflicts[0].dateTo}` : ""}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                   <div style={{ marginTop: 10, padding: "12px 16px", background: "rgba(255,107,0,0.08)", border: `1px solid rgba(255,107,0,0.25)`, borderRadius: 10, fontSize: 13, color: "#ffb27a" }}>
                     All motorcycles include comprehensive insurance, gear rental option, and 24/7 roadside support.
                   </div>
