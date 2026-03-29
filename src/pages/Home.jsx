@@ -542,11 +542,10 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                           ))}
                         </div>
                           {!avail && conflicts.length > 0 && (
-                            <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 2 }}>
+                            <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 6 }}>
                               Booked {conflicts[0].date}{conflicts[0].dateTo ? ` → ${conflicts[0].dateTo}` : ""}
                             </div>
                           )}
-                        </div>
                       </div>
                     </div>
                     );
