@@ -972,12 +972,12 @@ function DashboardTab({routes,bookings,fleet}){
       <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden",marginBottom:20}}>
         <div style={{padding:"16px 20px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <span style={{fontSize:13,fontWeight:700,color:T.text}}>Upcoming Departures</span>
-          <span style={{fontSize:11,color:T.muted}}>Spots decrease automatically when bookings are confirmed</span>
+          <span style={{fontSize:11,color:T.muted}}>Guided tours + free rides starting from today</span>
         </div>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead>
             <tr style={{borderBottom:`1px solid ${T.border}`}}>
-              {["Tour","Date","Booked","Cap.","Spots Left","Status"].map(h=>(
+              {["Rider / Tour","Date","Type","Bike","Spots Left","Status"].map(h=>(
                 <th key={h} style={{padding:"9px 14px",textAlign:"left",fontSize:11,color:T.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.07em",whiteSpace:"nowrap"}}>{h}</th>
               ))}
             </tr>
@@ -986,32 +986,71 @@ function DashboardTab({routes,bookings,fleet}){
             {(()=>{
               const todayS=new Date().toISOString().slice(0,10);
               const rows=[];
+
+              // ── Scheduled guided tour departures ──────────────────────
               (routes||[]).forEach(route=>{
                 if(route.dateType!=="scheduled")return;
                 (route.departures||[]).filter(d=>d.date>=todayS).sort((a,b)=>a.date.localeCompare(b.date)).forEach(dep=>{
                   const booked=(bookings||[]).filter(b=>b.departureId===dep.id&&b.status==="confirmed").length;
                   const left=Math.max(0,(dep.maxSpots||0)-booked);
-                  rows.push({rName:route.name,dep,booked,left});
+                  rows.push({kind:"guided",rName:route.name,date:dep.date,dateTo:null,dep,booked,left,booking:null});
                 });
               });
+
+              // ── Free rental bookings (confirmed + pending) ───────────
+              (bookings||[])
+                .filter(b=>b.type==="rental"&&b.date&&b.date>=todayS&&b.status!=="cancelled")
+                .sort((a,b)=>a.date.localeCompare(b.date))
+                .forEach(b=>{
+                  rows.push({kind:"rental",rName:b.tour||"Free Ride",date:b.date,dateTo:b.dateTo||null,dep:null,booked:1,left:null,booking:b});
+                });
+
+              // Sort everything by start date
+              rows.sort((a,b)=>a.date.localeCompare(b.date));
+
               if(rows.length===0)return(
                 <tr><td colSpan={6} style={{padding:"24px 16px",textAlign:"center",color:T.dim}}>
-                  No upcoming scheduled departures. Add departure dates to a route first.
+                  No upcoming departures or rentals found.
                 </td></tr>
               );
-              return rows.slice(0,10).map(({rName,dep,booked,left})=>(
-                <tr key={dep.id} style={{borderBottom:`1px solid ${T.border}`}}>
-                  <td style={{padding:"10px 14px",color:T.text,fontWeight:600,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rName}</td>
-                  <td style={{padding:"10px 14px",color:T.text,whiteSpace:"nowrap"}}>{fmtDate(dep.date)}</td>
-                  <td style={{padding:"10px 14px",color:T.orange,fontWeight:700}}>{booked}</td>
-                  <td style={{padding:"10px 14px",color:T.muted}}>{dep.maxSpots}</td>
-                  <td style={{padding:"10px 14px",fontWeight:700,color:left===0?T.red:left<=2?T.yellow:T.green}}>{left}</td>
-                  <td style={{padding:"10px 14px"}}>
-                    <Badge status={left===0?"full":left<=2?"filling":"available"}
-                      text={left===0?"FULL":left<=2?"Filling":"Open"}/>
-                  </td>
-                </tr>
-              ));
+
+              return rows.slice(0,12).map((row,i)=>{
+                if(row.kind==="rental"){
+                  const b=row.booking;
+                  return(
+                    <tr key={"r"+b.id} style={{borderBottom:`1px solid ${T.border}`,background:"rgba(59,130,246,0.03)"}}>
+                      <td style={{padding:"10px 14px"}}>
+                        <div style={{fontWeight:700,color:T.text,fontSize:12}}>{b.name}</div>
+                        <div style={{fontSize:11,color:T.muted}}>Free Motorcycle Rental</div>
+                      </td>
+                      <td style={{padding:"10px 14px",color:T.text,whiteSpace:"nowrap",fontSize:12}}>
+                        {fmtDate(b.date)}
+                        {b.dateTo&&<><span style={{color:T.muted}}> → </span>{fmtDate(b.dateTo)}</>}
+                        {b.rentalDays&&<span style={{color:T.orange,marginLeft:5,fontSize:11}}>({b.rentalDays}d)</span>}
+                      </td>
+                      <td style={{padding:"10px 14px"}}><Badge status="rental" text="Free Ride"/></td>
+                      <td style={{padding:"10px 14px",color:T.muted,fontSize:12}}>{b.bike||"—"}</td>
+                      <td style={{padding:"10px 14px",color:T.muted,fontSize:12}}>—</td>
+                      <td style={{padding:"10px 14px"}}><Badge status={b.status}/></td>
+                    </tr>
+                  );
+                }
+                // Guided tour departure row
+                const {rName,dep,booked,left}=row;
+                return(
+                  <tr key={dep.id} style={{borderBottom:`1px solid ${T.border}`}}>
+                    <td style={{padding:"10px 14px",color:T.text,fontWeight:600,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rName}</td>
+                    <td style={{padding:"10px 14px",color:T.text,whiteSpace:"nowrap"}}>{fmtDate(dep.date)}</td>
+                    <td style={{padding:"10px 14px"}}><span style={{fontSize:11,color:T.dim}}>Guided</span></td>
+                    <td style={{padding:"10px 14px",color:T.muted,fontSize:12}}>Fleet</td>
+                    <td style={{padding:"10px 14px",fontWeight:700,color:left===0?T.red:left<=2?T.yellow:T.green}}>{left} / {dep.maxSpots}</td>
+                    <td style={{padding:"10px 14px"}}>
+                      <Badge status={left===0?"full":left<=2?"filling":"available"}
+                        text={left===0?"FULL":left<=2?"Filling":"Open"}/>
+                    </td>
+                  </tr>
+                );
+              });
             })()}
           </tbody>
         </table>
