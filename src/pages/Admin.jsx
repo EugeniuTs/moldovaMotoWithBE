@@ -876,6 +876,13 @@ function FleetTab({data,onSave,onDelete}){
 
 /* ── Dashboard ───────────────────────────────────────────────────────────── */
 function DashboardTab({routes,bookings,fleet}){
+  const [depType,  setDepType]  = useState("all");   // all | guided | rental
+  const [depStatus,setDepStatus]= useState("all");   // all | pending | confirmed
+  const [depBike,  setDepBike]  = useState("all");   // all | bike name
+  const [depFrom,  setDepFrom]  = useState("");       // date string
+  const [depTo,    setDepTo]    = useState("");       // date string
+  const [depSort,  setDepSort]  = useState("asc");   // asc | desc
+
   // Find bikes currently on rental or upcoming rental
   const today2 = new Date().toISOString().slice(0,10);
   const bikeRentalStatus = (fleet||[]).reduce((acc,f)=>{
@@ -970,10 +977,93 @@ function DashboardTab({routes,bookings,fleet}){
 
       {/* Upcoming Departures */}
       <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden",marginBottom:20}}>
-        <div style={{padding:"16px 20px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+
+        {/* Header */}
+        <div style={{padding:"16px 20px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
           <span style={{fontSize:13,fontWeight:700,color:T.text}}>Upcoming Departures</span>
           <span style={{fontSize:11,color:T.muted}}>Guided tours + free rides starting from today</span>
         </div>
+
+        {/* Filter + sort bar */}
+        {(()=>{
+          const bikeNames = [...new Set((bookings||[]).filter(b=>b.bike).map(b=>b.bike))].sort();
+          const selStyle = (active) => ({
+            padding:"5px 11px", fontSize:11, fontWeight:700, cursor:"pointer",
+            fontFamily:"inherit", border:`1px solid ${active?T.orange:T.border}`,
+            borderRadius:7, background:active?"rgba(255,107,0,0.1)":"transparent",
+            color:active?T.orange:T.muted, transition:"all 0.15s"
+          });
+          const inputStyle = {
+            background:T.elevated, border:`1px solid ${T.border}`, borderRadius:7,
+            padding:"5px 9px", color:T.text, fontSize:11, fontFamily:"inherit",
+            outline:"none", colorScheme:"dark"
+          };
+          return(
+            <div style={{padding:"12px 16px",borderBottom:`1px solid ${T.border}`,
+              display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+
+              {/* Type filter */}
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,marginRight:2,textTransform:"uppercase",letterSpacing:"0.08em"}}>Type</span>
+                {[["all","All"],["guided","Guided"],["rental","Free Ride"]].map(([v,l])=>(
+                  <button key={v} onClick={()=>setDepType(v)} style={selStyle(depType===v)}>{l}</button>
+                ))}
+              </div>
+
+              <div style={{width:1,height:20,background:T.border}}/>
+
+              {/* Status filter */}
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,marginRight:2,textTransform:"uppercase",letterSpacing:"0.08em"}}>Status</span>
+                {[["all","All"],["pending","Pending"],["confirmed","Confirmed"]].map(([v,l])=>(
+                  <button key={v} onClick={()=>setDepStatus(v)} style={selStyle(depStatus===v)}>{l}</button>
+                ))}
+              </div>
+
+              <div style={{width:1,height:20,background:T.border}}/>
+
+              {/* Bike filter */}
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,marginRight:2,textTransform:"uppercase",letterSpacing:"0.08em"}}>Bike</span>
+                <select value={depBike} onChange={e=>setDepBike(e.target.value)} style={inputStyle}>
+                  <option value="all">All bikes</option>
+                  {bikeNames.map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+
+              <div style={{width:1,height:20,background:T.border}}/>
+
+              {/* Date range */}
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>From</span>
+                <input type="date" value={depFrom} onChange={e=>setDepFrom(e.target.value)} style={inputStyle}/>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>To</span>
+                <input type="date" value={depTo} onChange={e=>setDepTo(e.target.value)} style={inputStyle}/>
+              </div>
+
+              <div style={{width:1,height:20,background:T.border}}/>
+
+              {/* Sort */}
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:10,color:T.dim,fontWeight:700,marginRight:2,textTransform:"uppercase",letterSpacing:"0.08em"}}>Sort</span>
+                <button onClick={()=>setDepSort("asc")}  style={selStyle(depSort==="asc")}>↑ Earliest</button>
+                <button onClick={()=>setDepSort("desc")} style={selStyle(depSort==="desc")}>↓ Latest</button>
+              </div>
+
+              {/* Reset */}
+              {(depType!=="all"||depStatus!=="all"||depBike!=="all"||depFrom||depTo)&&(
+                <button onClick={()=>{setDepType("all");setDepStatus("all");setDepBike("all");setDepFrom("");setDepTo("");}}
+                  style={{marginLeft:"auto",padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",
+                    fontFamily:"inherit",border:`1px solid ${T.red}`,borderRadius:7,
+                    background:"rgba(239,68,68,0.08)",color:T.red}}>
+                  ✕ Reset
+                </button>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Table */}
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead>
             <tr style={{borderBottom:`1px solid ${T.border}`}}>
@@ -984,37 +1074,47 @@ function DashboardTab({routes,bookings,fleet}){
           </thead>
           <tbody>
             {(()=>{
-              const todayS=new Date().toISOString().slice(0,10);
-              const rows=[];
+              const todayS = new Date().toISOString().slice(0,10);
+              let rows = [];
 
-              // ── Scheduled guided tour departures ──────────────────────
+              // Guided tour departures
               (routes||[]).forEach(route=>{
-                if(route.dateType!=="scheduled")return;
-                (route.departures||[]).filter(d=>d.date>=todayS).sort((a,b)=>a.date.localeCompare(b.date)).forEach(dep=>{
+                if(route.dateType!=="scheduled") return;
+                (route.departures||[]).filter(d=>d.date>=todayS).forEach(dep=>{
                   const booked=(bookings||[]).filter(b=>b.departureId===dep.id&&b.status==="confirmed").length;
                   const left=Math.max(0,(dep.maxSpots||0)-booked);
-                  rows.push({kind:"guided",rName:route.name,date:dep.date,dateTo:null,dep,booked,left,booking:null});
+                  rows.push({kind:"guided",rName:route.name,date:dep.date,dateTo:null,dep,booked,left,booking:null,bike:"Fleet",rowStatus:left===0?"full":left<=2?"filling":"open"});
                 });
               });
 
-              // ── Free rental bookings (confirmed + pending) ───────────
+              // Free rental bookings
               (bookings||[])
                 .filter(b=>b.type==="rental"&&b.date&&b.date>=todayS&&b.status!=="cancelled")
-                .sort((a,b)=>a.date.localeCompare(b.date))
                 .forEach(b=>{
-                  rows.push({kind:"rental",rName:b.tour||"Free Ride",date:b.date,dateTo:b.dateTo||null,dep:null,booked:1,left:null,booking:b});
+                  rows.push({kind:"rental",rName:b.name||"Free Ride",date:b.date,dateTo:b.dateTo||null,dep:null,booked:1,left:null,booking:b,bike:b.bike||"—",rowStatus:b.status});
                 });
 
-              // Sort everything by start date
-              rows.sort((a,b)=>a.date.localeCompare(b.date));
+              // ── Apply filters ───────────────────────────────────────
+              if(depType!=="all")   rows=rows.filter(r=>r.kind===depType);
+              if(depStatus!=="all") rows=rows.filter(r=>{
+                if(r.kind==="rental") return r.booking.status===depStatus;
+                if(depStatus==="confirmed") return r.left<r.dep?.maxSpots;
+                return true;
+              });
+              if(depBike!=="all")   rows=rows.filter(r=>r.bike===depBike);
+              if(depFrom)           rows=rows.filter(r=>r.date>=depFrom);
+              if(depTo)             rows=rows.filter(r=>r.date<=depTo);
 
-              if(rows.length===0)return(
-                <tr><td colSpan={6} style={{padding:"24px 16px",textAlign:"center",color:T.dim}}>
-                  No upcoming departures or rentals found.
+              // ── Sort ────────────────────────────────────────────────
+              rows.sort((a,b)=>depSort==="asc"?a.date.localeCompare(b.date):b.date.localeCompare(a.date));
+
+              if(rows.length===0) return(
+                <tr><td colSpan={6} style={{padding:"32px 16px",textAlign:"center",color:T.dim}}>
+                  No entries match your filters.
                 </td></tr>
               );
 
-              return rows.slice(0,12).map((row,i)=>{
+              return rows.map((row,i)=>{
                 if(row.kind==="rental"){
                   const b=row.booking;
                   return(
@@ -1035,7 +1135,6 @@ function DashboardTab({routes,bookings,fleet}){
                     </tr>
                   );
                 }
-                // Guided tour departure row
                 const {rName,dep,booked,left}=row;
                 return(
                   <tr key={dep.id} style={{borderBottom:`1px solid ${T.border}`}}>
