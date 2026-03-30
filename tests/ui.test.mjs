@@ -186,9 +186,11 @@ describe("Admin panel tabs", () => {
     );
   });
 
-  it("visibility toggle calls onSave with updated visible field", () => {
-    assert.ok(admin.includes("visible:row.visible===false?true:false") ||
-              admin.includes("visible: row.visible === false ? true : false"),
+  it("visibility toggle inverts the visible field on the row", () => {
+    assert.ok(admin.includes("onToggleVisible"), "onToggleVisible prop must be passed");
+    assert.ok(
+      admin.includes("visible:r.visible===false?true:false") ||
+      admin.includes("r.visible===false?true:false"),
       "Toggle must invert visible field"
     );
   });
@@ -266,9 +268,10 @@ describe("OpenStreetMap integration", () => {
     assert.ok(home.includes("LeafletMap"), "LeafletMap component must exist");
   });
 
-  it("loads Leaflet from CDN with SRI hash", () => {
+  it("loads Leaflet from unpkg CDN", () => {
     assert.ok(home.includes("unpkg.com/leaflet"), "Leaflet must be loaded from unpkg");
-    assert.ok(home.includes("integrity"), "SRI integrity must be set");
+    // SRI intentionally removed from dynamic script injection (causes silent load failure)
+    assert.ok(!home.includes("script.integrity"), "SRI must not be on dynamic script element");
   });
 
   it("uses CartoDB Dark Matter tiles", () => {
