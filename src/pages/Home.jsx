@@ -667,7 +667,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, padding: "14px 22px", marginBottom: 28 }}>
               <IconWA />
-              <span style={{ fontSize: 14, color: "#ffb27a" }}>WhatsApp us for faster confirmation: <strong>+373 XX XXX XXX</strong></span>
+              <span style={{ fontSize: 14, color: "#ffb27a" }}>WhatsApp us for faster confirmation: <strong>+373 69 765 298</strong></span>
             </div>
             <button onClick={onClose} style={{ background: ORANGE, border: "none", color: "#fff", borderRadius: 10, padding: "12px 28px", cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "inherit" }}>
               Back to Tours
@@ -1312,7 +1312,7 @@ export default function MoldovaMotorTours() {
                 The premier guided motorcycle tour company in Moldova. Connecting international riders with Eastern Europe's most authentic hidden roads since 2019.
               </p>
               <div style={{ display: "flex", gap: 14 }}>
-                <a href="https://wa.me/37300000000" style={{ display: "flex", alignItems: "center", gap: 8, color: "#25D366", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>
+                <a href="https://wa.me/37369765298" style={{ display: "flex", alignItems: "center", gap: 8, color: "#25D366", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>
                   <IconWA /> WhatsApp
                 </a>
                 <a href="https://instagram.com" style={{ display: "flex", alignItems: "center", gap: 8, color: "#C13584", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>
