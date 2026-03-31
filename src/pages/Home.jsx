@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
+import { notifyNewBooking, notifyContactForm } from "../brevo.js";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Lora:ital@0;1&display=swap');
@@ -274,6 +275,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
       createdAt: new Date().toISOString().slice(0, 10),
     };
     saveDB({ ...db, bookings: [...db.bookings, newBooking] });
+    notifyNewBooking(newBooking); // fire-and-forget — doesn't block UI
     setSubmitted(true);
   };
 
@@ -1354,7 +1356,7 @@ export default function MoldovaMotorTours() {
                   <textarea placeholder="Your question or message…" className="form-input" rows={4} value={contactForm.message}
                     onChange={e => setContactForm(f => ({ ...f, message: e.target.value }))}
                     style={{ fontSize: 14, resize: "vertical", minHeight: 90 }} />
-                  <button onClick={() => { if (contactForm.name && contactForm.email) setContactSent(true); }}
+                  <button onClick={() => { if (contactForm.name && contactForm.email) { notifyContactForm(contactForm); setContactSent(true); } }}
                     style={{ background: ORANGE, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
                     Send Message
                   </button>
