@@ -458,170 +458,651 @@ const BLANK_BOOKING={type:"guided",tour:"",departureId:"",name:"",email:"",phone
   date:today(),dateTo:"",rentalDays:1,experience:"intermediate",status:"pending",bike:"",createdAt:today()};
 
 function BookingsTab({data,routes,fleet,onSave,onDelete}){
-  const [modal,setModal]=useState(null);
-  const [form,setForm]=useState(BLANK_BOOKING);
-  const [confirmDel,setConfirmDel]=useState(null);
-  const [filter,setFilter]=useState("all");
-  const [search,setSearch]=useState("");
-  const [view,setView]=useState("list");
+  /* ── State ───────────────────────────────────────────────────────────── */
+  const [modal,setModal]         = useState(null);
+  const [form,setForm]           = useState(BLANK_BOOKING);
+  const [confirmDel,setConfirmDel] = useState(null);
+  const [view,setView]           = useState("grid");   // grid | calendar | departures
+  const [page,setPage]           = useState(0);
+  const [rowsPerPage,setRowsPP]  = useState(10);
+  const [sortField,setSortField] = useState("date");
+  const [sortDir,setSortDir]     = useState("desc");
+  const [filterStatus,setFS]     = useState("all");
+  const [filterType,setFT]       = useState("all");
+  const [filterFrom,setFF]       = useState("");
+  const [filterTo,setFTo]        = useState("");
+  const [search,setSearch]       = useState("");
+  const [showFilters,setSF]      = useState(false);
+  const [calDate,setCalDate]     = useState(new Date());
+  const [detailBooking,setDetail]= useState(null);
 
-  const openAdd=()=>{setForm(BLANK_BOOKING);setModal("add");};
-  const openEdit=b=>{setForm(b);setModal("edit");};
-  const closeModal=()=>{setModal(null);setForm(BLANK_BOOKING);};
+  /* ── Helpers ──────────────────────────────────────────────────────────── */
+  const openAdd  = () => { setForm(BLANK_BOOKING); setModal("add"); };
+  const openEdit = b  => { setForm(b); setModal("edit"); };
+  const closeModal = () => { setModal(null); setForm(BLANK_BOOKING); };
 
-  const handleSave=()=>{
-    if(!form.name||!form.email)return;
-    onSave({...form,id:form.id||"b"+uid2()},modal==="edit");
+  const handleSave = () => {
+    if(!form.name||!form.email) return;
+    onSave({...form, id:form.id||"b"+uid2()}, modal==="edit");
     closeModal();
   };
 
-  const quickStatus=(id,status)=>{
-    const rec=data.find(b=>b.id===id);
-    if(!rec)return;
-    if(status==="confirmed"&&rec.type!=="rental"){
-      const route=(routes||[]).find(r=>r.name===rec.tour);
-      if(route&&route.dateType==="scheduled"&&rec.departureId){
-        const dep=(route.departures||[]).find(d=>d.id===rec.departureId);
-        const left=spotsLeft(dep,data);
-        if(left<=0&&!window.confirm(
-          "This departure is at capacity (" + (dep?.maxSpots||0) + "/" + (dep?.maxSpots||0) + " spots taken).\nConfirm this booking anyway?"
-        ))return;
+  const quickStatus = (id,status) => {
+    const rec = data.find(b=>b.id===id);
+    if(!rec) return;
+    if(status==="confirmed" && rec.type!=="rental"){
+      const route = (routes||[]).find(r=>r.name===rec.tour);
+      if(route && route.dateType==="scheduled" && rec.departureId){
+        const dep = (route.departures||[]).find(d=>d.id===rec.departureId);
+        const left = dep ? spotsLeft(dep,data) : 99;
+        if(left<=0 && !window.confirm("At capacity. Confirm anyway?")) return;
       }
     }
-    onSave({...rec,status},true);
+    onSave({...rec, status}, true);
   };
 
-  // Find departure date label for a booking
-  const depDate=(b)=>{
-    const route=routes.find(r=>r.name===b.tour);
-    if(!route||!b.departureId)return b.date||"—";
-    const dep=(route.departures||[]).find(d=>d.id===b.departureId);
-    return dep?fmtDate(dep.date):(b.date?fmtDate(b.date):"—");
+  const depDate = (b) => {
+    const route = routes.find(r=>r.name===b.tour);
+    if(!route||!b.departureId) return b.date||"—";
+    const dep = (route.departures||[]).find(d=>d.id===b.departureId);
+    return dep ? fmtDate(dep.date) : (b.date ? fmtDate(b.date) : "—");
   };
 
-  const displayed=data
-    .filter(b=>filter==="all"||b.status===filter)
-    .filter(b=>!search||b.name.toLowerCase().includes(search.toLowerCase())||b.tour.toLowerCase().includes(search.toLowerCase()));
+  const getTourPrice = (b) => {
+    if(b.type==="rental") return (b.rentalDays||1) * 120;
+    const r = routes.find(r=>r.name===b.tour);
+    return r ? (r.price||0) : 0;
+  };
 
-  const pending=data.filter(b=>b.status==="pending").length;
-  const confirmed=data.filter(b=>b.status==="confirmed").length;
-  const revenue=data.filter(b=>b.status==="confirmed"&&b.type!=="rental").reduce((s,b)=>{
-    const r=routes.find(r=>r.name===b.tour);return s+(r?.price||0);
-  },0);
+  const bikeBooked = (bikeName, booking) => {
+    if(!bikeName) return false;
+    return data.some(b =>
+      b.id !== booking.id &&
+      b.bike === bikeName &&
+      b.status !== "cancelled" &&
+      b.date && booking.date &&
+      (b.dateTo||b.date) >= booking.date &&
+      b.date <= (booking.dateTo||booking.date)
+    );
+  };
 
-  const cols=[
-    {key:"name",   label:"Rider",  render:v=><span style={{fontWeight:700,color:T.text}}>{v}</span>},
-    {key:"type",   label:"Type",   render:(v,row)=>v==="rental"?<Badge status="rental" text="Rental"/>:<span style={{color:T.muted,fontSize:11}}>Guided</span>},
-    {key:"tour",   label:"Tour",   render:v=><span style={{color:T.muted,fontSize:12,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",display:"block"}}>{v}</span>},
-    {key:"date",   label:"Period / Date",render:(_,row)=>{
-      if(row.type==="rental"&&row.date&&row.dateTo)
-        return <span style={{fontWeight:600,fontSize:11}}>{fmtDate(row.date)}<span style={{color:T.muted}}> → </span>{fmtDate(row.dateTo)}<span style={{color:T.orange,marginLeft:4}}>({row.rentalDays||1}d)</span></span>;
-      return <span style={{fontWeight:600}}>{depDate(row)}</span>;
-    }},
-    {key:"country",label:"From",   render:v=><span style={{color:T.muted}}>{v}</span>},
-    {key:"bike",   label:"Bike",   render:v=><span style={{color:T.muted,fontSize:12}}>{v||"—"}</span>},
-    {key:"status", label:"Status", render:(v,row)=>(
-      <div style={{display:"flex",alignItems:"center",gap:8}}>
-        <Badge status={v}/>
-        {v==="pending"&&(
-          <div style={{display:"flex",gap:4}}>
-            {(()=>{
-              const route=(routes||[]).find(r=>r.name===row.tour);
-              const dep=route&&(route.departures||[]).find(d=>d.id===row.departureId);
-              const left=dep?spotsLeft(dep,data):99;
-              const full=left<=0;
-              return(
-                <button onClick={e=>{e.stopPropagation();quickStatus(row.id,"confirmed");}}
-                  title={full?"At capacity — click to override":"Confirm booking"}
-                  style={{background:full?T.yellowDim:T.greenDim,color:full?T.yellow:T.green,
-                    border:`1px solid ${full?T.yellow:T.green}`,borderRadius:5,padding:"2px 7px",
-                    fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  {full?"!OK":"OK"}
-                </button>
-              );
-            })()}
-            <button onClick={e=>{e.stopPropagation();quickStatus(row.id,"cancelled");}}
-              style={{background:T.redDim,color:T.red,border:`1px solid ${T.red}`,borderRadius:5,padding:"2px 7px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>X</button>
-          </div>
-        )}
-      </div>
-    )},
-  ];
+  /* ── Status colours ───────────────────────────────────────────────────── */
+  const statusStyle = (s) => ({
+    confirmed: {bg:"rgba(34,197,94,0.15)",  color:"#22c55e", border:"rgba(34,197,94,0.35)"},
+    pending:   {bg:"rgba(255,107,0,0.15)",  color:"#ff6b00", border:"rgba(255,107,0,0.35)"},
+    cancelled: {bg:"rgba(239,68,68,0.15)",  color:"#ef4444", border:"rgba(239,68,68,0.35)"},
+    completed: {bg:"rgba(59,130,246,0.15)", color:"#3b82f6", border:"rgba(59,130,246,0.35)"},
+  }[s] || {bg:T.elevated, color:T.muted, border:T.border});
 
-  const setF=k=>v=>setForm(f=>({...f,[k]:v}));
-  const tourOpts=[{value:"",label:"Select tour…"},...routes.map(r=>({value:r.name,label:r.name})),{value:"Motorcycle Rental",label:"Motorcycle Rental (Free Riding)"}];
-  const bikeOpts=[{value:"",label:"Select bike…"},...fleet.map(f=>({value:f.name,label:`${f.name} (${f.status})`}))];
-  const expOpts=["beginner","intermediate","advanced","expert"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
-  const statOpts=["pending","confirmed","cancelled"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
-  const typeOpts=[{value:"guided",label:"Guided Tour"},{value:"rental",label:"Free Riding Rental"}];
+  /* ── Filter + sort pipeline ───────────────────────────────────────────── */
+  let rows = [...data];
+  if(filterStatus !== "all") rows = rows.filter(b => b.status === filterStatus);
+  if(filterType   !== "all") rows = rows.filter(b => b.type === filterType);
+  if(filterFrom)             rows = rows.filter(b => b.date >= filterFrom);
+  if(filterTo)               rows = rows.filter(b => b.date <= filterTo);
+  if(search) {
+    const q = search.toLowerCase();
+    rows = rows.filter(b =>
+      b.name?.toLowerCase().includes(q) ||
+      b.tour?.toLowerCase().includes(q) ||
+      b.email?.toLowerCase().includes(q) ||
+      b.country?.toLowerCase().includes(q) ||
+      b.bike?.toLowerCase().includes(q)
+    );
+  }
 
-  // Departures for selected tour in form
-  const selectedRoute=routes.find(r=>r.name===form.tour);
-  const depOpts=selectedRoute&&selectedRoute.dateType==="scheduled"
-    ?[{value:"",label:"Select departure…"},...(selectedRoute.departures||[]).map(d=>({value:d.id,label:fmtDate(d.date)+` — ${d.maxSpots} spots`}))]
-    :[];
+  const sortRows = (arr) => [...arr].sort((a,b) => {
+    let av, bv;
+    if(sortField==="name")   { av=a.name||"";  bv=b.name||""; }
+    else if(sortField==="status") { av=a.status||""; bv=b.status||""; }
+    else if(sortField==="amount") { av=getTourPrice(a); bv=getTourPrice(b); }
+    else { av=a.date||""; bv=b.date||""; }
+    if(av<bv) return sortDir==="asc"?-1:1;
+    if(av>bv) return sortDir==="asc"?1:-1;
+    return 0;
+  });
 
-  // Build departure summary for the Departures view
+  rows = sortRows(rows);
+  const totalRows = rows.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  const safePage = Math.min(page, totalPages-1);
+  const pageRows = rows.slice(safePage*rowsPerPage, safePage*rowsPerPage+rowsPerPage);
+
+  /* ── Stats ────────────────────────────────────────────────────────────── */
+  const pending   = data.filter(b=>b.status==="pending").length;
+  const confirmed = data.filter(b=>b.status==="confirmed").length;
+  const cancelled = data.filter(b=>b.status==="cancelled").length;
+  const revenue   = data.filter(b=>b.status==="confirmed"&&b.type!=="rental")
+    .reduce((s,b)=>{ const r=routes.find(r=>r.name===b.tour); return s+(r?.price||0); },0);
+
+  /* ── XLS Export ───────────────────────────────────────────────────────── */
+  const exportXLS = () => {
+    const cols = ["ID","Rider","Email","Country","Tour","Type","Start Date","End Date","Days","Bike","Status","Amount (EUR)"];
+    const escCell = v => `"${String(v||"").replace(/"/g,'""')}"`;
+    const csvRows = [cols.map(escCell).join(",")];
+    data.forEach(b => {
+      const price = getTourPrice(b);
+      csvRows.push([
+        b.id, b.name, b.email, b.country, b.tour,
+        b.type==="rental"?"Free Rental":"Guided",
+        b.date, b.dateTo||b.date, b.rentalDays||1,
+        b.bike, b.status, price,
+      ].map(escCell).join(","));
+    });
+    const blob = new Blob([csvRows.join("\n")], {type:"text/csv"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "moldovamoto-bookings.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  /* ── Calendar helpers ─────────────────────────────────────────────────── */
+  const calYear  = calDate.getFullYear();
+  const calMonth = calDate.getMonth();
+  const calLabel = calDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  const bookingsOnDay = (d) => {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    return data.filter(b => b.date === dateStr || (b.dateTo && b.date <= dateStr && b.dateTo >= dateStr));
+  };
+
+  /* ── Column sort handler ──────────────────────────────────────────────── */
+  const sortBy = (field) => {
+    if(sortField===field) setSortDir(d=>d==="asc"?"desc":"asc");
+    else { setSortField(field); setSortDir("asc"); }
+    setPage(0);
+  };
+
+  const SortArrow = ({field}) => {
+    if(sortField!==field) return <span style={{color:T.dim,marginLeft:3}}>⇅</span>;
+    return <span style={{color:T.orange,marginLeft:3}}>{sortDir==="asc"?"↑":"↓"}</span>;
+  };
+
+  /* ── Form helpers ─────────────────────────────────────────────────────── */
+  const setF = k => v => setForm(f=>({...f,[k]:v}));
+  const tourOpts  = [{value:"",label:"Select tour…"},...routes.map(r=>({value:r.name,label:r.name})),{value:"Motorcycle Rental",label:"Motorcycle Rental (Free Riding)"}];
+  const bikeOpts  = [{value:"",label:"Select bike…"},...fleet.map(f=>({value:f.name,label:`${f.name} (${f.status})`}))];
+  const expOpts   = ["beginner","intermediate","advanced","expert"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
+  const statOpts  = ["pending","confirmed","cancelled","completed"].map(v=>({value:v,label:v.charAt(0).toUpperCase()+v.slice(1)}));
+  const typeOpts  = [{value:"guided",label:"Guided Tour"},{value:"rental",label:"Free Riding Rental"}];
+  const selectedRoute = routes.find(r=>r.name===form.tour);
+  const depOpts = selectedRoute&&selectedRoute.dateType==="scheduled"
+    ? [{value:"",label:"Select departure…"},...(selectedRoute.departures||[]).map(d=>({value:d.id,label:fmtDate(d.date)+` — ${d.maxSpots} spots`}))]
+    : [];
+
+  /* ── Departures summary ───────────────────────────────────────────────── */
   const departureSummary = [];
   (routes||[]).forEach(route => {
     (route.departures||[]).forEach(dep => {
-      const booked = (data||[]).filter(b =>
-        b.departureId === dep.id && b.status === "confirmed"
-      ).length;
-      const pending2 = (data||[]).filter(b =>
-        b.departureId === dep.id && b.status === "pending"
-      ).length;
-      const left = Math.max(0, (dep.maxSpots||0) - booked);
-      const pct  = dep.maxSpots > 0 ? Math.round((booked / dep.maxSpots) * 100) : 0;
-      departureSummary.push({
-        routeName: route.name,
-        routeId:   route.id,
-        depId:     dep.id,
-        date:      dep.date,
-        dateLabel: fmtDate(dep.date),
-        maxSpots:  dep.maxSpots||0,
-        booked,
-        pending:   pending2,
-        left,
-        pct,
-        isFull:    left === 0,
-        isSoon:    dep.date >= new Date().toISOString().slice(0,10),
-      });
+      const booked  = data.filter(b=>b.departureId===dep.id&&b.status==="confirmed").length;
+      const pend    = data.filter(b=>b.departureId===dep.id&&b.status==="pending").length;
+      const left    = Math.max(0,(dep.maxSpots||0)-booked);
+      const pct     = dep.maxSpots>0 ? Math.round(booked/dep.maxSpots*100) : 0;
+      departureSummary.push({routeName:route.name,depId:dep.id,date:dep.date,
+        dateLabel:fmtDate(dep.date),maxSpots:dep.maxSpots||0,booked,pending:pend,left,pct,isFull:left===0});
     });
   });
-  departureSummary.sort((a,b) => a.date.localeCompare(b.date));
+  departureSummary.sort((a,b)=>a.date.localeCompare(b.date));
 
-  return(
+  const activeFilters = filterStatus!=="all"||filterType!=="all"||filterFrom||filterTo||search;
+
+  /* ════════════════════════════════════════════════════════════════════════
+     RENDER
+     ════════════════════════════════════════════════════════════════════════ */
+  return (
     <>
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",
+        marginBottom:20,gap:12,flexWrap:"wrap"}}>
         <div>
           <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Bookings</h2>
-          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>{data.length} total · {pending} pending</p>
+          <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>
+            {data.length} total · {pending} pending · {cancelled} cancelled
+          </p>
         </div>
-        <div style={{display:"flex",gap:8}}>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           {/* View toggle */}
-          <div style={{display:"flex",background:T.elevated,borderRadius:10,border:`1px solid ${T.border}`,overflow:"hidden"}}>
-            {[["list","☰ List"],["departures","📅 Departures"]].map(([v,label])=>(
+          <div style={{display:"flex",background:T.elevated,borderRadius:10,
+            border:`1px solid ${T.border}`,overflow:"hidden"}}>
+            {[["grid","⊞ Grid"],["calendar","📆 Calendar"],["departures","📅 Departures"]].map(([v,label])=>(
               <button key={v} onClick={()=>setView(v)}
-                style={{padding:"7px 16px",fontSize:12,fontWeight:700,cursor:"pointer",
-                  fontFamily:"inherit",border:"none",transition:"all 0.15s",
-                  background:view===v?T.orange:"transparent",
-                  color:view===v?"#fff":T.muted}}>
+                style={{padding:"7px 14px",fontSize:12,fontWeight:700,cursor:"pointer",
+                  fontFamily:"inherit",border:"none",transition:"all 0.15s",whiteSpace:"nowrap",
+                  background:view===v?T.orange:"transparent",color:view===v?"#fff":T.muted}}>
                 {label}
               </button>
             ))}
           </div>
+          {/* Export */}
+          <button onClick={exportXLS}
+            style={{padding:"7px 14px",fontSize:12,fontWeight:700,cursor:"pointer",
+              fontFamily:"inherit",border:`1px solid ${T.border}`,borderRadius:10,
+              background:"transparent",color:T.muted,display:"flex",alignItems:"center",gap:6}}>
+            ⬇ Export CSV
+          </button>
           <Btn onClick={openAdd}>+ New Booking</Btn>
         </div>
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
-        <StatCard label="Pending"   value={pending}       icon="⏳" accent={T.yellow}/>
-        <StatCard label="Confirmed" value={confirmed}     icon="✅" accent={T.green}/>
+      {/* ── Stat cards ──────────────────────────────────────────────────── */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
+        <StatCard label="Pending"   value={pending}          icon="⏳" accent={T.orange}/>
+        <StatCard label="Confirmed" value={confirmed}        icon="✅" accent={T.green}/>
+        <StatCard label="Cancelled" value={cancelled}        icon="🚫" accent={T.red}/>
         <StatCard label="Revenue"   value={fmtPrice(revenue)} icon="€" accent={T.orange}/>
       </div>
 
-      {/* ── DEPARTURES VIEW ─────────────────────────────────────────────── */}
+      {/* ════ GRID VIEW ══════════════════════════════════════════════════ */}
+      {view==="grid" && (
+        <>
+          {/* Filter / search bar */}
+          <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,
+            marginBottom:16,overflow:"hidden"}}>
+            <div style={{padding:"10px 14px",display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+              {/* Search */}
+              <input value={search} onChange={e=>{setSearch(e.target.value);setPage(0);}}
+                placeholder="Search rider, tour, email, bike…"
+                style={{flex:1,minWidth:160,background:T.elevated,border:`1px solid ${T.border}`,
+                  borderRadius:8,padding:"7px 12px",color:T.text,fontSize:12,fontFamily:"inherit",outline:"none"}}
+                onFocus={e=>e.target.style.borderColor=T.orange}
+                onBlur={e=>e.target.style.borderColor=T.border}/>
+
+              {/* Status pills */}
+              <div style={{display:"flex",gap:4}}>
+                {[["all","All"],["pending","Pending"],["confirmed","Confirmed"],
+                  ["cancelled","Cancelled"],["completed","Completed"]].map(([v,l])=>(
+                  <button key={v} onClick={()=>{setFS(v);setPage(0);}}
+                    style={{padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",
+                      fontFamily:"inherit",border:`1px solid ${filterStatus===v?T.orange:T.border}`,
+                      borderRadius:7,background:filterStatus===v?"rgba(255,107,0,0.12)":"transparent",
+                      color:filterStatus===v?T.orange:T.muted}}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              {/* Filter toggle */}
+              <button onClick={()=>setSF(x=>!x)}
+                style={{padding:"6px 12px",fontSize:11,fontWeight:700,cursor:"pointer",
+                  fontFamily:"inherit",border:`1px solid ${showFilters||activeFilters?T.orange:T.border}`,
+                  borderRadius:7,background:activeFilters?"rgba(255,107,0,0.08)":"transparent",
+                  color:activeFilters?T.orange:T.muted,display:"flex",alignItems:"center",gap:5}}>
+                ⚙ Filters {activeFilters&&"•"}
+              </button>
+
+              {activeFilters&&(
+                <button onClick={()=>{setFS("all");setFT("all");setFF("");setFTo("");setSearch("");setPage(0);}}
+                  style={{padding:"5px 10px",fontSize:11,fontWeight:700,cursor:"pointer",
+                    fontFamily:"inherit",border:`1px solid ${T.red}`,borderRadius:7,
+                    background:"rgba(239,68,68,0.08)",color:T.red}}>
+                  ✕ Reset
+                </button>
+              )}
+            </div>
+
+            {/* Expanded filter panel */}
+            {showFilters&&(
+              <div style={{padding:"12px 14px",borderTop:`1px solid ${T.border}`,
+                display:"flex",gap:14,flexWrap:"wrap",alignItems:"flex-end",background:T.elevated}}>
+                <div>
+                  <div style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",
+                    letterSpacing:"0.08em",marginBottom:5}}>Type</div>
+                  <div style={{display:"flex",gap:4}}>
+                    {[["all","All"],["guided","Guided"],["rental","Free Ride"]].map(([v,l])=>(
+                      <button key={v} onClick={()=>{setFT(v);setPage(0);}}
+                        style={{padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",
+                          fontFamily:"inherit",border:`1px solid ${filterType===v?T.orange:T.border}`,
+                          borderRadius:7,background:filterType===v?"rgba(255,107,0,0.1)":"transparent",
+                          color:filterType===v?T.orange:T.muted}}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",
+                    letterSpacing:"0.08em",marginBottom:5}}>Date From</div>
+                  <input type="date" value={filterFrom} onChange={e=>{setFF(e.target.value);setPage(0);}}
+                    style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:7,
+                      padding:"5px 9px",color:T.text,fontSize:11,fontFamily:"inherit",
+                      outline:"none",colorScheme:"dark"}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",
+                    letterSpacing:"0.08em",marginBottom:5}}>Date To</div>
+                  <input type="date" value={filterTo} onChange={e=>{setFTo(e.target.value);setPage(0);}}
+                    style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:7,
+                      padding:"5px 9px",color:T.text,fontSize:11,fontFamily:"inherit",
+                      outline:"none",colorScheme:"dark"}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:T.dim,fontWeight:700,textTransform:"uppercase",
+                    letterSpacing:"0.08em",marginBottom:5}}>Sort by</div>
+                  <div style={{display:"flex",gap:4}}>
+                    {[["date","Date"],["name","Name"],["status","Status"],["amount","Amount"]].map(([v,l])=>(
+                      <button key={v} onClick={()=>sortBy(v)}
+                        style={{padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",
+                          fontFamily:"inherit",border:`1px solid ${sortField===v?T.orange:T.border}`,
+                          borderRadius:7,background:sortField===v?"rgba(255,107,0,0.1)":"transparent",
+                          color:sortField===v?T.orange:T.muted}}>
+                        {l} {sortField===v&&(sortDir==="asc"?"↑":"↓")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Table */}
+          <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,overflow:"hidden",marginBottom:12}}>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,minWidth:900}}>
+                <thead>
+                  <tr style={{borderBottom:`1px solid ${T.border}`,background:T.elevated}}>
+                    {[
+                      {label:"Rider / Country", field:null,       w:160},
+                      {label:"Tour",            field:null,       w:160},
+                      {label:"Type",            field:null,       w:90},
+                      {label:"Date",            field:"date",     w:120},
+                      {label:"End Date",        field:null,       w:100},
+                      {label:"Bike",            field:null,       w:130},
+                      {label:"Amount",          field:"amount",   w:90},
+                      {label:"Status",          field:"status",   w:110},
+                      {label:"Actions",         field:null,       w:120},
+                    ].map(col=>(
+                      <th key={col.label}
+                        onClick={col.field?()=>sortBy(col.field):undefined}
+                        style={{padding:"10px 12px",textAlign:"left",fontSize:10,color:T.muted,
+                          fontWeight:700,textTransform:"uppercase",letterSpacing:"0.07em",
+                          whiteSpace:"nowrap",cursor:col.field?"pointer":"default",
+                          userSelect:"none",minWidth:col.w}}>
+                        {col.label}{col.field&&<SortArrow field={col.field}/>}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageRows.length===0&&(
+                    <tr><td colSpan={9} style={{padding:"40px",textAlign:"center",color:T.dim,fontSize:13}}>
+                      No bookings match your filters.
+                    </td></tr>
+                  )}
+                  {pageRows.map((b,i)=>{
+                    const ss = statusStyle(b.status);
+                    const price = getTourPrice(b);
+                    const bikeConflict = bikeBooked(b.bike, b);
+                    const isRental = b.type==="rental";
+                    return(
+                      <tr key={b.id}
+                        style={{borderBottom:`1px solid ${T.border}`,cursor:"pointer",
+                          background:i%2===0?"transparent":"rgba(255,255,255,0.01)",
+                          transition:"background 0.12s"}}
+                        onMouseEnter={e=>e.currentTarget.style.background="rgba(255,107,0,0.04)"}
+                        onMouseLeave={e=>e.currentTarget.style.background=i%2===0?"transparent":"rgba(255,255,255,0.01)"}>
+
+                        {/* Rider */}
+                        <td style={{padding:"11px 12px"}}>
+                          <div style={{fontWeight:700,color:T.text,fontSize:12}}>{b.name||"—"}</div>
+                          <div style={{fontSize:10,color:T.dim,marginTop:1}}>{b.country||""}</div>
+                        </td>
+
+                        {/* Tour */}
+                        <td style={{padding:"11px 12px",maxWidth:160}}>
+                          <div style={{color:T.muted,fontSize:12,overflow:"hidden",
+                            textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{b.tour||"—"}</div>
+                        </td>
+
+                        {/* Type */}
+                        <td style={{padding:"11px 12px"}}>
+                          {isRental
+                            ? <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:5,
+                                background:T.blueDim,color:T.blue}}>FREE RIDE</span>
+                            : <span style={{fontSize:11,color:T.muted}}>Guided</span>}
+                        </td>
+
+                        {/* Start Date */}
+                        <td style={{padding:"11px 12px",color:T.text,fontWeight:600,whiteSpace:"nowrap",fontSize:12}}>
+                          {b.date ? fmtDate(b.date) : "—"}
+                        </td>
+
+                        {/* End Date */}
+                        <td style={{padding:"11px 12px",color:T.muted,whiteSpace:"nowrap",fontSize:12}}>
+                          {isRental && b.dateTo ? fmtDate(b.dateTo) : (isRental ? fmtDate(b.date) : "—")}
+                          {isRental && b.rentalDays && (
+                            <span style={{color:T.orange,marginLeft:4,fontSize:10}}>({b.rentalDays}d)</span>
+                          )}
+                        </td>
+
+                        {/* Bike + availability */}
+                        <td style={{padding:"11px 12px"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:5}}>
+                            <div style={{width:7,height:7,borderRadius:"50%",flexShrink:0,
+                              background:!b.bike?"#555":bikeConflict?T.red:T.green}}/>
+                            <span style={{color:T.muted,fontSize:12}}>{b.bike||"—"}</span>
+                          </div>
+                          {bikeConflict&&b.bike&&(
+                            <div style={{fontSize:9,color:T.red,marginTop:1}}>Overlap detected</div>
+                          )}
+                        </td>
+
+                        {/* Amount */}
+                        <td style={{padding:"11px 12px",fontWeight:700,color:T.orange,fontSize:13}}>
+                          {price>0 ? fmtPrice(price) : "—"}
+                        </td>
+
+                        {/* Status */}
+                        <td style={{padding:"11px 12px"}}>
+                          <span style={{display:"inline-flex",alignItems:"center",gap:5,
+                            padding:"3px 10px",borderRadius:6,fontSize:10,fontWeight:800,
+                            background:ss.bg,color:ss.color,border:`1px solid ${ss.border}`}}>
+                            <span style={{width:5,height:5,borderRadius:"50%",background:ss.color,flexShrink:0}}/>
+                            {(b.status||"unknown").toUpperCase()}
+                          </span>
+                          {b.status==="pending"&&(
+                            <div style={{display:"flex",gap:3,marginTop:4}}>
+                              <button onClick={e=>{e.stopPropagation();quickStatus(b.id,"confirmed");}}
+                                style={{background:T.greenDim,color:T.green,border:`1px solid ${T.green}`,
+                                  borderRadius:4,padding:"2px 6px",fontSize:9,fontWeight:700,
+                                  cursor:"pointer",fontFamily:"inherit"}}>✓ OK</button>
+                              <button onClick={e=>{e.stopPropagation();quickStatus(b.id,"cancelled");}}
+                                style={{background:T.redDim,color:T.red,border:`1px solid ${T.red}`,
+                                  borderRadius:4,padding:"2px 6px",fontSize:9,fontWeight:700,
+                                  cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{padding:"11px 12px"}}>
+                          <div style={{display:"flex",gap:6}}>
+                            <Btn variant="ghost" size="sm" onClick={e=>{e.stopPropagation();openEdit(b);}}>Edit</Btn>
+                            <Btn variant="danger" size="sm" onClick={e=>{e.stopPropagation();setConfirmDel(b);}}>Del</Btn>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Pagination */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+            padding:"8px 4px",flexWrap:"wrap",gap:8}}>
+            <div style={{fontSize:12,color:T.muted}}>
+              {totalRows===0?"No results":`Showing ${safePage*rowsPerPage+1}–${Math.min((safePage+1)*rowsPerPage,totalRows)} of ${totalRows} bookings`}
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:11,color:T.dim}}>Rows per page</span>
+              <select value={rowsPerPage} onChange={e=>{setRowsPP(Number(e.target.value));setPage(0);}}
+                style={{background:T.elevated,border:`1px solid ${T.border}`,borderRadius:7,
+                  padding:"4px 8px",color:T.text,fontSize:11,fontFamily:"inherit",outline:"none"}}>
+                {[10,25,50,100].map(n=><option key={n} value={n}>{n}</option>)}
+              </select>
+              <div style={{display:"flex",gap:4}}>
+                <button disabled={safePage===0} onClick={()=>setPage(0)}
+                  style={{padding:"4px 8px",borderRadius:6,border:`1px solid ${T.border}`,
+                    background:"transparent",color:safePage===0?T.dim:T.muted,cursor:safePage===0?"not-allowed":"pointer",fontSize:12}}>
+                  «
+                </button>
+                <button disabled={safePage===0} onClick={()=>setPage(p=>p-1)}
+                  style={{padding:"4px 8px",borderRadius:6,border:`1px solid ${T.border}`,
+                    background:"transparent",color:safePage===0?T.dim:T.muted,cursor:safePage===0?"not-allowed":"pointer",fontSize:12}}>
+                  ‹
+                </button>
+                {Array.from({length:Math.min(5,totalPages)},(_,i)=>{
+                  const pg = Math.max(0, Math.min(totalPages-5, safePage-2)) + i;
+                  return(
+                    <button key={pg} onClick={()=>setPage(pg)}
+                      style={{padding:"4px 10px",borderRadius:6,fontSize:12,cursor:"pointer",
+                        border:`1px solid ${pg===safePage?T.orange:T.border}`,
+                        background:pg===safePage?"rgba(255,107,0,0.12)":"transparent",
+                        color:pg===safePage?T.orange:T.muted}}>
+                      {pg+1}
+                    </button>
+                  );
+                })}
+                <button disabled={safePage>=totalPages-1} onClick={()=>setPage(p=>p+1)}
+                  style={{padding:"4px 8px",borderRadius:6,border:`1px solid ${T.border}`,
+                    background:"transparent",color:safePage>=totalPages-1?T.dim:T.muted,
+                    cursor:safePage>=totalPages-1?"not-allowed":"pointer",fontSize:12}}>
+                  ›
+                </button>
+                <button disabled={safePage>=totalPages-1} onClick={()=>setPage(totalPages-1)}
+                  style={{padding:"4px 8px",borderRadius:6,border:`1px solid ${T.border}`,
+                    background:"transparent",color:safePage>=totalPages-1?T.dim:T.muted,
+                    cursor:safePage>=totalPages-1?"not-allowed":"pointer",fontSize:12}}>
+                  »
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ════ CALENDAR VIEW ══════════════════════════════════════════════ */}
+      {view==="calendar" && (
+        <div>
+          {/* Calendar nav */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+            marginBottom:16,background:T.card,border:`1px solid ${T.border}`,
+            borderRadius:12,padding:"12px 18px"}}>
+            <button onClick={()=>setCalDate(d=>new Date(d.getFullYear(),d.getMonth()-1,1))}
+              style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:8,
+                padding:"6px 14px",color:T.muted,cursor:"pointer",fontSize:14,fontWeight:700}}>‹</button>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <span style={{fontWeight:800,fontSize:16,color:T.text}}>{calLabel}</span>
+              <button onClick={()=>setCalDate(new Date())}
+                style={{background:T.orangeDim,border:`1px solid rgba(255,107,0,0.3)`,
+                  borderRadius:6,padding:"4px 10px",color:T.orange,cursor:"pointer",
+                  fontSize:11,fontWeight:700}}>Today</button>
+            </div>
+            <button onClick={()=>setCalDate(d=>new Date(d.getFullYear(),d.getMonth()+1,1))}
+              style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:8,
+                padding:"6px 14px",color:T.muted,cursor:"pointer",fontSize:14,fontWeight:700}}>›</button>
+          </div>
+
+          {/* Day-of-week headers */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:4}}>
+            {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
+              <div key={d} style={{textAlign:"center",fontSize:10,fontWeight:800,
+                color:T.dim,padding:"6px 0",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4}}>
+            {/* Empty cells for first week */}
+            {Array.from({length:((firstDay+6)%7)},(_,i)=>(
+              <div key={"e"+i} style={{minHeight:90,borderRadius:8,background:"transparent"}}/>
+            ))}
+            {/* Day cells */}
+            {Array.from({length:daysInMonth},(_,i)=>{
+              const d = i+1;
+              const dateStr = `${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+              const dayBookings = bookingsOnDay(d);
+              const isToday = dateStr===todayStr;
+              return(
+                <div key={d} style={{minHeight:90,borderRadius:8,padding:"6px 7px",
+                  background:isToday?"rgba(255,107,0,0.07)":T.card,
+                  border:`1px solid ${isToday?T.orange:T.border}`,
+                  transition:"border-color 0.15s"}}>
+                  <div style={{fontSize:11,fontWeight:isToday?800:500,
+                    color:isToday?T.orange:T.muted,marginBottom:4}}>{d}</div>
+                  {dayBookings.slice(0,3).map(b=>{
+                    const ss = statusStyle(b.status);
+                    return(
+                      <div key={b.id} onClick={()=>setDetail(b)}
+                        title={`${b.name} — ${b.tour}`}
+                        style={{fontSize:9,fontWeight:700,padding:"2px 5px",borderRadius:4,
+                          marginBottom:2,cursor:"pointer",overflow:"hidden",textOverflow:"ellipsis",
+                          whiteSpace:"nowrap",background:ss.bg,color:ss.color,
+                          border:`1px solid ${ss.border}`}}>
+                        {b.name?.split(" ")[0]}
+                      </div>
+                    );
+                  })}
+                  {dayBookings.length>3&&(
+                    <div style={{fontSize:9,color:T.orange,fontWeight:700}}>+{dayBookings.length-3} more</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Booking detail panel */}
+          {detailBooking&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",
+              zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center"}}
+              onClick={()=>setDetail(null)}>
+              <div onClick={e=>e.stopPropagation()}
+                style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,
+                  padding:24,maxWidth:440,width:"90%"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
+                  <h3 style={{margin:0,fontSize:16,fontWeight:800,color:T.text}}>{detailBooking.name}</h3>
+                  <button onClick={()=>setDetail(null)}
+                    style={{background:"transparent",border:"none",color:T.muted,cursor:"pointer",fontSize:18}}>✕</button>
+                </div>
+                {[
+                  ["Tour",     detailBooking.tour],
+                  ["Type",     detailBooking.type==="rental"?"Free Rental":"Guided"],
+                  ["Date",     fmtDate(detailBooking.date)],
+                  ["End Date", detailBooking.dateTo?fmtDate(detailBooking.dateTo):"—"],
+                  ["Bike",     detailBooking.bike||"—"],
+                  ["Country",  detailBooking.country||"—"],
+                  ["Email",    detailBooking.email||"—"],
+                  ["Phone",    detailBooking.phone||"—"],
+                  ["Amount",   fmtPrice(getTourPrice(detailBooking))],
+                ].map(([k,v])=>(
+                  <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",
+                    borderBottom:`1px solid ${T.border}`,fontSize:13}}>
+                    <span style={{color:T.muted}}>{k}</span>
+                    <span style={{color:T.text,fontWeight:600}}>{v}</span>
+                  </div>
+                ))}
+                <div style={{marginTop:16,display:"flex",gap:8}}>
+                  <Btn onClick={()=>{openEdit(detailBooking);setDetail(null);}}>Edit</Btn>
+                  {detailBooking.status==="pending"&&(
+                    <Btn onClick={()=>{quickStatus(detailBooking.id,"confirmed");setDetail(null);}}>
+                      Confirm
+                    </Btn>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ════ DEPARTURES VIEW ════════════════════════════════════════════ */}
       {view==="departures" && (
         <div>
           {departureSummary.length===0 ? (
@@ -633,11 +1114,12 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {departureSummary.map((dep,i)=>{
                 const barColor = dep.isFull ? T.red : dep.pct>=80 ? T.yellow : T.green;
-                const riders = (data||[]).filter(b => b.departureId===dep.depId && b.status==="confirmed");
-                return (
+                const riders   = data.filter(b => b.departureId===dep.depId && b.status==="confirmed");
+                return(
                   <div key={i} style={{background:T.card,border:`1px solid ${dep.isFull?T.red:T.border}`,
-                    borderRadius:14,padding:"18px 20px",transition:"border-color 0.2s"}}>
-                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12,gap:12,flexWrap:"wrap"}}>
+                    borderRadius:14,padding:"18px 20px"}}>
+                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",
+                      marginBottom:12,gap:12,flexWrap:"wrap"}}>
                       <div>
                         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
                           <span style={{fontWeight:800,fontSize:15,color:T.text}}>{dep.routeName}</span>
@@ -659,14 +1141,9 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
                         </div>
                       </div>
                     </div>
-
-                    {/* Progress bar */}
                     <div style={{height:8,background:T.elevated,borderRadius:4,overflow:"hidden",marginBottom:12}}>
-                      <div style={{height:"100%",width:dep.pct+"%",background:barColor,
-                        borderRadius:4,transition:"width 0.5s ease"}}/>
+                      <div style={{height:"100%",width:dep.pct+"%",background:barColor,borderRadius:4,transition:"width 0.5s ease"}}/>
                     </div>
-
-                    {/* Confirmed riders list */}
                     {riders.length>0 ? (
                       <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                         {riders.map((r,j)=>(
@@ -700,27 +1177,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
         </div>
       )}
 
-      {/* ── LIST VIEW ───────────────────────────────────────────────────── */}
-      {view==="list" && (
-        <>
-          <div style={{display:"flex",gap:10,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
-            {["all","pending","confirmed","cancelled"].map(f=>(
-              <Pill key={f} active={filter===f} onClick={()=>setFilter(f)}>
-                {f==="all"?"All":f.charAt(0).toUpperCase()+f.slice(1)}
-              </Pill>
-            ))}
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search rider or tour…"
-              style={{marginLeft:"auto",background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
-                padding:"6px 12px",color:T.text,fontSize:12,fontFamily:"inherit",outline:"none",width:200}}
-              onFocus={e=>e.target.style.borderColor=T.orange}
-              onBlur={e=>e.target.style.borderColor=T.border}/>
-          </div>
-          <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,overflow:"hidden"}}>
-            <Table columns={cols} rows={displayed} onEdit={openEdit} onDelete={r=>setConfirmDel(r)}/>
-          </div>
-        </>
-      )}
-
+      {/* ── Add/Edit modal ─────────────────────────────────────────────── */}
       {modal&&(
         <Modal title={modal==="add"?"New Booking":"Edit Booking"} onClose={closeModal}>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -733,7 +1190,10 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
               <Sel label="Departure Date" value={form.departureId||""} onChange={setF("departureId")} options={depOpts}/>
             )}
             {(!selectedRoute||selectedRoute.dateType==="open")&&(
-              <Inp label="Date" value={form.date} onChange={setF("date")} type="date"/>
+              <Inp label="From Date" value={form.date||""} onChange={setF("date")} type="date"/>
+            )}
+            {(form.type==="rental"||!form.tour)&&(
+              <Inp label="To Date" value={form.dateTo||""} onChange={v=>{setF("dateTo")(v);const ms=new Date(v)-new Date(form.date);if(ms>0)setF("rentalDays")(Math.round(ms/86400000));}} type="date"/>
             )}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Inp label="Rider Name" value={form.name}    onChange={setF("name")}    required placeholder="Full name"/>
@@ -763,6 +1223,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
     </>
   );
 }
+
 
 /* ── Fleet Tab ───────────────────────────────────────────────────────────── */
 const BLANK_BIKE={name:"",model:"CFMOTO 800MT Adventure",year:2024,status:"available",odometer:"",lastService:today(),color:"Storm Black",features:"ABS, Traction Control, Heated Grips, Cruise Control"};
