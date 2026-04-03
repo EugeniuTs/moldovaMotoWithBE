@@ -122,17 +122,34 @@ function Btn({children,onClick,variant="primary",size="md",disabled}){
 
 function Modal({title,onClose,children,width=580}){
   return(
-    <div style={{position:"fixed",inset:0,zIndex:9999,display:"flex",alignItems:"center",
-      justifyContent:"center",padding:16,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(6px)"}}
+    <div style={{position:"fixed",inset:0,zIndex:9999,display:"flex",alignItems:"flex-end",
+      justifyContent:"center",background:"rgba(0,0,0,0.75)",backdropFilter:"blur(6px)"}}
       onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div style={{width:"100%",maxWidth:width,background:T.card,border:`1px solid ${T.border}`,
-        borderRadius:16,overflow:"hidden",maxHeight:"90vh",display:"flex",flexDirection:"column"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-          padding:"18px 24px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
-          <span style={{fontWeight:800,fontSize:16,color:T.text}}>{title}</span>
-          <button onClick={onClose} style={{background:"none",border:"none",color:T.muted,cursor:"pointer",fontSize:20,padding:"2px 6px"}}>x</button>
+      <style>{`
+        @media (min-width:640px) {
+          .admin-modal-wrap { align-items:center !important; padding:16px !important; }
+          .admin-modal-box  { border-radius:16px !important; max-height:90vh !important; }
+        }
+        @media (max-width:639px) {
+          .admin-modal-box  { border-radius:16px 16px 0 0 !important; max-height:92vh !important; }
+          .admin-modal-body { padding:16px !important; }
+          .admin-form-2col  { grid-template-columns:1fr !important; }
+        }
+      `}</style>
+      <div className="admin-modal-wrap" style={{width:"100%",display:"flex",
+        alignItems:"flex-end",justifyContent:"center",padding:"0"}}>
+        <div className="admin-modal-box" style={{width:"100%",maxWidth:width,background:T.card,
+          border:`1px solid ${T.border}`,borderRadius:"16px 16px 0 0",overflow:"hidden",
+          maxHeight:"92vh",display:"flex",flexDirection:"column"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+            padding:"16px 20px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
+            <span style={{fontWeight:800,fontSize:16,color:T.text}}>{title}</span>
+            <button onClick={onClose} style={{background:T.elevated,border:`1px solid ${T.border}`,
+              color:T.muted,cursor:"pointer",fontSize:16,padding:"4px 10px",borderRadius:8,
+              lineHeight:1,fontWeight:700}}>✕</button>
+          </div>
+          <div className="admin-modal-body" style={{padding:"20px",overflowY:"auto",flex:1}}>{children}</div>
         </div>
-        <div style={{padding:"24px",overflowY:"auto"}}>{children}</div>
       </div>
     </div>
   );
@@ -142,7 +159,7 @@ function Confirm({message,onConfirm,onCancel}){
   return(
     <div style={{position:"fixed",inset:0,zIndex:10000,display:"flex",alignItems:"center",
       justifyContent:"center",background:"rgba(0,0,0,0.75)",backdropFilter:"blur(4px)"}}>
-      <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,
+      <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,width:"90%",maxWidth:400,
         padding:"28px 32px",width:360,textAlign:"center"}}>
         <div style={{fontSize:28,marginBottom:12}}>?</div>
         <div style={{fontWeight:700,fontSize:15,color:T.text,marginBottom:8}}>Are you sure?</div>
@@ -1081,7 +1098,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
                 onClick={()=>setCalDayOpen(null)}>
                 <div onClick={e=>e.stopPropagation()}
                   style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,
-                    padding:24,maxWidth:480,width:"90%",maxHeight:"80vh",overflowY:"auto"}}>
+                    padding:20,maxWidth:480,width:"94vw",maxHeight:"88vh",overflowY:"auto"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
                     <div>
                       <h3 style={{margin:0,fontSize:15,fontWeight:800,color:T.text}}>{dayLabel}</h3>
@@ -1132,7 +1149,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
               onClick={()=>setDetail(null)}>
               <div onClick={e=>e.stopPropagation()}
                 style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,
-                  padding:24,maxWidth:440,width:"90%"}}>
+                  padding:18,maxWidth:440,width:"94vw"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
                   <h3 style={{margin:0,fontSize:16,fontWeight:800,color:T.text}}>{detailBooking.name}</h3>
                   <button onClick={()=>setDetail(null)}
@@ -1248,7 +1265,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
       {modal&&(
         <Modal title={modal==="add"?"New Booking":"Edit Booking"} onClose={closeModal}>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div className="admin-form-2col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Sel label="Type"   value={form.type||"guided"} onChange={setF("type")} options={typeOpts}/>
               <Sel label="Status" value={form.status}         onChange={setF("status")} options={statOpts}/>
             </div>
@@ -1262,15 +1279,15 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
             {(form.type==="rental"||!form.tour)&&(
               <Inp label="To Date" value={form.dateTo||""} onChange={v=>{setF("dateTo")(v);const ms=new Date(v)-new Date(form.date);if(ms>0)setF("rentalDays")(Math.round(ms/86400000));}} type="date"/>
             )}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div className="admin-form-2col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Inp label="Rider Name" value={form.name}    onChange={setF("name")}    required placeholder="Full name"/>
               <Inp label="Country"    value={form.country} onChange={setF("country")} placeholder="Germany"/>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div className="admin-form-2col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Inp label="Email" value={form.email} onChange={setF("email")} type="email" required placeholder="rider@mail.com"/>
               <Inp label="Phone" value={form.phone} onChange={setF("phone")} placeholder="+49 ..."/>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div className="admin-form-2col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <Sel label="Experience" value={form.experience} onChange={setF("experience")} options={expOpts}/>
               <Sel label="Assign Bike" value={form.bike||""} onChange={setF("bike")} options={bikeOpts}/>
             </div>
@@ -1746,7 +1763,7 @@ function LoginScreen({onLogin}){
 
   return(
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui,sans-serif",padding:16}}>
-      <div style={{width:"100%",maxWidth:400}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 16px",boxSizing:"border-box"}}>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:36,gap:12}}>
           <div style={{width:108,height:108,borderRadius:"50%",background:"#fff",
             padding:4,boxShadow:`0 0 0 3px ${T.orange}, 0 0 32px rgba(255,107,0,0.5)`,flexShrink:0}}>
@@ -2049,7 +2066,7 @@ function UsersTab({ bookings }) {
       {/* Header */}
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:16,flexWrap:"wrap"}}>
         <div>
-          <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Users</h2>
+          <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:0}}>Riders / Customers</h2>
           <p style={{margin:"4px 0 0",fontSize:13,color:T.muted}}>
             {users.length} unique riders from booking history
           </p>
@@ -2058,7 +2075,7 @@ function UsersTab({ bookings }) {
 
       {/* Stats */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
-        <StatCard label="Total Users"    value={users.length}        icon="👥" accent={T.orange}/>
+        <StatCard label="Total Riders"    value={users.length}        icon="👥" accent={T.orange}/>
         <StatCard label="Countries"      value={countries.length}     icon="🌍" accent={T.blue}/>
         <StatCard label="Returning"      value={returning}            icon="🔄" accent={T.green}/>
       </div>
@@ -2173,7 +2190,7 @@ const NAV_ITEMS=[
   {id:"bookings", icon:"📋",label:"Bookings"},
   {id:"fleet",    icon:"🏍️",label:"Fleet"},
   {id:"gallery",  icon:"🖼️", label:"Adventures"},
-  {id:"users",    icon:"👥", label:"Users"},
+  {id:"users",    icon:"👥", label:"Riders"},
 ];
 
 function Sidebar({active,setActive,onLogout,bookings}){

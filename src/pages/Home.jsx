@@ -59,6 +59,19 @@ const style = `
     .step-label { display: none !important; }
     .map-grid { grid-template-columns: 1fr !important; }
     .booking-modal-inner { padding: 20px 16px !important; }
+    .modal-header { padding: 16px 16px !important; }
+    .modal-content { padding: 16px !important; }
+    .modal-footer { padding: 12px 16px !important; }
+    .booking-slide { border-radius: 14px !important; max-height: 95vh !important; }
+    .tour-card-grid { grid-template-columns: 1fr !important; }
+    .bike-feature-grid { grid-template-columns: 1fr !important; }
+    .form-row-2col { grid-template-columns: 1fr !important; }
+    .step-connector { display: none !important; }
+  }
+  @media (max-width: 480px) {
+    .booking-slide { border-radius: 12px !important; max-height: 98vh !important; margin: 4px !important; }
+    .modal-header { padding: 14px 14px !important; }
+    .modal-content { padding: 12px !important; }
   }
   @media (max-width: 480px) {
     .exp-grid { grid-template-columns: 1fr !important; }
@@ -307,15 +320,19 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
   const departures   = selectedTour ? (selectedTour.departures || []).filter(d => d.date >= today) : [];
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0" }}
+      className="booking-modal-backdrop"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <style>{`@media (min-width: 600px) { .booking-modal-backdrop { align-items: center !important; padding: 16px !important; } }`}</style>
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }} />
       <div className="booking-slide" style={{
         position: "relative", width: "100%", maxWidth: 580, background: "#111",
-        border: `1px solid ${BORDER}`, borderRadius: 20, overflow: "hidden", maxHeight: "90vh", overflowY: "auto"
+        border: `1px solid ${BORDER}`, borderRadius: "20px 20px 0 0", overflow: "hidden",
+        maxHeight: "95vh", overflowY: "auto"
       }}>
+      <style>{`@media (min-width: 600px) { .booking-slide { border-radius: 20px !important; max-height: 90vh !important; } }`}</style>
         {/* Header */}
-        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: "20px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="modal-header" style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: "20px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontSize: 11, color: ORANGE, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>Reservation Request</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: WHITE }}>Book Your Tour</div>
@@ -326,7 +343,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
         {!submitted ? (
           <>
             {/* Step indicator */}
-            <div className="steps-bar" style={{ display: "flex", alignItems: "center", padding: "20px 28px 0", gap: 8 }}>
+            <div className="steps-bar" style={{ display: "flex", alignItems: "center", padding: "16px 20px 0", gap: 6 }}>
               {STEP_LABELS.map((label, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", flex: i < 4 ? 1 : 0 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -417,7 +434,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     <>
                       <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose your rental period</div>
                       <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>Select a start and end date — your bike is reserved for the entire period.</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                      <div className="form-row-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                         <div>
                           <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>From</label>
                           <input type="date" className="form-input" min={today} value={form.date}
@@ -536,7 +553,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                           <div style={{ fontSize: 17, fontWeight: 900, color: WHITE }}>{bike.name}</div>
                           <div style={{ fontSize: 12, color: MUTED, marginLeft: "auto" }}>{bike.color} · {bike.year}</div>
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px" }}>
+                        <div className="bike-feature-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px" }}>
                           {(bike.features || []).slice(0, 6).map((f, i) => (
                             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#ccc" }}>
                               <IconCheck />{f}
