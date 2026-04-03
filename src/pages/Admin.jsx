@@ -475,6 +475,7 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
   const [showFilters,setSF]      = useState(false);
   const [calDate,setCalDate]     = useState(new Date());
   const [detailBooking,setDetail]= useState(null);
+  const [calDayOpen,setCalDayOpen]= useState(null); // "YYYY-MM-DD" of expanded day
 
   /* ── Helpers ──────────────────────────────────────────────────────────── */
   const openAdd  = () => { setForm(BLANK_BOOKING); setModal("add"); };
@@ -1051,12 +1052,78 @@ function BookingsTab({data,routes,fleet,onSave,onDelete}){
                     );
                   })}
                   {dayBookings.length>3&&(
-                    <div style={{fontSize:9,color:T.orange,fontWeight:700}}>+{dayBookings.length-3} more</div>
+                    <div onClick={e=>{e.stopPropagation();setCalDayOpen(dateStr);}}
+                      style={{fontSize:9,color:T.orange,fontWeight:700,cursor:"pointer",
+                        padding:"2px 5px",borderRadius:4,marginTop:1,
+                        background:"rgba(255,107,0,0.12)",border:"1px solid rgba(255,107,0,0.25)",
+                        display:"inline-block"}}>
+                      +{dayBookings.length-3} more
+                    </div>
                   )}
                 </div>
               );
             })}
           </div>
+
+          {/* Day expand modal — shows all bookings on a day */}
+          {calDayOpen&&(()=>{
+            const expandDate = calDayOpen;
+            const dayBks = data.filter(b =>
+              b.date===expandDate ||
+              (b.dateTo && b.date<=expandDate && b.dateTo>=expandDate)
+            );
+            const dayLabel = new Date(expandDate+"T12:00:00").toLocaleDateString("en-GB",{
+              weekday:"long",day:"2-digit",month:"long",year:"numeric"
+            });
+            return(
+              <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",
+                zIndex:2100,display:"flex",alignItems:"center",justifyContent:"center"}}
+                onClick={()=>setCalDayOpen(null)}>
+                <div onClick={e=>e.stopPropagation()}
+                  style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,
+                    padding:24,maxWidth:480,width:"90%",maxHeight:"80vh",overflowY:"auto"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+                    <div>
+                      <h3 style={{margin:0,fontSize:15,fontWeight:800,color:T.text}}>{dayLabel}</h3>
+                      <p style={{margin:"3px 0 0",fontSize:12,color:T.muted}}>{dayBks.length} booking{dayBks.length!==1?"s":""}</p>
+                    </div>
+                    <button onClick={()=>setCalDayOpen(null)}
+                      style={{background:"transparent",border:"none",color:T.muted,cursor:"pointer",fontSize:20,lineHeight:1}}>✕</button>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {dayBks.map(b=>{
+                      const ss=statusStyle(b.status);
+                      return(
+                        <div key={b.id}
+                          onClick={()=>{setCalDayOpen(null);setDetail(b);}}
+                          style={{background:T.elevated,border:`1px solid ${T.border}`,borderRadius:10,
+                            padding:"12px 14px",cursor:"pointer",transition:"border-color 0.15s"}}
+                          onMouseEnter={e=>e.currentTarget.style.borderColor=T.orange}
+                          onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
+                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+                            <div>
+                              <div style={{fontWeight:700,fontSize:13,color:T.text}}>{b.name}</div>
+                              <div style={{fontSize:11,color:T.muted,marginTop:2}}>{b.tour}</div>
+                              {b.bike&&<div style={{fontSize:10,color:T.dim,marginTop:1}}>{b.bike}</div>}
+                            </div>
+                            <span style={{fontSize:10,fontWeight:800,padding:"2px 8px",borderRadius:5,
+                              background:ss.bg,color:ss.color,border:`1px solid ${ss.border}`,flexShrink:0}}>
+                              {(b.status||"").toUpperCase()}
+                            </span>
+                          </div>
+                          {(b.dateTo&&b.date!==b.dateTo)&&(
+                            <div style={{fontSize:10,color:T.orange,marginTop:4}}>
+                              {fmtDate(b.date)} → {fmtDate(b.dateTo)} ({b.rentalDays||1}d)
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Booking detail panel */}
           {detailBooking&&(
