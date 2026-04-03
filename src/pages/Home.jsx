@@ -404,18 +404,18 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                               {t.highlights && t.highlights.length > 0 && (
                                 <div style={{ fontSize: 11, color: sel ? "rgba(255,107,0,0.75)" : "#555",
                                   marginTop: 4, whiteSpace: "nowrap", overflow: "hidden",
-                                  textOverflow: "ellipsis", maxWidth: 200 }}>
+                                  textOverflow: "ellipsis", maxWidth: "min(200px, 45vw)" }}>
                                   {t.highlights.slice(0,2).join(" · ")}
                                 </div>
                               )}
                             </div>
-                            <div style={{ textAlign: "right", flexShrink: 0 }}>
-                              <div style={{ fontSize: 20, fontWeight: 900, color: ORANGE,
-                                lineHeight: 1 }}>{t.price}</div>
+                            <div style={{ textAlign: "right", flexShrink: 0, minWidth: 56 }}>
+                              <div style={{ fontSize: 18, fontWeight: 900, color: ORANGE,
+                                lineHeight: 1, whiteSpace: "nowrap" }}>{t.price}</div>
                               {sel && (
                                 <div style={{ marginTop: 6, background: ORANGE, color: "#fff",
-                                  borderRadius: 6, padding: "2px 8px", fontSize: 10,
-                                  fontWeight: 800, letterSpacing: "0.06em" }}>SELECTED</div>
+                                  borderRadius: 6, padding: "2px 8px", fontSize: 9,
+                                  fontWeight: 800, letterSpacing: "0.04em", whiteSpace:"nowrap" }}>SELECTED</div>
                               )}
                             </div>
                           </div>
@@ -593,13 +593,26 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     ))}
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={{ fontSize: 12, color: MUTED, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Riding Experience</label>
-                      <select className="form-input form-select" value={form.experience} onChange={e => set("experience", e.target.value)} style={{ fontSize: 14 }}>
-                        <option value="">Select level…</option>
-                        <option value="beginner">Beginner (1-3 years)</option>
-                        <option value="intermediate">Intermediate (3-7 years)</option>
-                        <option value="advanced">Advanced (7+ years)</option>
-                        <option value="expert">Expert / Track Experience</option>
-                      </select>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                        {[
+                          { v: "beginner",     label: "Beginner",     sub: "1–3 years" },
+                          { v: "intermediate", label: "Intermediate", sub: "3–7 years" },
+                          { v: "advanced",     label: "Advanced",     sub: "7+ years" },
+                          { v: "expert",       label: "Expert",       sub: "Track exp." },
+                        ].map(({ v, label, sub }) => {
+                          const sel = form.experience === v;
+                          return (
+                            <button key={v} type="button" onClick={() => set("experience", v)}
+                              style={{ padding: "10px 12px", borderRadius: 10, cursor: "pointer",
+                                border: `1.5px solid ${sel ? ORANGE : BORDER}`,
+                                background: sel ? "rgba(255,107,0,0.1)" : "#161616",
+                                textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: sel ? ORANGE : WHITE, marginBottom: 1 }}>{label}</div>
+                              <div style={{ fontSize: 10, color: sel ? "rgba(255,107,0,0.7)" : MUTED }}>{sub}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
                       {errors.experience && <div style={{ color: "#ff4d4d", fontSize: 12, marginTop: 4 }}>{errors.experience}</div>}
                     </div>
                   </div>
@@ -1238,22 +1251,36 @@ export default function MoldovaMotorTours() {
                 </div>
               ))}
 
-              <div style={{ marginTop: 20, padding: "16px 18px", background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>Tour Coverage</div>
-                {[
-                  ["1-Day", "Chișinău → Cricova → Chișinău", "€220"],
-                  ["3-Day", "Chișinău → Orheiul Vechi → Saharna", "€650"],
-                  ["5-Day", "Full country — all 6 stops", "€1,050"]
-                ].map(([dur, route, price]) => (
-                  <div key={dur} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontSize: 13 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 20, height: 2, background: ORANGE, borderRadius: 1, opacity: 0.6 }}/>
-                      <span style={{ color: "#999" }}>{route}</span>
-                    </div>
-                    <span style={{ color: ORANGE, fontWeight: 800, flexShrink: 0, marginLeft: 8 }}>{price}</span>
+              {(()=>{
+                // Tour coverage rows — highlight row(s) that include the hovered stop
+                const coverageRows = [
+                  { dur:"1-Day",  route:"Chișinău → Cricova → Chișinău",          price:"€220",   stops:[0,2] },
+                  { dur:"3-Day",  route:"Chișinău → Orheiul Vechi → Saharna",      price:"€650",   stops:[0,1,3] },
+                  { dur:"5-Day",  route:"Full country — all 6 stops",              price:"€1,050", stops:[0,1,2,3,4,5] },
+                ];
+                return(
+                  <div style={{ marginTop: 20, padding: "16px 18px", background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>Tour Coverage</div>
+                    {coverageRows.map(({ dur, route, price, stops }) => {
+                      const active = mapHover !== null && stops.includes(mapHover);
+                      return(
+                        <div key={dur} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
+                          marginBottom: 8, fontSize: 13, padding: active ? "7px 10px" : "2px 0",
+                          borderRadius: 8, background: active ? "rgba(255,107,0,0.09)" : "transparent",
+                          border: `1px solid ${active ? "rgba(255,107,0,0.3)" : "transparent"}`,
+                          transition: "all 0.25s" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ width: 20, height: 2, background: ORANGE, borderRadius: 1, opacity: active ? 1 : 0.4, transition:"opacity 0.25s" }}/>
+                            <span style={{ color: active ? WHITE : "#999", transition:"color 0.25s" }}>{route}</span>
+                          </div>
+                          <span style={{ color: ORANGE, fontWeight: 800, flexShrink: 0, marginLeft: 8,
+                            fontSize: active ? 15 : 13, transition:"font-size 0.2s" }}>{price}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>
