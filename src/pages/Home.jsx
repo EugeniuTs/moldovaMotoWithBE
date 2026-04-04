@@ -395,27 +395,29 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                               background: "linear-gradient(to right, rgba(0,0,0,0) 60%, rgba(22,22,22,0.85))" }} />
                           </div>
                           {/* Text content */}
-                          <div style={{ flex: 1, padding: "14px 16px", display: "flex",
-                            alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                            <div style={{ minWidth: 0 }}>
+                          <div style={{ flex: 1, padding: "12px 14px", minWidth: 0 }}>
+                            {/* Title row — price always on same line */}
+                            <div style={{ display: "flex", alignItems: "flex-start",
+                              justifyContent: "space-between", gap: 8, marginBottom: 3 }}>
                               <div style={{ fontWeight: 800, color: sel ? WHITE : "#ddd",
-                                fontSize: 15, marginBottom: 3, lineHeight: 1.2 }}>{t.title}</div>
-                              <div style={{ fontSize: 12, color: MUTED }}>{t.duration}</div>
-                              {t.highlights && t.highlights.length > 0 && (
-                                <div style={{ fontSize: 11, color: sel ? "rgba(255,107,0,0.75)" : "#555",
-                                  marginTop: 4, whiteSpace: "nowrap", overflow: "hidden",
-                                  textOverflow: "ellipsis", maxWidth: "min(200px, 45vw)" }}>
-                                  {t.highlights.slice(0,2).join(" · ")}
-                                </div>
-                              )}
+                                fontSize: 14, lineHeight: 1.25, flex: 1, minWidth: 0 }}>{t.title}</div>
+                              <div style={{ fontSize: 17, fontWeight: 900, color: ORANGE,
+                                whiteSpace: "nowrap", flexShrink: 0, lineHeight: 1.2 }}>{t.price}</div>
                             </div>
-                            <div style={{ textAlign: "right", flexShrink: 0, minWidth: 56 }}>
-                              <div style={{ fontSize: 18, fontWeight: 900, color: ORANGE,
-                                lineHeight: 1, whiteSpace: "nowrap" }}>{t.price}</div>
+                            {/* Sub-info row */}
+                            <div style={{ display: "flex", alignItems: "center",
+                              justifyContent: "space-between", gap: 6 }}>
+                              <div>
+                                <span style={{ fontSize: 11, color: MUTED }}>{t.duration}</span>
+                                {t.highlights && t.highlights.length > 0 && (
+                                  <span style={{ fontSize: 11, color: sel ? "rgba(255,107,0,0.75)" : "#555",
+                                    marginLeft: 6 }}>· {t.highlights[0]}</span>
+                                )}
+                              </div>
                               {sel && (
-                                <div style={{ marginTop: 6, background: ORANGE, color: "#fff",
-                                  borderRadius: 6, padding: "2px 8px", fontSize: 9,
-                                  fontWeight: 800, letterSpacing: "0.04em", whiteSpace:"nowrap" }}>SELECTED</div>
+                                <div style={{ background: ORANGE, color: "#fff", borderRadius: 5,
+                                  padding: "2px 7px", fontSize: 9, fontWeight: 800,
+                                  letterSpacing: "0.04em", flexShrink: 0 }}>SELECTED</div>
                               )}
                             </div>
                           </div>
