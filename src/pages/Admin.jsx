@@ -160,7 +160,7 @@ function Confirm({message,onConfirm,onCancel}){
     <div style={{position:"fixed",inset:0,zIndex:10000,display:"flex",alignItems:"center",
       justifyContent:"center",background:"rgba(0,0,0,0.75)",backdropFilter:"blur(4px)"}}>
       <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,width:"90%",maxWidth:400,
-        padding:"28px 32px",width:360,textAlign:"center"}}>
+        padding:"28px 32px",textAlign:"center"}}>
         <div style={{fontSize:28,marginBottom:12}}>?</div>
         <div style={{fontWeight:700,fontSize:15,color:T.text,marginBottom:8}}>Are you sure?</div>
         <div style={{fontSize:13,color:T.muted,marginBottom:24}}>{message}</div>
