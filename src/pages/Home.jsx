@@ -1381,12 +1381,19 @@ export default function MoldovaMotorTours() {
             {/* Info */}
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>Info</div>
-              {["About Us", "Our Fleet", "Route Map", "Safety & Licensing", "FAQ", "Terms & Conditions"].map(l => (
+              {[
+                ["About Us",           "/info#about"],
+                ["Our Fleet",          "/info#fleet"],
+                ["Route Map",          "/info#routes"],
+                ["Safety & Licensing", "/info#safety"],
+                ["FAQ",                "/info#faq"],
+                ["Terms & Conditions", "/info#terms"],
+              ].map(([l, href]) => (
                 <div key={l} style={{ marginBottom: 10 }}>
-                  <a href="#" style={{ color: MUTED, textDecoration: "none", fontSize: 14 }}
+                  <Link to={href} style={{ color: MUTED, textDecoration: "none", fontSize: 14 }}
                     onMouseEnter={e => e.target.style.color = WHITE} onMouseLeave={e => e.target.style.color = MUTED}>
                     {l}
-                  </a>
+                  </Link>
                 </div>
               ))}
             </div>

@@ -13,6 +13,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/admin"  element={<Admin />} />
         <Route path="/admin/*" element={<Admin />} />
         <Route path="/adventures" element={<Adventures />} />
+        <Route path="/info" element={<Info />} />
+        <Route path="/info/:section" element={<Info />} />
         <Route path="*"       element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
