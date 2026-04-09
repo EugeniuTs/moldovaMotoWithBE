@@ -46,6 +46,7 @@ const style = `
   .overlay-gradient { background: linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0.08) 100%); }
   @media (max-width: 768px) {
     .nav-links { display: none !important; }
+    .hamburger { display: flex !important; }
     .nav-book-btn { display: none !important; }
     .hamburger { display: flex !important; flex-direction: column; }
     .hero-title { font-size: clamp(32px, 9vw, 64px) !important; }

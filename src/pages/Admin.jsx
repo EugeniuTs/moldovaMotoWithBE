@@ -134,6 +134,8 @@ function Modal({title,onClose,children,width=580}){
           .admin-modal-box  { border-radius:16px 16px 0 0 !important; max-height:92vh !important; }
           .admin-modal-body { padding:16px !important; }
           .admin-form-2col  { grid-template-columns:1fr !important; }
+          .admin-sidebar    { display:none !important; }
+          .admin-main       { padding:16px !important; }
         }
       `}</style>
       <div className="admin-modal-wrap" style={{width:"100%",display:"flex",
@@ -2293,8 +2295,8 @@ export default function MoldovaMotoAdmin(){
   return(
     <div style={{minHeight:"100vh",background:T.bg,display:"flex"}}>
       <style>{css}</style>
-      <Sidebar active={tab} setActive={setTab} onLogout={()=>setAuthed(false)} bookings={db.bookings}/>
-      <main style={{flex:1,overflowX:"hidden",overflowY:"auto",padding:"32px 36px",minHeight:"100vh",background:T.bg}}>
+      <div className="admin-sidebar"><Sidebar active={tab} setActive={setTab} onLogout={()=>setAuthed(false)} bookings={db.bookings}/></div>
+      <main className="admin-main" style={{flex:1,overflowX:"hidden",overflowY:"auto",padding:"32px 36px",minHeight:"100vh",background:T.bg}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
           marginBottom:32,paddingBottom:20,borderBottom:`1px solid ${T.border}`}}>
           <div style={{fontSize:12,color:T.muted}}>
