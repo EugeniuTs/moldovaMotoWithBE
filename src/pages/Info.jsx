@@ -514,7 +514,7 @@ export default function InfoPage() {
                 <span style={{ color: OR }}>Conditions</span>
               </h2>
               <p style={s.lead}>
-                The important stuff, written in plain English. By booking with us you agree to these terms.
+                By booking with us you agree to the following terms.
               </p>
 
               {[
