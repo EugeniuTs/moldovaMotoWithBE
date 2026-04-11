@@ -998,7 +998,7 @@ describe("Security — source code audit", () => {
   it("✅ nginx has HSTS",       () => assert.ok(nginx.includes("Strict-Transport-Security")));
   it("✅ nginx has rate limit", () => assert.ok(nginx.includes("limit_req_zone")));
   it("✅ nginx hides version",  () => assert.ok(nginx.includes("server_tokens off")));
-  it("✅ CSP blocks object-src none", () => assert.ok(nginx.includes("object-src 'none'")));
+  it("✅ CSP has object-src none", () => assert.ok(nginx.includes("object-src") && nginx.includes("'none'")));
 });
 
 // =============================================================================

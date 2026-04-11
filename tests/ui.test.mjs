@@ -143,16 +143,17 @@ describe("Booking modal steps", () => {
     assert.ok(home.includes("errors") || home.includes("setErrors"), "validation errors must be tracked");
   });
 
-  it("generates a unique booking ID", () => {
-    assert.ok(home.includes("uid()"), "booking must use uid() for unique ID");
+  it("booking ID is returned from API (server-side generated)", () => {
+    assert.ok(home.includes("booking_id") || home.includes("createBooking"),
+      "booking ID must come from API response, not client uid()");
   });
 
   it("sets booking status to pending on submit", () => {
     assert.ok(home.includes('"pending"'), "new bookings must be status: pending");
   });
 
-  it("saves booking to shared store", () => {
-    assert.ok(home.includes("saveDB"), "must save to shared store on submit");
+  it("booking submitted via API (not localStorage saveDB)", () => {
+    assert.ok(home.includes("createBooking"), "must call createBooking API");
   });
 });
 

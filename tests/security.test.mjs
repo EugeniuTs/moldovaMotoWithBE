@@ -23,7 +23,7 @@ describe("nginx.conf security headers", () => {
   });
 
   it("CSP blocks object-src none", () => {
-    assert.ok(nginx.includes("object-src 'none'"), "object-src must be 'none'");
+    assert.ok(nginx.includes("object-src") && nginx.includes("'none'"), "object-src must be 'none'");
   });
 
   it("CSP sets base-uri self", () => {

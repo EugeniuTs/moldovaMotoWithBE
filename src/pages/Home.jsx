@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
 import { notifyNewBooking, notifyContactForm } from "../brevo.js";
+import { createBooking } from "../api.js";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Lora:ital@0;1&display=swap');
@@ -226,7 +227,10 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
     name: "", email: "", phone: "", country: "", experience: "",
     license: false
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted]   = useState(false);
+  const [submitting, setSubmitting]  = useState(false);
+  const [apiError, setApiError]      = useState("");
+  const [confirmedId, setConfirmedId] = useState("");
   const [errors, setErrors] = useState({});
 
   const set = (k, v) => setForm(f => {
@@ -263,34 +267,50 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 
   const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)); };
   const prev = () => { setStep(s => Math.max(s - 1, 0)); setErrors({}); };
-  const submit = () => {
+
+  const submit = async () => {
     if (!validate()) return;
-    // Persist booking to shared store so admin sees it immediately
-    const db = loadDB();
+    setSubmitting(true);
+    setApiError("");
+
     const availableBike = fleet.find(b => b.status === "available");
     const depObj = selectedTour && form.departureId
       ? (selectedTour.departures||[]).find(d=>d.id===form.departureId)
       : null;
-    const newBooking = {
-      id: "b" + uid(),
-      type: selectedTour?.dateType === "open" ? "rental" : "guided",
-      tour: form.tour,
-      departureId: form.departureId || "",
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      country: form.country,
-      date: depObj ? depObj.date : form.date,
-      dateTo: isOpenDate ? form.dateTo : undefined,
-      rentalDays: isOpenDate ? (form.rentalDays || 1) : undefined,
-      experience: form.experience,
-      status: "pending",
-      bike: form.bike || (availableBike ? availableBike.name : "CFMOTO 800MT"),
-      createdAt: new Date().toISOString().slice(0, 10),
+
+    const payload = {
+      type:         selectedTour?.dateType === "open" ? "rental" : "guided",
+      tour:         form.tour,
+      departure_id: form.departureId || null,
+      name:         form.name,
+      email:        form.email,
+      phone:        form.phone,
+      country:      form.country,
+      date:         depObj ? depObj.date : form.date,
+      date_to:      isOpenDate ? form.dateTo : null,
+      rental_days:  isOpenDate ? (form.rentalDays || 1) : null,
+      experience:   form.experience,
+      bike:         form.bike || (availableBike ? availableBike.name : "CFMOTO 800MT"),
     };
-    saveDB({ ...db, bookings: [...db.bookings, newBooking] });
-    notifyNewBooking(newBooking); // fire-and-forget — doesn't block UI
-    setSubmitted(true);
+
+    try {
+      const result = await createBooking(payload);
+      setConfirmedId(result.booking_id);
+      // Fire Brevo notifications (fire-and-forget)
+      notifyNewBooking({ ...payload, id: result.booking_id, status: "pending",
+        createdAt: new Date().toISOString().slice(0, 10) });
+      setSubmitted(true);
+    } catch (err) {
+      // Field-level errors → show inline; generic error → show banner
+      if (err.errors && Object.keys(err.errors).length) {
+        setErrors(err.errors);
+        setStep(3); // jump back to rider info step
+      } else {
+        setApiError(err.message || "Booking failed — please try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -663,6 +683,12 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                 </div>
               )}
 
+              {/* API Error banner */}
+              {apiError && (
+                <div style={{ marginBottom: 12, padding: "10px 14px",
+                  background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)",
+                  borderRadius: 8, fontSize: 13, color: "#ef4444" }}>{apiError}</div>
+              )}
               {/* Nav buttons */}
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24, gap: 12 }}>
                 {step > 0 ? (
@@ -681,11 +707,14 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     Continue <IconArrow />
                   </button>
                 ) : (
-                  <button onClick={submit} style={{
+                  <button onClick={submit} disabled={submitting} style={{
                     display: "flex", alignItems: "center", gap: 8, background: ORANGE, border: "none",
-                    color: "#fff", borderRadius: 10, padding: "12px 28px", cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "inherit"
+                    color: "#fff", borderRadius: 10, padding: "12px 28px",
+                    cursor: submitting ? "not-allowed" : "pointer",
+                    fontWeight: 800, fontSize: 15, fontFamily: "inherit",
+                    opacity: submitting ? 0.75 : 1
                   }}>
-                    Send Reservation Request ✓
+                    {submitting ? "Booking..." : "Send Reservation Request ✓"}
                   </button>
                 )}
               </div>
@@ -693,6 +722,13 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
           </>
         ) : (
           <div style={{ padding: "60px 28px", textAlign: "center" }}>
+            {confirmedId && (
+              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)",
+                borderRadius: 10, padding: "8px 16px", marginBottom: 16, fontSize: 12,
+                color: "#22c55e", fontWeight: 700, letterSpacing: "0.05em" }}>
+                BOOKING ID: {confirmedId}
+              </div>
+            )}
             <div style={{ fontSize: 56, marginBottom: 16 }}>🏍️</div>
             <div style={{ fontSize: 26, fontWeight: 900, color: WHITE, marginBottom: 10 }}>You're In the Queue!</div>
             <div style={{ fontSize: 15, color: MUTED, maxWidth: 360, margin: "0 auto 28px", lineHeight: 1.65 }}>

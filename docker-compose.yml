@@ -1,12 +1,31 @@
 services:
 
-  # ── Development (DEFAULT) ─────────────────────────────────────
-  # Runs Vite dev server with hot-module replacement.
-  # No profile = always starts with plain `docker compose up`.
-  #
-  #   docker compose up --build      # first run
-  #   docker compose up              # subsequent runs
-  #
+  # -- API backend (Node.js + SQLite) ------------------------------------
+  # Booking API on port 4000. Starts with both dev and prod profiles.
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - api-data:/app/data
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - API_PORT=4000
+      - API_ADMIN_KEY=${API_ADMIN_KEY:-dev-admin-key-change-in-prod}
+      - DATA_DIR=/app/data
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', r => process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # -- Development frontend (Vite HMR) -----------------------------------
+  # docker compose up --build  ->  http://localhost:3000
   web-dev:
     build:
       context: .
@@ -14,20 +33,26 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app                       # live source bind-mount
-      - /app/node_modules            # preserve container node_modules
+      - .:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
       - VITE_ADMIN_USER=${VITE_ADMIN_USER:-admin}
       - VITE_ADMIN_PASS=${VITE_ADMIN_PASS:-moldova2024}
+      - VITE_API_URL=http://localhost:4000/api
+      - VITE_API_ADMIN_KEY=${API_ADMIN_KEY:-dev-admin-key-change-in-prod}
+      - VITE_BREVO_API_KEY=${VITE_BREVO_API_KEY:-}
+      - VITE_FROM_EMAIL=${VITE_FROM_EMAIL:-}
+      - VITE_FROM_NAME=${VITE_FROM_NAME:-MoldovaMoto}
+      - VITE_NOTIFY_EMAIL=${VITE_NOTIFY_EMAIL:-}
+      - VITE_NOTIFY_WHATSAPP=${VITE_NOTIFY_WHATSAPP:-}
+    depends_on:
+      api:
+        condition: service_healthy
     restart: unless-stopped
 
-  # ── Production ────────────────────────────────────────────────
-  # Vite build → static files served by Nginx on port 80.
-  # Only starts when --profile prod is passed explicitly.
-  #
-  #   docker compose --profile prod up --build
-  #
+  # -- Production frontend (Nginx) ---------------------------------------
+  # docker compose --profile prod up --build  ->  http://localhost:80
   web-prod:
     build:
       context: .
@@ -36,5 +61,11 @@ services:
       - "80:80"
     environment:
       - NODE_ENV=production
+    depends_on:
+      api:
+        condition: service_healthy
     profiles: ["prod"]
     restart: unless-stopped
+
+volumes:
+  api-data:

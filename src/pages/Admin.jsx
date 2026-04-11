@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft } from "../store.js";
+import { fetchBookings, updateBooking, deleteBooking } from "../api.js";
 import { Link as RLink } from "react-router-dom";
 
 /* ── Design tokens ───────────────────────────────────────────── */
@@ -2258,26 +2259,95 @@ export default function MoldovaMotoAdmin(){
   const [tab,setTab]=useState("dashboard");
   const [db,setDb]=useState(null);
   const [toast,setToast]=useState({msg:"",type:"success"});
+  const [apiOnline,setApiOnline]=useState(true);
 
-  useEffect(()=>{ setDb(loadDB()); },[]);
+  // Admin API key — stored in env (for Brevo/admin use in dev)
+  const adminKey = import.meta.env.VITE_API_ADMIN_KEY || "";
 
-  const persist=useCallback((nextDb)=>{ setDb(nextDb); saveDB(nextDb); },[]);
+  // Load local data (routes, fleet, gallery) from localStorage
+  // Load bookings from API if available, fall back to localStorage
+  const loadAll = useCallback(async () => {
+    const local = loadDB();
+
+    if (!adminKey) {
+      // No API key set — use localStorage bookings (dev fallback)
+      setDb(local);
+      return;
+    }
+
+    try {
+      const { bookings } = await fetchBookings({}, adminKey);
+      // Merge: use API bookings, local routes/fleet/gallery
+      setDb({ ...local, bookings });
+      setApiOnline(true);
+    } catch (err) {
+      console.warn("[Admin] API unavailable, using localStorage bookings:", err.message);
+      setApiOnline(false);
+      setDb(local);
+    }
+  }, [adminKey]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  // Poll for new bookings every 30 seconds when on bookings/dashboard tab
+  useEffect(() => {
+    if (!authed || !adminKey) return;
+    const interval = setInterval(() => {
+      if (tab === "bookings" || tab === "dashboard") loadAll();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [authed, tab, adminKey, loadAll]);
+
+  // Persist routes/fleet/gallery to localStorage; bookings go to API
+  const persist = useCallback((nextDb) => {
+    setDb(nextDb);
+    // Only persist non-booking entities to localStorage
+    const { bookings: _b, ...localOnly } = nextDb;
+    saveDB({ ...loadDB(), ...localOnly });
+  }, []);
 
   const notify=(msg,type="success")=>{
     setToast({msg,type});
     setTimeout(()=>setToast({msg:"",type:"success"}),3000);
   };
 
-  const handleSave=entity=>(record,isEdit)=>{
-    const list=db[entity];
-    const next=isEdit?list.map(r=>r.id===record.id?record:r):[...list,record];
-    persist({...db,[entity]:next});
-    notify(isEdit?"Updated successfully.":"Created successfully.");
+  const handleSave = entity => async (record, isEdit) => {
+    if (entity === "bookings" && adminKey) {
+      // Bookings go to API
+      try {
+        const updated = await updateBooking(record.id, record, adminKey);
+        setDb(prev => ({
+          ...prev,
+          bookings: isEdit
+            ? prev.bookings.map(b => b.id === updated.id ? updated : b)
+            : [...prev.bookings, updated],
+        }));
+        notify(isEdit ? "Updated successfully." : "Created successfully.");
+        return;
+      } catch (err) {
+        notify("API error: " + err.message, "error");
+        return;
+      }
+    }
+    // All other entities use localStorage
+    const list = db[entity];
+    const next = isEdit ? list.map(r=>r.id===record.id?record:r) : [...list, record];
+    persist({...db, [entity]: next});
+    notify(isEdit ? "Updated successfully." : "Created successfully.");
   };
 
-  const handleDelete=(id,entity)=>{
-    persist({...db,[entity]:db[entity].filter(r=>r.id!==id)});
-    notify("Record deleted.","warn");
+  const handleDelete = (id, entity) => {
+    if (entity === "bookings" && adminKey) {
+      deleteBooking(id, adminKey)
+        .then(() => {
+          setDb(prev => ({ ...prev, bookings: prev.bookings.filter(b => b.id !== id) }));
+          notify("Booking deleted.", "warn");
+        })
+        .catch(err => notify("API error: " + err.message, "error"));
+      return;
+    }
+    persist({...db, [entity]: db[entity].filter(r=>r.id!==id)});
+    notify("Record deleted.", "warn");
   };
 
   const css=`
@@ -2304,8 +2374,12 @@ export default function MoldovaMotoAdmin(){
             <span style={{color:T.text,fontWeight:600,marginLeft:6}}>{tab.charAt(0).toUpperCase()+tab.slice(1)}</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
-            <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 0 2px ${T.greenDim}`}}/>
-            <span style={{fontSize:12,color:T.muted}}>All systems operational</span>
+            <div style={{width:7,height:7,borderRadius:"50%",
+              background:apiOnline?T.green:T.yellow,
+              boxShadow:"0 0 0 2px "+(apiOnline?T.greenDim:T.yellowDim)}}/>
+            <span style={{fontSize:12,color:T.muted}}>
+              {apiOnline?"All systems operational":"Offline mode — localStorage"}
+            </span>
             <div style={{width:1,height:16,background:T.border}}/>
             <div style={{width:28,height:28,borderRadius:8,background:T.orange,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800}}>A</div>
             <span style={{fontSize:12,color:T.text,fontWeight:600}}>admin</span>

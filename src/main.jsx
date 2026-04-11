@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Admin from './pages/Admin'
 import Adventures from './pages/Adventures'
+import Info from './pages/Info'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
