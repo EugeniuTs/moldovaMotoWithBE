@@ -57,15 +57,27 @@ function sendEmail({ to, subject, html, replyTo }) {
 }
 
 // ── WhatsApp helper ───────────────────────────────────────────────────────────
+// VITE_NOTIFY_WHATSAPP_SENDER = the WhatsApp Business number registered in
+// Brevo → WhatsApp → Senders (must be registered before sending)
+const WA_SENDER = import.meta.env.VITE_NOTIFY_WHATSAPP_SENDER || "";
+
 function sendWhatsApp(to, message) {
-  const number = to || NOTIFY_WA;
-  if (!number) return;
-  // Strip non-digits and ensure country code prefix
-  const clean = number.replace(/\D/g, "");
+  const receiver = (to || NOTIFY_WA).replace(/\D/g, "");
+  const sender   = WA_SENDER.replace(/\D/g, "");
+  if (!receiver) return;
+
+  // If no sender number configured, skip WhatsApp silently (avoids 400 error)
+  if (!sender) {
+    console.warn("[Brevo] WhatsApp skipped: VITE_NOTIFY_WHATSAPP_SENDER not set." +
+      " Register a sender in Brevo → WhatsApp → Senders, then add it to .env");
+    return;
+  }
+
   return brevoPost(BREVO_WA, {
-    receiver_to: clean,
-    template_id: 1,                // use template ID 1 or adjust as needed
-    params: { message },           // Brevo WA templates use {{params.message}}
+    sender_to:   sender,    // your registered WhatsApp Business number
+    receiver_to: receiver,  // recipient
+    template_id: 1,
+    params: { message },
   });
 }
 
