@@ -1221,11 +1221,47 @@ export default function MoldovaMotorTours() {
                 ))}
               </div>
             </div>
-            <div style={{ flex: 1, position: "relative" }}>
-              <img src="https://www.cfmoto.md/storage/transformed_images/product/259035/cfmoto-800mt-x-tall-lf5zn-1761726646_500x500.webp"
-                alt="CFMOTO 800MT Adventure" style={{ width: "100%", borderRadius: 20, objectFit: "contain", height: 440, background: "#111", border: `1px solid ${BORDER}` }} />
-              <div style={{ position: "absolute", bottom: -20, right: -20, background: ORANGE, color: "#fff", borderRadius: 16, padding: "18px 22px", fontWeight: 900, fontSize: 13, lineHeight: 1.4, textAlign: "center" }}>
-                All-Inclusive<br /><span style={{ fontSize: 22 }}>€0</span><br /><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>Extra Bike Fee</span>
+            <div style={{ flex: 1, position: "relative", minHeight: 440 }}>
+              {/* Dark gradient frame — hides the white background from the product image */}
+              <div style={{
+                borderRadius: 24, overflow: "hidden", position: "relative",
+                background: "radial-gradient(ellipse at 60% 50%, #1a1a1a 0%, #0a0a0b 100%)",
+                border: `1px solid ${BORDER}`,
+                boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+              }}>
+                {/* Subtle orange glow behind the bike */}
+                <div style={{
+                  position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)",
+                  width: "70%", height: 120,
+                  background: "radial-gradient(ellipse, rgba(255,107,0,0.18) 0%, transparent 70%)",
+                  pointerEvents: "none",
+                }} />
+                <img
+                  src="https://www.cfmoto.md/storage/transformed_images/product/259035/cfmoto-800mt-x-tall-lf5zn-1761726646_500x500.webp"
+                  alt="CFMOTO 800MT Adventure"
+                  style={{
+                    width: "100%", height: 440,
+                    objectFit: "contain",
+                    objectPosition: "center bottom",
+                    display: "block",
+                    /* CSS mix-blend-mode removes the white bg from the product photo */
+                    mixBlendMode: "luminosity",
+                    filter: "contrast(1.08) brightness(1.05)",
+                    position: "relative", zIndex: 1,
+                  }}
+                />
+              </div>
+              {/* Badge */}
+              <div style={{
+                position: "absolute", bottom: -16, right: -16, zIndex: 2,
+                background: ORANGE, color: "#fff", borderRadius: 16,
+                padding: "16px 20px", fontWeight: 900, fontSize: 13,
+                lineHeight: 1.4, textAlign: "center",
+                boxShadow: "0 8px 24px rgba(255,107,0,0.45)",
+              }}>
+                All-Inclusive<br />
+                <span style={{ fontSize: 24 }}>€0</span><br />
+                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>Extra Bike Fee</span>
               </div>
             </div>
           </div>
