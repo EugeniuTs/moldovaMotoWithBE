@@ -1241,10 +1241,9 @@ export default function MoldovaMotorTours() {
                   alt="CFMOTO 800MT Adventure"
                   style={{
                     width: "100%", height: 440,
-                    objectFit: "contain",
+                    objectFit: "cover",
                     objectPosition: "center center",
                     display: "block",
-                    /* CSS mix-blend-mode removes the white bg from the product photo */
                     filter: "drop-shadow(0 20px 40px rgba(255,107,0,0.2))",
                     position: "relative", zIndex: 1,
                   }}
