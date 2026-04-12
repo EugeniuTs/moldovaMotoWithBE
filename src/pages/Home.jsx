@@ -1237,16 +1237,15 @@ export default function MoldovaMotorTours() {
                   pointerEvents: "none",
                 }} />
                 <img
-                  src="https://www.cfmoto.md/storage/transformed_images/product/259035/cfmoto-800mt-x-tall-lf5zn-1761726646_500x500.webp"
+                  src="https://www.cfmoto.com/content/dam/cfmoto/site/global/product/motorcycle/mt----mult-touring/800mt-x/selling-point-map/pc/pc7.png"
                   alt="CFMOTO 800MT Adventure"
                   style={{
                     width: "100%", height: 440,
                     objectFit: "contain",
-                    objectPosition: "center bottom",
+                    objectPosition: "center center",
                     display: "block",
                     /* CSS mix-blend-mode removes the white bg from the product photo */
-                    mixBlendMode: "luminosity",
-                    filter: "contrast(1.08) brightness(1.05)",
+                    filter: "drop-shadow(0 20px 40px rgba(255,107,0,0.2))",
                     position: "relative", zIndex: 1,
                   }}
                 />
