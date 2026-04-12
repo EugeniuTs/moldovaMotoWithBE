@@ -1222,8 +1222,8 @@ export default function MoldovaMotorTours() {
               </div>
             </div>
             <div style={{ flex: 1, position: "relative" }}>
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85"
-                alt="CFMOTO 800MT" style={{ width: "100%", borderRadius: 20, objectFit: "cover", height: 440, border: `1px solid ${BORDER}` }} />
+              <img src="https://www.cfmoto.md/storage/transformed_images/product/259035/cfmoto-800mt-x-tall-lf5zn-1761726646_500x500.webp"
+                alt="CFMOTO 800MT Adventure" style={{ width: "100%", borderRadius: 20, objectFit: "contain", height: 440, background: "#111", border: `1px solid ${BORDER}` }} />
               <div style={{ position: "absolute", bottom: -20, right: -20, background: ORANGE, color: "#fff", borderRadius: 16, padding: "18px 22px", fontWeight: 900, fontSize: 13, lineHeight: 1.4, textAlign: "center" }}>
                 All-Inclusive<br /><span style={{ fontSize: 22 }}>€0</span><br /><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>Extra Bike Fee</span>
               </div>
