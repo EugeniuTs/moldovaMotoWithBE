@@ -264,6 +264,25 @@ function RoutesTab({data,bookings,onSave,onDelete}){
   const [form,setForm]=useState(BLANK_ROUTE);
   const [confirmDel,setConfirmDel]=useState(null);
   const [filter,setFilter]=useState("all");
+  const [imgUploading,setImgUploading]=useState(false);
+  const [imgUploadErr,setImgUploadErr]=useState("");
+  const routeAdminKey = import.meta.env.VITE_API_ADMIN_KEY || "";
+
+  const handleRouteImg = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setImgUploading(true);
+    setImgUploadErr("");
+    try {
+      const result = await uploadMedia(file, routeAdminKey);
+      setF("img")(result.url);
+    } catch (err) {
+      setImgUploadErr(err.message || "Upload failed");
+    } finally {
+      setImgUploading(false);
+    }
+  };
 
   const openAdd=()=>{setForm(BLANK_ROUTE);setModal("add");};
   const openEdit=r=>{setForm({...r,stops:(r.stops||[]).join(", "),img:r.img||"",visible:r.visible!==false});setModal("edit");};
