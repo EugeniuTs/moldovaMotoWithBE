@@ -364,26 +364,31 @@ function RoutesTab({data,bookings,onSave,onDelete}){
                       outline:"none",width:"100%",boxSizing:"border-box"}}
                     onFocus={e=>e.target.style.borderColor=T.orange}
                     onBlur={e=>e.target.style.borderColor=T.border}/>
-                  {/* File upload → base64 */}
-                  <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",
-                    background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
-                    padding:"7px 12px",fontSize:12,color:T.muted,userSelect:"none",
-                    transition:"border-color 0.15s"}}
-                    onMouseEnter={e=>e.currentTarget.style.borderColor=T.orange}
-                    onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
-                    <span style={{fontSize:14}}>📁</span>
-                    <span>Upload from device</span>
+                  {/* File upload → server */}
+                  <label style={{
+                    display:"flex",alignItems:"center",gap:8,
+                    cursor:imgUploading?"not-allowed":"pointer",
+                    background:imgUploading?"rgba(255,107,0,0.08)":T.elevated,
+                    border:`1.5px solid ${imgUploading?T.orange:T.border}`,borderRadius:8,
+                    padding:"7px 12px",fontSize:12,color:imgUploading?T.orange:T.muted,
+                    userSelect:"none",transition:"all 0.15s"}}
+                    onMouseEnter={e=>{if(!imgUploading)e.currentTarget.style.borderColor=T.orange;}}
+                    onMouseLeave={e=>{if(!imgUploading)e.currentTarget.style.borderColor=T.border;}}>
+                    {imgUploading
+                      ? <><span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>⟳</span>
+                          <span>Uploading...</span></>
+                      : <><span style={{fontSize:14}}>⬆</span>
+                          <span>Upload from device</span>
+                          <span style={{marginLeft:"auto",fontSize:10,color:T.dim}}>JPG PNG WEBP</span></>
+                    }
                     <input type="file" accept="image/*" style={{display:"none"}}
-                      onChange={e=>{
-                        const file=e.target.files?.[0];
-                        if(!file)return;
-                        const reader=new FileReader();
-                        reader.onload=ev=>setF("img")(ev.target.result);
-                        reader.readAsDataURL(file);
-                        e.target.value="";
-                      }}/>
+                      disabled={imgUploading} onChange={handleRouteImg}/>
                   </label>
-                  {form.img&&(
+                  {imgUploadErr && (
+                    <div style={{fontSize:11,color:T.red,padding:"4px 8px",
+                      background:T.redDim,borderRadius:6}}>{imgUploadErr}</div>
+                  )}
+                  {form.img && (
                     <button onClick={()=>setF("img")("")}
                       style={{background:"none",border:"none",color:T.dim,fontSize:11,
                         cursor:"pointer",fontFamily:"inherit",textAlign:"left",padding:0}}>
