@@ -85,3 +85,44 @@ export async function healthCheck() {
     return false;
   }
 }
+
+/** Upload a media file (image or video) — admin panel */
+export async function uploadMedia(file, adminKey = "") {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/uploads`, {
+    method:  "POST",
+    headers: { "x-admin-key": adminKey },
+    body:    formData,
+    // Do NOT set Content-Type — browser sets it with the boundary
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Upload failed");
+
+  // Build the full public URL
+  const uploadsBase = import.meta.env.VITE_UPLOADS_URL || "";
+  return { ...data, url: uploadsBase + data.url };
+}
+
+/** Delete an uploaded file (admin) */
+export async function deleteMedia(filename, adminKey = "") {
+  const res = await fetch(`${API_BASE}/uploads/${filename}`, {
+    method:  "DELETE",
+    headers: { "x-admin-key": adminKey },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Delete failed");
+  return data;
+}
+
+/** List all uploaded files (admin) */
+export async function listUploads(adminKey = "") {
+  const res = await fetch(`${API_BASE}/uploads`, {
+    headers: { "x-admin-key": adminKey },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to list uploads");
+  return data.files;
+}

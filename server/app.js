@@ -1,11 +1,11 @@
 "use strict";
-/**
- * app.js — Express application factory (exported for testing)
- * The server start (listen) happens in index.js.
- */
 const express   = require("express");
 const cors      = require("cors");
 const rateLimit = require("express-rate-limit");
+const multer    = require("multer");
+const path      = require("path");
+const fs        = require("fs");
+const crypto    = require("crypto");
 const db        = require("./db");
 const { validateBooking } = require("./validate");
 
@@ -51,6 +51,70 @@ const publicLimit = rateLimit({
   message: { success: false, error: "Too many requests. Please try again later." },
   standardHeaders: true, legacyHeaders: false,
   skip: () => process.env.NODE_ENV === "test",
+});
+
+
+// ── File upload setup ─────────────────────────────────────────────────────────
+const UPLOADS_DIR = process.env.UPLOADS_DIR ||
+  path.join(process.env.DATA_DIR || path.join(__dirname, "data"), "uploads");
+
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase() || ".jpg";
+    const hash = crypto.randomBytes(8).toString("hex");
+    cb(null, Date.now() + "-" + hash + ext);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max
+  fileFilter: (_req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|webp|avif|mp4|mov|avi|mkv|webm/;
+    const ok = allowed.test(file.mimetype) || allowed.test(path.extname(file.originalname).toLowerCase().slice(1));
+    cb(ok ? null : new Error("File type not allowed"), ok);
+  },
+});
+
+// Serve uploaded files as static (admin-protected for listing, but files are public by URL)
+app.use("/uploads", express.static(UPLOADS_DIR));
+
+// POST /api/uploads — upload a file (admin only)
+app.post("/api/uploads", adminAuth, upload.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, error: "No file received" });
+
+  const publicPath = "/uploads/" + req.file.filename;
+  return res.status(201).json({
+    success:  true,
+    url:      publicPath,
+    filename: req.file.filename,
+    size:     req.file.size,
+    mimetype: req.file.mimetype,
+  });
+});
+
+// POST /api/uploads/delete — delete a file (admin only)
+app.delete("/api/uploads/:filename", adminAuth, (req, res) => {
+  const filename = path.basename(req.params.filename); // prevent path traversal
+  const filepath = path.join(UPLOADS_DIR, filename);
+  if (!fs.existsSync(filepath)) return res.status(404).json({ success: false, error: "File not found" });
+  fs.unlinkSync(filepath);
+  return res.json({ success: true, deleted: filename });
+});
+
+// GET /api/uploads — list all uploaded files (admin only)
+app.get("/api/uploads", adminAuth, (_req, res) => {
+  const files = fs.readdirSync(UPLOADS_DIR)
+    .filter(f => !f.startsWith("."))
+    .map(f => {
+      const stat = fs.statSync(path.join(UPLOADS_DIR, f));
+      return { filename: f, url: "/uploads/" + f, size: stat.size, mtime: stat.mtime };
+    })
+    .sort((a, b) => b.mtime - a.mtime);
+  return res.json({ success: true, files });
 });
 
 // Health check (public)

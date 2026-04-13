@@ -472,3 +472,109 @@ describe("Home.jsx booking flow uses API", () => {
 });
 
 console.log("\n✓ api.test.mjs loaded");
+
+// =============================================================================
+// 12. FILE UPLOAD ENDPOINTS
+// =============================================================================
+describe("File upload — /api/uploads", () => {
+  // Minimal valid PNG (1×1 pixel)
+  const PNG = Buffer.from(
+    "89504e470d0a1a0a0000000d49484452000000010000000108020000009053de00" +
+    "0000" + "0c4944415478" + "9cc3f80f00000101000518d84e00000000" + "49454e44ae426082",
+    "hex"
+  );
+
+  async function upload(buf, name, mime, key = ADMIN_KEY) {
+    return new Promise((resolve, reject) => {
+      const boundary = "----TestBoundary" + Date.now();
+      const body = Buffer.concat([
+        Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${name}"\r\nContent-Type: ${mime}\r\n\r\n`),
+        buf,
+        Buffer.from(`\r\n--${boundary}--\r\n`),
+      ]);
+      const options = {
+        hostname: "127.0.0.1", port: PORT, path: "/api/uploads", method: "POST",
+        headers: {
+          "Content-Type":   `multipart/form-data; boundary=${boundary}`,
+          "Content-Length": body.length,
+          "x-admin-key":    key,
+        },
+      };
+      const r = http.request(options, res => {
+        let data = "";
+        res.on("data", c => { data += c; });
+        res.on("end", () => {
+          try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+          catch { resolve({ status: res.statusCode, body: data }); }
+        });
+      });
+      r.on("error", reject);
+      r.write(body);
+      r.end();
+    });
+  }
+
+  it("401 when no admin key", async () => {
+    const { status } = await upload(PNG, "test.png", "image/png", "");
+    assert.equal(status, 401);
+  });
+
+  it("Uploads a PNG and returns url + filename + size", async () => {
+    const { status, body } = await upload(PNG, "ride.png", "image/png");
+    assert.equal(status, 201);
+    assert.ok(body.success);
+    assert.ok(body.url.startsWith("/uploads/"), "url must start with /uploads/");
+    assert.ok(body.filename, "must return filename");
+    assert.ok(body.size > 0, "must return file size");
+    assert.equal(body.mimetype, "image/png");
+  });
+
+  it("Uploaded file is accessible via GET /uploads/:filename", async () => {
+    const { body: up } = await upload(PNG, "access.png", "image/png");
+    const { status } = await get(up.url);
+    assert.equal(status, 200, "uploaded file must be publicly accessible");
+  });
+
+  it("Filename is unique (timestamp + random hash)", async () => {
+    const r1 = await upload(PNG, "same.png", "image/png");
+    const r2 = await upload(PNG, "same.png", "image/png");
+    assert.notEqual(r1.body.filename, r2.body.filename, "same filename must get unique server names");
+  });
+
+  it("GET /api/uploads lists uploaded files", async () => {
+    await upload(PNG, "list.png", "image/png");
+    const { status, body } = await get("/api/uploads", adm());
+    assert.equal(status, 200);
+    assert.ok(body.success);
+    assert.ok(Array.isArray(body.files));
+    assert.ok(body.files.length > 0);
+    assert.ok(body.files[0].url.startsWith("/uploads/"));
+    assert.ok(typeof body.files[0].size === "number");
+  });
+
+  it("GET /api/uploads returns 401 without key", async () => {
+    assert.equal((await get("/api/uploads")).status, 401);
+  });
+
+  it("DELETE /api/uploads/:filename removes the file", async () => {
+    const { body: up } = await upload(PNG, "del.png", "image/png");
+    const { status, body } = await del(`/api/uploads/${up.filename}`, adm());
+    assert.equal(status, 200);
+    assert.ok(body.success);
+    assert.equal(body.deleted, up.filename);
+    // File should return 404 now
+    const { status: getStatus } = await get(up.url);
+    assert.equal(getStatus, 404, "deleted file must return 404");
+  });
+
+  it("DELETE non-existent file returns 404", async () => {
+    const { status } = await del("/api/uploads/ghost_file.png", adm());
+    assert.equal(status, 404);
+  });
+
+  it("DELETE /api/uploads/:filename returns 401 without key", async () => {
+    const { body: up } = await upload(PNG, "auth.png", "image/png");
+    const { status } = await del(`/api/uploads/${up.filename}`);
+    assert.equal(status, 401);
+  });
+});

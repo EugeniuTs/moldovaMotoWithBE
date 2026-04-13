@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft } from "../store.js";
-import { fetchBookings, updateBooking, deleteBooking } from "../api.js";
+import { fetchBookings, updateBooking, deleteBooking, uploadMedia } from "../api.js";
 import { Link as RLink } from "react-router-dom";
 
 /* ── Design tokens ───────────────────────────────────────────── */
@@ -1829,13 +1829,25 @@ function GalleryTab({data, routes, onSave, onDelete}) {
   };
   const close = () => { setModal(null); setForm(BLANK_MEDIA); setPreview(null); };
 
-  const handleFile = e => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState("");
+  const adminKey = import.meta.env.VITE_API_ADMIN_KEY || "";
+
+  const handleFile = async e => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => { setF("src")(ev.target.result); setPreview(ev.target.result); };
-    reader.readAsDataURL(file);
     e.target.value = "";
+    setUploading(true);
+    setUploadErr("");
+    try {
+      const result = await uploadMedia(file, adminKey);
+      setF("src")(result.url);
+      if (file.type.startsWith("image/")) setPreview(result.url);
+    } catch (err) {
+      setUploadErr(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = () => {
@@ -1961,17 +1973,33 @@ function GalleryTab({data, routes, onSave, onDelete}) {
                 onFocus={e=>e.target.style.borderColor=T.orange}
                 onBlur={e=>e.target.style.borderColor=T.border}/>
 
-              {/* File upload (images only) */}
-              {form.type==="image" && (
-                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",
-                  background:T.elevated,border:`1px solid ${T.border}`,borderRadius:8,
-                  padding:"8px 14px",fontSize:12,color:T.muted,userSelect:"none"}}
-                  onMouseEnter={e=>e.currentTarget.style.borderColor=T.orange}
-                  onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}>
-                  <span>📁</span><span>Upload from device</span>
-                  <input type="file" accept="image/*" style={{display:"none"}} onChange={handleFile}/>
+              {/* File upload — images and videos */}
+              <div>
+                <label style={{
+                  display:"flex",alignItems:"center",gap:10,cursor:uploading?"not-allowed":"pointer",
+                  background:uploading?"rgba(255,107,0,0.08)":T.elevated,
+                  border:`1.5px solid ${uploading?T.orange:T.border}`,borderRadius:10,
+                  padding:"10px 16px",fontSize:13,color:uploading?T.orange:T.muted,
+                  userSelect:"none",transition:"all 0.15s",fontWeight:600}}
+                  onMouseEnter={e=>{if(!uploading)e.currentTarget.style.borderColor=T.orange;}}
+                  onMouseLeave={e=>{if(!uploading)e.currentTarget.style.borderColor=T.border;}}>
+                  {uploading
+                    ? <><span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>⟳</span>
+                        <span>Uploading...</span></>
+                    : <><span>⬆</span><span>Upload file from device</span>
+                        <span style={{marginLeft:"auto",fontSize:11,color:T.dim,fontWeight:400}}>
+                          JPG PNG WEBP GIF MP4 MOV · max 20MB
+                        </span></>
+                  }
+                  <input type="file" accept="image/*,video/*" style={{display:"none"}}
+                    disabled={uploading} onChange={handleFile}/>
                 </label>
-              )}
+                {uploadErr && (
+                  <div style={{marginTop:6,fontSize:12,color:T.red,padding:"6px 10px",
+                    background:T.redDim,borderRadius:6}}>{uploadErr}</div>
+                )}
+              </div>
+              <div style={{textAlign:"center",fontSize:11,color:T.dim,margin:"2px 0"}}>— or paste a URL below —</div>
             </div>
 
             {/* Tour + Date row */}

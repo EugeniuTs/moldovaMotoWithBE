@@ -1,7 +1,6 @@
 services:
 
   # -- API backend (Node.js + SQLite) ------------------------------------
-  # Booking API on port 4000. Starts with both dev and prod profiles.
   api:
     build:
       context: ./server
@@ -9,12 +8,13 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - api-data:/app/data
+      - api-data:/app/data          # persists DB + uploads
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - API_PORT=4000
       - API_ADMIN_KEY=${API_ADMIN_KEY:-dev-admin-key-change-in-prod}
       - DATA_DIR=/app/data
+      - UPLOADS_DIR=/app/data/uploads
       - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost
     restart: unless-stopped
     healthcheck:
@@ -25,7 +25,6 @@ services:
       start_period: 10s
 
   # -- Development frontend (Vite HMR) -----------------------------------
-  # docker compose up --build  ->  http://localhost:3000
   web-dev:
     build:
       context: .
@@ -41,18 +40,19 @@ services:
       - VITE_ADMIN_PASS=${VITE_ADMIN_PASS:-moldova2024}
       - VITE_API_URL=http://localhost:4000/api
       - VITE_API_ADMIN_KEY=${API_ADMIN_KEY:-dev-admin-key-change-in-prod}
+      - VITE_UPLOADS_URL=http://localhost:4000
       - VITE_BREVO_API_KEY=${VITE_BREVO_API_KEY:-}
       - VITE_FROM_EMAIL=${VITE_FROM_EMAIL:-}
       - VITE_FROM_NAME=${VITE_FROM_NAME:-MoldovaMoto}
       - VITE_NOTIFY_EMAIL=${VITE_NOTIFY_EMAIL:-}
       - VITE_NOTIFY_WHATSAPP=${VITE_NOTIFY_WHATSAPP:-}
+      - VITE_NOTIFY_WHATSAPP_SENDER=${VITE_NOTIFY_WHATSAPP_SENDER:-}
     depends_on:
       api:
         condition: service_healthy
     restart: unless-stopped
 
   # -- Production frontend (Nginx) ---------------------------------------
-  # docker compose --profile prod up --build  ->  http://localhost:80
   web-prod:
     build:
       context: .
