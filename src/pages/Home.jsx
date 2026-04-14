@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
 import { notifyNewBooking, notifyContactForm } from "../brevo.js";
-import { createBooking } from "../api.js";
+import { createBooking, fetchBookings } from "../api.js";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Lora:ital@0;1&display=swap');
@@ -220,7 +220,7 @@ const mapStops = [
 // ============================================================
 const STEP_LABELS = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
 
-function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [] }) {
+function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [], onRefreshBookings }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     tour: defaultTour, date: "", dateTo: "", departureId: "", bike: "", rentalDays: 1,
@@ -265,7 +265,26 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
     return Object.keys(e).length === 0;
   };
 
-  const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)); };
+  // Re-fetch live bike availability when the user reaches step 2
+  const refreshAvailability = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "/api";
+      const res = await fetch(apiUrl + "/bookings/availability");
+      if (res.ok) {
+        const data = await res.json();
+        // Notify parent to update allBookings — passed down as prop
+        if (onRefreshBookings) onRefreshBookings(data.bookings || []);
+      }
+    } catch { /* silently ignore — stale data is better than no UX */ }
+  };
+
+  const next = () => {
+    if (!validate()) return;
+    const nextStep = Math.min(step + 1, 4);
+    setStep(nextStep);
+    // Refresh live availability when entering bike step
+    if (nextStep === 2) refreshAvailability();
+  };
   const prev = () => { setStep(s => Math.max(s - 1, 0)); setErrors({}); };
 
   const submit = async () => {
@@ -955,11 +974,26 @@ export default function MoldovaMotorTours() {
   const [liveFleet, setLiveFleet] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
 
-  const reloadStore = () => {
+  // Load routes/fleet from localStorage, bookings from real API
+  const reloadStore = async () => {
     const db = loadDB();
     setLiveTours((db.routes || []).filter(r => r.status === "active" && r.visible !== false).map(routeToTour));
     setLiveFleet(db.fleet || []);
-    setAllBookings(db.bookings || []);
+
+    // Fetch real bookings from backend so bike availability is always accurate
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "/api";
+      const res = await fetch(apiUrl + "/bookings/availability");
+      if (res.ok) {
+        const data = await res.json();
+        setAllBookings(data.bookings || []);
+      } else {
+        // Fallback to localStorage if API unavailable
+        setAllBookings(db.bookings || []);
+      }
+    } catch {
+      setAllBookings(db.bookings || []);
+    }
   };
 
   useEffect(() => {
@@ -971,7 +1005,7 @@ export default function MoldovaMotorTours() {
   }, []);
   // ────────────────────────────────────────────────────────────
 
-  const openBooking = (tour = "") => { reloadStore(); setDefaultTour(tour); setShowBooking(true); };
+  const openBooking = async (tour = "") => { await reloadStore(); setDefaultTour(tour); setShowBooking(true); };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -1524,7 +1558,7 @@ export default function MoldovaMotorTours() {
       </footer>
 
       {/* ─── BOOKING MODAL ─── */}
-      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} allBookings={allBookings} />}
+      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} allBookings={allBookings} onRefreshBookings={setAllBookings} />}
     </div>
   );
 }

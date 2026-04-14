@@ -162,6 +162,24 @@ app.post("/api/bookings", publicLimit, (req, res) => {
   });
 });
 
+// GET /api/bookings/availability — PUBLIC, minimal data for client-side availability checks
+// Returns bike, date, date_to, departure_id, status only — no PII
+app.get("/api/bookings/availability", (req, res) => {
+  const rows = db.prepare(
+    "SELECT bike, date, date_to, departure_id, status FROM bookings WHERE status != 'cancelled'"
+  ).all();
+  return res.json({
+    success: true,
+    bookings: rows.map(r => ({
+      bike:        r.bike,
+      date:        r.date,
+      dateTo:      r.date_to,
+      departureId: r.departure_id,
+      status:      r.status,
+    })),
+  });
+});
+
 // GET /api/bookings/stats/summary — admin
 app.get("/api/bookings/stats/summary", adminAuth, (_req, res) => {
   const r = db.prepare(
