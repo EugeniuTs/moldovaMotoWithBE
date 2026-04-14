@@ -301,10 +301,14 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
         createdAt: new Date().toISOString().slice(0, 10) });
       setSubmitted(true);
     } catch (err) {
-      // Field-level errors → show inline; generic error → show banner
       if (err.errors && Object.keys(err.errors).length) {
         setErrors(err.errors);
-        setStep(3); // jump back to rider info step
+        // Bike conflict → step 2; rider field errors → step 3
+        if (err.errors.bike) {
+          setStep(2);
+        } else {
+          setStep(3);
+        }
       } else {
         setApiError(err.message || "Booking failed — please try again.");
       }
@@ -545,6 +549,14 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                   <div style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>
                     {form.date ? "Showing bikes available for your selected dates." : "Select an available motorcycle from our fleet."}
                   </div>
+                  {errors.bike && (
+                    <div style={{ marginBottom: 14, padding: "12px 16px",
+                      background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.35)",
+                      borderRadius: 10, fontSize: 13, color: "#fca5a5", display: "flex", gap: 8, alignItems: "center" }}>
+                      <span style={{ fontSize: 16 }}>⚠</span>
+                      <span>{errors.bike} — please choose a different motorcycle.</span>
+                    </div>
+                  )}
                   {fleet.filter(bikeAvailable).length === 0 && (
                     <div style={{ padding: "20px 16px", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, fontSize: 13, color: "#fca5a5" }}>
                       No bikes available for your selected dates — all are booked. Please try different dates or contact us directly.
@@ -562,9 +574,9 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     <div key={bike.id}
                       onClick={() => avail && set("bike", bike.name)}
                       style={{
-                        border: `2px solid ${!avail ? "rgba(239,68,68,0.25)" : form.bike === bike.name ? ORANGE : BORDER}`,
+                        border: `2px solid ${errors.bike && form.bike === bike.name ? "#ef4444" : !avail ? "rgba(239,68,68,0.25)" : form.bike === bike.name ? ORANGE : BORDER}`,
                         borderRadius: 14, overflow: "hidden",
-                        background: !avail ? "rgba(239,68,68,0.04)" : "#161616",
+                        background: errors.bike && form.bike === bike.name ? "rgba(239,68,68,0.08)" : !avail ? "rgba(239,68,68,0.04)" : "#161616",
                         marginBottom: 12, cursor: avail ? "pointer" : "not-allowed",
                         opacity: avail ? 1 : 0.6, transition: "border-color 0.2s, opacity 0.2s"
                       }}>
