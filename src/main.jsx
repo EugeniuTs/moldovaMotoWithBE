@@ -8,7 +8,7 @@ import Info from './pages/Info'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/"       element={<Home />} />
         <Route path="/admin"  element={<Admin />} />
