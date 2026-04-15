@@ -1549,10 +1549,6 @@ export default function MoldovaMotorTours() {
               <div style={{ fontSize: 12, color: "#444", letterSpacing: "0.08em" }}>
                 <span style={{ color: "#333" }}>SEO: </span>Motorcycle Tours Moldova · Adventure Riding Eastern Europe · CFMOTO Rental Moldova
               </div>
-              <Link to="/admin" style={{ fontSize: 11, color: "#333", textDecoration: "none", borderLeft: `1px solid #222`, paddingLeft: 16, letterSpacing: "0.06em", transition: "color 0.2s" }}
-                onMouseEnter={e => e.target.style.color = MUTED} onMouseLeave={e => e.target.style.color = "#333"}>
-                Admin ↗
-              </Link>
             </div>
           </div>
         </div>
