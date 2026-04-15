@@ -683,6 +683,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                       ["Motorcycle", form.bike],
                       ["Rider", form.name],
                       ["Email", form.email],
+                      ["Phone", form.phone],
                       ["Country", form.country],
                       ["Experience", form.experience]
                     ].map(([label, val]) => val && (
