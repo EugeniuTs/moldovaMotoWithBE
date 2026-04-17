@@ -10,7 +10,7 @@ Includes a public-facing booking website and a full admin dashboard with auth an
 | Path     | Description                              |
 |----------|------------------------------------------|
 | `/`      | Public tour website with booking flow    |
-| `/admin` | Admin portal (login: `admin / moldova2024`) |
+| `/admin` | Admin portal (credentials via env vars — see below) |
 
 ---
 
@@ -91,7 +91,7 @@ moldovamoto/
 
 ## Admin Panel
 
-Login with: **admin / moldova2024**
+Set credentials via env vars (`VITE_ADMIN_USER`, `VITE_ADMIN_PASS`, `VITE_API_ADMIN_KEY` for the frontend; `API_ADMIN_KEY` for the server). **Read [SECURITY.md](./SECURITY.md) before exposing this to the public internet** — the current login is client-side only and the API admin key is bundled into the JS, so it does not provide real authentication. Treat `/admin` as internal-network only until the planned server-side auth is in place.
 
 | Section   | Features                                                              |
 |-----------|-----------------------------------------------------------------------|
@@ -127,14 +127,16 @@ img: "https://images.unsplash.com/photo-xxxxx?w=600&q=80"
 ```
 
 ### Change admin credentials
-Edit in `src/pages/Admin.jsx`:
-```js
-if (user === "admin" && pass === "moldova2024") {
+Set in your `.env` (never commit real credentials):
 ```
+VITE_ADMIN_USER=...
+VITE_ADMIN_PASS=...
+VITE_API_ADMIN_KEY=...   # also as API_ADMIN_KEY for the backend, must be >=32 chars in prod
+```
+Generate the API key with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 
 ### Add real backend
-Replace the `localStorage` calls in Admin.jsx's `useEffect` / `persist` with
-`fetch()` calls to your API (Express, Supabase, PocketBase, etc.).
+The Express API is in `server/`. Booking persistence already goes through it; the admin panel still needs server-side authentication — see [SECURITY.md](./SECURITY.md) for the planned migration.
 
 ---
 

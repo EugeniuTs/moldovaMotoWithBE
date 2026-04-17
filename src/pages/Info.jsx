@@ -12,12 +12,12 @@ const MU = "#72727a";
 const DIM = "#44444c";
 
 const NAV = [
-  { id: "about",  label: "About Us" },
-  { id: "fleet",  label: "Our Fleet" },
-  { id: "routes", label: "Route Map" },
-  { id: "safety", label: "Safety & Licensing" },
-  { id: "faq",    label: "FAQ" },
-  { id: "terms",  label: "Terms & Conditions" },
+  { id: "about",  labelKey: "info.nav.about" },
+  { id: "fleet",  labelKey: "info.nav.fleet" },
+  { id: "routes", labelKey: "info.nav.routes" },
+  { id: "safety", labelKey: "info.nav.safety" },
+  { id: "faq",    labelKey: "info.nav.faq" },
+  { id: "terms",  labelKey: "info.nav.terms" },
 ];
 
 const FAQS_EN = [
@@ -182,7 +182,7 @@ export default function InfoPage() {
                 fontSize: 11, fontWeight: 600, textTransform: "uppercase",
                 letterSpacing: "0.08em", textDecoration: "none", whiteSpace: "nowrap",
                 color: active === n.id ? OR : MU, transition: "color 0.2s" }}>
-                {n.label}
+                {t(n.labelKey)}
               </a>
             ))}
           </div>
@@ -200,7 +200,7 @@ export default function InfoPage() {
                 <a key={n.id} href={"#" + n.id}
                   className={"info-link" + (active === n.id ? " active" : "")}
                   style={{ borderLeftColor: active === n.id ? OR : BDR }}>
-                  {n.label}
+                  {t(n.labelKey)}
                 </a>
               ))}
               <div style={{ marginTop: 32, padding: "18px 16px",
@@ -212,7 +212,7 @@ export default function InfoPage() {
                 <Link to="/" className="cta"
                   style={{ padding: "10px 16px", fontSize: 12, borderRadius: 8,
                     display: "block", textAlign: "center" }}>
-                  Book a Tour
+                  {t("info.book")}
                 </Link>
               </div>
             </div>
@@ -228,14 +228,11 @@ export default function InfoPage() {
                 <h1 className="h2">{t("info.about.h1a")}<br />
                   <span style={{ color: OR }}>{t("info.about.h1b")}</span>
                 </h1>
-                <p style={s.lead}>
-                  Moldova Moto Tours was created for riders who want to discover one of the last
-                  genuinely untouched regions of Europe - not a postcard version of it, but the real thing.
-                </p>
+                <p style={s.lead}>{t("info.about.lead")}</p>
 
                 {/* Stats */}
                 <div style={{ display: "flex", gap: 40, flexWrap: "wrap", marginBottom: 48 }}>
-                  {[["300+","Riders Guided"],["4.9","Average Rating"],["6","Iconic Stops"],["100%","Licensed Guides"]].map(([n, l]) => (
+                  {[["300+",t("info.stat.riders")],["4.9",t("info.stat.rating")],["6",t("info.stat.stops")],["100%",t("info.stat.guides")]].map(([n, l]) => (
                     <div key={l}>
                       <div style={{ fontSize: 36, fontWeight: 900, color: OR, lineHeight: 1 }}>{n}</div>
                       <div style={{ fontSize: 11, color: MU, fontWeight: 700,
@@ -246,31 +243,22 @@ export default function InfoPage() {
 
                 <div className="g2" style={{ marginBottom: 32 }}>
                   <div className="card">
-                    <div style={{ fontSize: 22, marginBottom: 10 }}>Map</div>
+                    <div style={{ fontSize: 22, marginBottom: 10 }}>{t("info.about.do.icon")}</div>
                     <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>{t("info.about.do.title")}</div>
-                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                      We organise motorcycle tours and rentals through Moldova's hidden roads,
-                      authentic villages, vineyard landscapes, and wild river canyons.
-                    </p>
+                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{t("info.about.do.body")}</p>
                   </div>
                   <div className="card">
-                    <div style={{ fontSize: 22, marginBottom: 10 }}>Goal</div>
+                    <div style={{ fontSize: 22, marginBottom: 10 }}>{t("info.about.mission.icon")}</div>
                     <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>{t("info.about.mission.title")}</div>
-                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                      To show riders the Moldova that travel guides miss - the untouched roads,
-                      real culture, genuine hospitality, and scenery that rivals anywhere in Europe.
-                    </p>
+                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{t("info.about.mission.body")}</p>
                   </div>
                 </div>
 
                 <div className="card" style={{ marginBottom: 32 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 16 }}>{t("info.about.included")}</div>
                   <div>
-                    {["Scenic routes personally tested by our team","Local cuisine and wine experiences",
-                      "Historic monasteries and landmark stops","Authentic rural landscapes",
-                      "Small groups - maximum 8 riders","CFMOTO 800MT Adventure motorcycles",
-                      "24/7 roadside support"].map(item => (
-                      <span key={item} className="pill">{item}</span>
+                    {[0,1,2,3,4,5,6].map(i => (
+                      <span key={i} className="pill">{t("info.incl."+i)}</span>
                     ))}
                   </div>
                 </div>
@@ -278,10 +266,7 @@ export default function InfoPage() {
                 <div style={{ background: "rgba(255,107,0,0.08)",
                   border: "1px solid rgba(255,107,0,0.25)", borderRadius: 16, padding: "28px 32px" }}>
                   <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{t("info.about.promise.title")}</div>
-                  <p style={{ color: MU, lineHeight: 1.7, margin: "0 0 20px", fontSize: 15 }}>
-                    We don't run crowded bus tours. We ride. Every route has been personally tested
-                    to find the perfect balance between adventure, safety, and unforgettable scenery.
-                  </p>
+                  <p style={{ color: MU, lineHeight: 1.7, margin: "0 0 20px", fontSize: 15 }}>{t("info.about.promise.body")}</p>
                   <Link to="/" className="cta">{t("info.about.bookcta")}</Link>
                 </div>
               </div>
@@ -295,33 +280,16 @@ export default function InfoPage() {
               <h2 className="h2">{t("info.fleet.h2a")}<br />
                 <span style={{ color: OR }}>{t("info.fleet.h2b")}</span>
               </h2>
-              <p style={s.lead}>
-                Every motorcycle is maintained to the highest standards and inspected before
-                each rental or tour. We ride CFMOTO 800MT Adventure bikes.
-              </p>
+              <p style={s.lead}>{t("info.fleet.lead")}</p>
 
               <div className="g2" style={{ marginBottom: 24 }}>
                 <div className="card">
                   <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14 }}>{t("info.fleet.specs")}</div>
-                  <Checks items={[
-                    "799cc parallel-twin, 95hp",
-                    "Comfortable upright riding position",
-                    "Long suspension travel for mixed roads",
-                    "ABS, traction control, multiple ride modes",
-                    "Heated grips, cruise control, USB-C charging",
-                  ]} />
+                  <Checks items={[0,1,2,3,4].map(i => t("info.fleet.spec."+i))} />
                 </div>
                 <div className="card">
                   <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14 }}>{t("info.fleet.incl")}</div>
-                  <Checks items={[
-                    "Full-face helmet",
-                    "Riding gloves",
-                    "Navigation mount / phone holder",
-                    "Top case + side panniers",
-                    "Basic riding gear (optional upgrade)",
-                    "Third-party insurance",
-                    "24/7 roadside assistance",
-                  ]} />
+                  <Checks items={[0,1,2,3,4,5,6].map(i => t("info.fleet.incl."+i))} />
                 </div>
               </div>
 
@@ -330,14 +298,11 @@ export default function InfoPage() {
                 <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: OR, marginBottom: 6,
-                      textTransform: "uppercase", letterSpacing: "0.08em" }}>Maintenance Standard</div>
-                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                      Professionally serviced every 3,000 km or 3 months. Inspected before each rental.
-                      Full safety systems check every trip.
-                    </p>
+                      textTransform: "uppercase", letterSpacing: "0.08em" }}>{t("info.fleet.maint.title")}</div>
+                    <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{t("info.fleet.maint.body")}</p>
                   </div>
                   <div style={{ display: "flex", gap: 24, flexShrink: 0 }}>
-                    {[["3k km","Service interval"],["100%","Pre-trip check"],["2hr","Breakdown response"]].map(([n,l]) => (
+                    {[["3k km",t("info.fleet.maint.0.label")],["100%",t("info.fleet.maint.1.label")],["2hr",t("info.fleet.maint.2.label")]].map(([n,l]) => (
                       <div key={l} style={{ textAlign: "center" }}>
                         <div style={{ fontSize: 22, fontWeight: 900, color: OR }}>{n}</div>
                         <div style={{ fontSize: 10, color: MU, textTransform: "uppercase",
@@ -357,21 +322,18 @@ export default function InfoPage() {
               <h2 className="h2">{t("info.routes.h2a")}<br />
                 <span style={{ color: OR }}>{t("info.routes.h2b")}</span>
               </h2>
-              <p style={s.lead}>
-                Moldova offers empty roads, dramatic scenery, world-class wine culture, and
-                monastery landscapes - without the crowds or the price tag.
-              </p>
+              <p style={s.lead}>{t("info.routes.lead")}</p>
 
               {[
-                { name: "Wine Roads Tour", tag: "1 Day - 220 EUR",
-                  desc: "Start in Chisinau and ride through Moldova's famous wine heartland. Descend into the legendary Cricova underground wine cellars - 120 km of subterranean galleries housing millions of bottles.",
-                  items: ["Cricova underground wine cellars","Scenic vineyard roads","Traditional winery lunch","Expert local guide"] },
-                { name: "Monasteries and History Tour", tag: "3 Days - 650 EUR",
-                  desc: "A three-day journey to Orheiul Vechi - a 6th-century monastery carved into limestone cliffs - then north along the Dniester canyon to Saharna, an 18th-century monastery above a dramatic waterfall.",
-                  items: ["Orheiul Vechi cliff monastery","Dniester river valley route","Saharna canyon","Village overnight stays","Full board included"] },
-                { name: "The Grand Moldova Tour", tag: "5 Days - 1,050 EUR",
-                  desc: "The full country traverse. Wine roads, cliff monasteries, a medieval Genoese fortress on the Ukrainian border, and a massive Ottoman citadel on the Dniester. Everything Moldova has to offer.",
-                  items: ["All 6 iconic stops","Soroca medieval fortress","Bender Ottoman citadel","5 days of pure riding","Support vehicle throughout","All meals and accommodation"] },
+                { name: t("info.route.0.name"), tag: t("info.route.0.tag"),
+                  desc: t("info.route.0.desc"),
+                  items: [0,1,2,3].map(i => t("info.route.0.i."+i)) },
+                { name: t("info.route.1.name"), tag: t("info.route.1.tag"),
+                  desc: t("info.route.1.desc"),
+                  items: [0,1,2,3,4].map(i => t("info.route.1.i."+i)) },
+                { name: t("info.route.2.name"), tag: t("info.route.2.tag"),
+                  desc: t("info.route.2.desc"),
+                  items: [0,1,2,3,4,5].map(i => t("info.route.2.i."+i)) },
               ].map(route => (
                 <div key={route.name} className="card"
                   style={{ marginBottom: 16, transition: "border-color 0.2s" }}
@@ -393,9 +355,7 @@ export default function InfoPage() {
               <div style={{ marginTop: 32, textAlign: "center", padding: 28,
                 background: SURF, border: "1px solid " + BDR, borderRadius: 16 }}>
                 <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{t("info.routes.notsure")}</div>
-                <p style={{ color: MU, margin: "0 0 20px", fontSize: 14 }}>
-                  Message us on WhatsApp and we will help you pick the perfect route.
-                </p>
+                <p style={{ color: MU, margin: "0 0 20px", fontSize: 14 }}>{t("info.routes.notsure.sub")}</p>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                   <a href="https://wa.me/37369765298" className="cta">{t("info.routes.wa")}</a>
                   <Link to="/" className="cta-ghost">{t("info.routes.book")}</Link>
@@ -411,32 +371,13 @@ export default function InfoPage() {
               <h2 className="h2">{t("info.safety.h2a")}<br />
                 <span style={{ color: OR }}>{t("info.safety.h2b")}</span>
               </h2>
-              <p style={s.lead}>
-                We take safety seriously - not as a legal box to tick, but because we are riders
-                too and we want you to come home with great stories.
-              </p>
+              <p style={s.lead}>{t("info.safety.lead")}</p>
 
               <div className="g3" style={{ marginBottom: 24 }}>
                 {[
-                  { title: "License Requirements", items: [
-                    "Valid motorcycle license (Category A or A2)",
-                    "International permit for non-EU riders",
-                    "Minimum 2 years riding experience",
-                    "Experience on bikes over 500cc recommended",
-                  ]},
-                  { title: "Age Requirements", items: [
-                    "Minimum age: 21 years old",
-                    "Some bikes require 25+ years",
-                    "Depends on motorcycle engine size",
-                    "No upper age limit",
-                  ]},
-                  { title: "Mandatory Gear", items: [
-                    "Full-face helmet (we provide)",
-                    "Protective riding jacket",
-                    "Riding gloves (we provide)",
-                    "Long trousers or riding pants",
-                    "Sturdy closed-toe shoes or boots",
-                  ]},
+                  { title: t("info.safety.t1"), items: [0,1,2,3].map(i => t("info.safety.lic."+i)) },
+                  { title: t("info.safety.t2"), items: [0,1,2,3].map(i => t("info.safety.age."+i)) },
+                  { title: t("info.safety.t3"), items: [0,1,2,3,4].map(i => t("info.safety.gear."+i)) },
                 ].map(({ title, items }) => (
                   <div key={title} className="card">
                     <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14 }}>{title}</div>
@@ -448,29 +389,23 @@ export default function InfoPage() {
               <div style={{ background: "rgba(255,107,0,0.06)",
                 border: "1px solid rgba(255,107,0,0.2)", borderRadius: 12,
                 padding: "20px 24px", marginBottom: 20 }}>
-                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>
-                  What Happens If Something Goes Wrong
-                </div>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>{t("info.safety.breakdown")}</div>
                 <div className="g2">
                   {[
-                    { t: "Guided Tours", d: "A support vehicle follows every multi-day tour. Our guides carry first-aid kits and have emergency protocols for every route segment." },
-                    { t: "Rentals", d: "24/7 roadside assistance. 2-hour response guarantee anywhere in Moldova. A replacement motorcycle can be dispatched for longer breakdowns." },
-                  ].map(({ t, d }) => (
-                    <div key={t}>
-                      <div style={{ fontWeight: 700, color: OR, marginBottom: 6, fontSize: 13 }}>{t}</div>
-                      <p style={{ color: MU, fontSize: 13, lineHeight: 1.65, margin: 0 }}>{d}</p>
+                    { title: t("info.safety.guided"), desc: t("info.safety.guided.body") },
+                    { title: t("info.safety.rental"), desc: t("info.safety.rental.body") },
+                  ].map(({ title, desc }) => (
+                    <div key={title}>
+                      <div style={{ fontWeight: 700, color: OR, marginBottom: 6, fontSize: 13 }}>{title}</div>
+                      <p style={{ color: MU, fontSize: 13, lineHeight: 1.65, margin: 0 }}>{desc}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="card">
-                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Insurance Coverage</div>
-                <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                  All motorcycles include mandatory third-party liability insurance. Additional
-                  comprehensive coverage is available. We strongly recommend personal travel
-                  insurance covering motorcycle touring.
-                </p>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>{t("info.safety.insurance")}</div>
+                <p style={{ color: MU, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{t("info.safety.insurance.body")}</p>
               </div>
             </Sec>
 
@@ -482,9 +417,7 @@ export default function InfoPage() {
               <h2 className="h2">{t("info.faq.h2a")}<br />
                 <span style={{ color: OR }}>{t("info.faq.h2b")}</span>
               </h2>
-              <p style={s.lead}>
-                Everything you need to know before booking. Still have questions? Message us directly.
-              </p>
+              <p style={s.lead}>{t("info.faq.lead")}</p>
 
               <div style={{ border: "1px solid " + BDR, borderRadius: 16, overflow: "hidden" }}>
                 {FAQS.map((item, i) => (
@@ -506,10 +439,10 @@ export default function InfoPage() {
                 alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>{t("info.faq.still")}</div>
-                  <div style={{ color: MU, fontSize: 14 }}>We reply on WhatsApp within 1 hour during business hours.</div>
+                  <div style={{ color: MU, fontSize: 14 }}>{t("info.faq.still.sub")}</div>
                 </div>
                 <a href="https://wa.me/37369765298" className="cta" style={{ flexShrink: 0 }}>
-                  Message Us
+                  {t("info.faq.wa")}
                 </a>
               </div>
             </Sec>
@@ -522,21 +455,14 @@ export default function InfoPage() {
               <h2 className="h2">{t("info.terms.h2a")}<br />
                 <span style={{ color: OR }}>{t("info.terms.h2b")}</span>
               </h2>
-              <p style={s.lead}>
-                By booking with us you agree to the following terms.
-              </p>
+              <p style={s.lead}>{t("info.terms.lead")}</p>
 
               {[
-                { title: t("terms.booking.title"),
-                  body: "Reservations must be made in advance through our website or by direct contact. A deposit may be required. Full payment must be completed before the start of the rental or tour. We accept credit card, bank transfer, and online payment." },
-                { title: t("terms.cancel.title"),
-                  body: "More than 14 days before the tour: full refund of deposit. 7-14 days: 50% refund. Under 7 days: no refund. In case of force majeure we will offer a full rebooking at no extra cost." },
-                { title: t("terms.rider.title"),
-                  body: "You are responsible for respecting local traffic laws, riding safely and sober, and returning the motorcycle in the same condition. Any damage caused by negligence or reckless riding will be charged to the renter at full repair cost." },
-                { title: t("terms.liability.title"),
-                  body: "Participants acknowledge that motorcycle riding carries inherent risks and agree to participate at their own responsibility. Moldova Moto Tours cannot be held liable for accidents resulting from rider negligence or violation of traffic laws." },
-                { title: t("terms.insurance.title"),
-                  body: "All rentals include mandatory third-party insurance as required by Moldovan law. Comprehensive coverage is the rider's responsibility unless an upgrade is purchased. We strongly recommend personal travel insurance covering motorcycle activities." },
+                { title: t("terms.booking.title"),   body: t("terms.booking.body") },
+                { title: t("terms.cancel.title"),    body: t("terms.cancel.body") },
+                { title: t("terms.rider.title"),     body: t("terms.rider.body") },
+                { title: t("terms.liability.title"), body: t("terms.liability.body") },
+                { title: t("terms.insurance.title"), body: t("terms.insurance.body") },
               ].map(({ title, body }) => (
                 <div key={title} style={{ marginBottom: 16, padding: "20px 24px",
                   background: SURF, border: "1px solid " + BDR, borderRadius: 14 }}>
@@ -550,7 +476,7 @@ export default function InfoPage() {
                 background: "rgba(255,107,0,0.06)",
                 border: "1px solid rgba(255,107,0,0.15)", borderRadius: 10,
                 fontSize: 12, color: "#888", lineHeight: 1.7 }}>
-                Last updated: April 2026. For full legal document contact{" "}
+                {t("info.terms.updated")}{" "}
                 <a href="mailto:eugeniutaralunga@gmail.com" style={{ color: OR }}>
                   eugeniutaralunga@gmail.com
                 </a>.
@@ -562,24 +488,24 @@ export default function InfoPage() {
               background: "linear-gradient(135deg, #ff6b00, #cc4400)",
               borderRadius: 20, textAlign: "center" }}>
               <div style={{ fontSize: 28, fontWeight: 900, marginBottom: 12 }}>
-                Ready to Ride Moldova?
+                {t("info.final.h")}
               </div>
               <p style={{ color: "rgba(255,255,255,0.85)", margin: "0 0 28px",
                 fontSize: 16, lineHeight: 1.7 }}>
-                Limited spots available. Book early to secure your place on the road less travelled.
+                {t("info.final.p")}
               </p>
               <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
                 <Link to="/" style={{ background: "#fff", color: OR, borderRadius: 12,
                   padding: "14px 32px", fontSize: 15, fontWeight: 800,
                   textDecoration: "none" }}>
-                  Book Your Tour
+                  {t("info.final.book")}
                 </Link>
                 <a href="https://wa.me/37369765298"
                   style={{ background: "rgba(0,0,0,0.2)", color: "#fff",
                     border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 12,
                     padding: "14px 28px", fontSize: 15, fontWeight: 700,
                     textDecoration: "none" }}>
-                  WhatsApp Us
+                  {t("info.final.wa")}
                 </a>
               </div>
             </div>
