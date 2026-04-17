@@ -175,16 +175,16 @@ const IconIG = () => (
 // Static fallbacks used only if store is empty.
 
 const features = [
-  { icon: <IconBike />, title: "Adventure Riding", desc: "Tackle Moldova's secret backroads, limestone ridges, and river canyon passes — routes you won't find on any travel blog." },
-  { icon: <IconGuide />, title: "Local Expert Guide", desc: "Your guide is a native Moldovan rider who knows every shortcut, every hidden winery, and every story behind the ruins." },
-  { icon: <IconMoto />, title: "Premium Motorcycles", desc: "Ride the CFMOTO 800MT — a touring-class adventure bike with ABS, traction control, and heated grips for total comfort." },
-  { icon: <IconRoute />, title: "Unique Routes", desc: "Every itinerary is handcrafted. Avoid tourist trails entirely and discover the Moldova that 99% of visitors never see." }
+  { icon: <IconBike />,  titleKey: "feature.0.title", descKey: "feature.0.desc" },
+  { icon: <IconGuide />, titleKey: "feature.1.title", descKey: "feature.1.desc" },
+  { icon: <IconMoto />,  titleKey: "feature.2.title", descKey: "feature.2.desc" },
+  { icon: <IconRoute />, titleKey: "feature.3.title", descKey: "feature.3.desc" }
 ];
 
 const testimonials = [
-  { name: "Klaus B.", country: "Germany 🇩🇪", text: "One of the best motorcycle tours in all of Europe. The Orheiul Vechi section at sunset was absolutely breathtaking. Already planning to return for the 5-day tour.", stars: 5 },
-  { name: "Sophie L.", country: "France 🇫🇷", text: "I was skeptical about Moldova, but this experience completely changed my view of Eastern Europe. The CFMOTO handled the roads perfectly, and our guide was outstanding.", stars: 5 },
-  { name: "Marco T.", country: "Italy 🇮🇹", text: "Excellent organisation, premium bike, genuine local experiences. The Cricova wine cellar visit was surreal — 120km of underground wine roads. Unforgettable.", stars: 5 }
+  { name: "Klaus B.",  countryKey: "testi.0.country", textKey: "testi.0.text", stars: 5 },
+  { name: "Sophie L.", countryKey: "testi.1.country", textKey: "testi.1.text", stars: 5 },
+  { name: "Marco T.",  countryKey: "testi.2.country", textKey: "testi.2.text", stars: 5 }
 ];
 
 const fleetFeatures = [
@@ -202,25 +202,19 @@ const fleetFeatures = [
 // x = 20 + (lon − 26.62) × 74.07  |  y = 390 − (lat − 45.47) × 124.17
 // ViewBox: 0 0 300 420
 const mapStops = [
-  { lat: 47.0056,  lng: 28.8575, name: "Chișinău",     label: "Capital City",              sub: "Tour Start / End",
-    desc: "Your tour begins in Moldova's vibrant capital. Pick up your CFMOTO 800MT, meet your guide, and ride out." },
-  { lat: 47.3644,  lng: 28.9767, name: "Orheiul Vechi", label: "Cliff Monastery",           sub: "★ Unmissable",
-    desc: "A 6th-century monastery carved into limestone cliffs above the Răut River — one of Europe's most dramatic natural amphitheatres." },
-  { lat: 47.1361,  lng: 28.8594, name: "Cricova",       label: "Underground Wine City",     sub: "1-Day Tour",
-    desc: "120 km of underground galleries turned wine cellar. The Soviet-era labyrinth holds millions of bottles beneath rolling vineyards." },
-  { lat: 47.8611,  lng: 28.9750, name: "Saharna",       label: "Nistru Canyon & Monastery", sub: "3 & 5-Day Tour",
-    desc: "An 18th-century monastery tucked above a dramatic Dniester canyon waterfall. Remote, pristine, and completely unforgettable." },
-  { lat: 48.1569,  lng: 28.2886, name: "Soroca",        label: "Medieval Fortress",         sub: "5-Day Tour",
-    desc: "Moldova's perfectly preserved 16th-century Genoese-Ottoman fortress, sitting on the Dniester riverbank at the Ukrainian border." },
-  { lat: 46.8264,  lng: 29.4847, name: "Bender",        label: "Ottoman Fortress",          sub: "5-Day Tour",
-    desc: "A massive 16th-century Ottoman citadel commanding the Dniester with centuries of turbulent history etched into every stone bastion." }
+  { lat: 47.0056, lng: 28.8575, name: "Chișinău",     labelKey: "map.stop.0.label", subKey: "map.stop.0.sub", descKey: "map.stop.0.desc" },
+  { lat: 47.3644, lng: 28.9767, name: "Orheiul Vechi", labelKey: "map.stop.1.label", subKey: "map.stop.1.sub", descKey: "map.stop.1.desc" },
+  { lat: 47.1361, lng: 28.8594, name: "Cricova",       labelKey: "map.stop.2.label", subKey: "map.stop.2.sub", descKey: "map.stop.2.desc" },
+  { lat: 47.8611, lng: 28.9750, name: "Saharna",       labelKey: "map.stop.3.label", subKey: "map.stop.3.sub", descKey: "map.stop.3.desc" },
+  { lat: 48.1569, lng: 28.2886, name: "Soroca",        labelKey: "map.stop.4.label", subKey: "map.stop.4.sub", descKey: "map.stop.4.desc" },
+  { lat: 46.8264, lng: 29.4847, name: "Bender",        labelKey: "map.stop.5.label", subKey: "map.stop.5.sub", descKey: "map.stop.5.desc" }
 ];
 
 // ============================================================
 // BOOKING MODAL
 // ============================================================
 const STEP_LABELS_EN = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
-  const STEP_LABELS_DE = ["Tour", "Datum", "Motorrad", "Fahrerdaten", "Best\u00E4tigen"];
+const STEP_LABELS_DE = ["Tour", "Datum", "Motorrad", "Fahrerdaten", "Best\u00E4tigen"];
 
 function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [], onRefreshBookings, t = k=>k, lang = "en" }) {
   const [step, setStep] = useState(0);
@@ -381,7 +375,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
         <div className="modal-header" style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: "20px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontSize: 11, color: ORANGE, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>{t("book.badge")}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: WHITE }}>Book Your Tour</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: WHITE }}>{t("book.modal.title")}</div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: MUTED, cursor: "pointer", padding: 4 }}><IconClose /></button>
         </div>
@@ -390,7 +384,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
           <>
             {/* Step indicator */}
             <div className="steps-bar" style={{ display: "flex", alignItems: "center", padding: "16px 20px 0", gap: 6 }}>
-              {STEP_LABELS.map((label, i) => (
+              {(lang === "de" ? STEP_LABELS_DE : STEP_LABELS_EN).map((label, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", flex: i < 4 ? 1 : 0 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                     <div className={`step-dot ${i < step ? "done" : i === step ? "active" : "inactive"}`}>
@@ -410,12 +404,12 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 16 }}>{t("book.s0.q")}</div>
                   {tours.length === 0 && (
-                    <div style={{ color: MUTED, fontSize: 14, padding: "20px 0" }}>No active tours available right now.</div>
+                    <div style={{ color: MUTED, fontSize: 14, padding: "20px 0" }}>{t("book.s0.empty")}</div>
                   )}
-                  {tours.map(t => {
-                    const sel = form.tour === t.title;
+                  {tours.map(tour => {
+                    const sel = form.tour === tour.title;
                     return (
-                      <div key={t.id} onClick={() => set("tour", t.title)}
+                      <div key={tour.id} onClick={() => set("tour", tour.title)}
                         style={{
                           border: `1.5px solid ${sel ? ORANGE : BORDER}`,
                           borderRadius: 14, marginBottom: 10, cursor: "pointer",
@@ -429,8 +423,8 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                             width: 110, flexShrink: 0, position: "relative", overflow: "hidden",
                             background: "#0e0e0e"
                           }}>
-                            {t.img
-                              ? <img src={t.img} alt={t.title}
+                            {tour.img
+                              ? <img src={tour.img} alt={tour.title}
                                   style={{ width: "100%", height: "100%", objectFit: "cover",
                                     transition: "transform 0.4s", transform: sel ? "scale(1.06)" : "scale(1)" }} />
                               : <div style={{ width: "100%", height: "100%", display: "flex",
@@ -446,24 +440,24 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                             <div style={{ display: "flex", alignItems: "flex-start",
                               justifyContent: "space-between", gap: 8, marginBottom: 3 }}>
                               <div style={{ fontWeight: 800, color: sel ? WHITE : "#ddd",
-                                fontSize: 14, lineHeight: 1.25, flex: 1, minWidth: 0 }}>{t.title}</div>
+                                fontSize: 14, lineHeight: 1.25, flex: 1, minWidth: 0 }}>{tour.title}</div>
                               <div style={{ fontSize: 17, fontWeight: 900, color: ORANGE,
-                                whiteSpace: "nowrap", flexShrink: 0, lineHeight: 1.2 }}>{t.price}</div>
+                                whiteSpace: "nowrap", flexShrink: 0, lineHeight: 1.2 }}>{tour.price}</div>
                             </div>
                             {/* Sub-info row */}
                             <div style={{ display: "flex", alignItems: "center",
                               justifyContent: "space-between", gap: 6 }}>
                               <div>
-                                <span style={{ fontSize: 11, color: MUTED }}>{t.duration}</span>
-                                {t.highlights && t.highlights.length > 0 && (
+                                <span style={{ fontSize: 11, color: MUTED }}>{tour.duration}</span>
+                                {tour.highlights && tour.highlights.length > 0 && (
                                   <span style={{ fontSize: 11, color: sel ? "rgba(255,107,0,0.75)" : "#555",
-                                    marginLeft: 6 }}>· {t.highlights[0]}</span>
+                                    marginLeft: 6 }}>· {tour.highlights[0]}</span>
                                 )}
                               </div>
                               {sel && (
                                 <div style={{ background: ORANGE, color: "#fff", borderRadius: 5,
                                   padding: "2px 7px", fontSize: 9, fontWeight: 800,
-                                  letterSpacing: "0.04em", flexShrink: 0 }}>SELECTED</div>
+                                  letterSpacing: "0.04em", flexShrink: 0 }}>{t("book.s0.selected")}</div>
                               )}
                             </div>
                           </div>
@@ -480,11 +474,11 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                   {isOpenDate ? (
                     /* ── Free rental: from → to date range ── */
                     <>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose your rental period</div>
-                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>Select a start and end date — your bike is reserved for the entire period.</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>{t("book.s1.openTitle")}</div>
+                      <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>{t("book.s1.openSub")}</div>
                       <div className="form-row-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>From</label>
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("book.s1.from")}</label>
                           <input type="date" className="form-input" min={today} value={form.date}
                             onChange={e => {
                               set("date", e.target.value);
@@ -494,7 +488,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                           {errors.date && <div style={{ color: "#ff4d4d", fontSize: 12, marginTop: 4 }}>{errors.date}</div>}
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>To</label>
+                          <label style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("book.s1.to")}</label>
                           <input type="date" className="form-input"
                             min={form.date || today}
                             value={form.dateTo}
@@ -506,7 +500,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                       {form.date && form.dateTo && form.dateTo > form.date && (
                         <div style={{ padding: "13px 16px", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.25)", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <span style={{ fontSize: 13, color: "#ffb27a" }}>
-                            {form.rentalDays} day{form.rentalDays !== 1 ? "s" : ""} · {form.date} → {form.dateTo}
+                            {form.rentalDays} {form.rentalDays === 1 ? t("book.s1.day") : t("book.s1.days")} · {form.date} → {form.dateTo}
                           </span>
                           <span style={{ fontSize: 15, fontWeight: 800, color: ORANGE }}>
                             €{((selectedTour?.priceNum || 0) * form.rentalDays).toLocaleString()}
@@ -517,12 +511,12 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                   ) : (
                     /* ── Scheduled tour: predefined departure slots ── */
                     <>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Select a departure date</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>{t("book.s1.schedTitle")}</div>
                       <div style={{ fontSize: 14, color: MUTED, marginBottom: 20 }}>
-                        {departures.length} upcoming departure{departures.length !== 1 ? "s" : ""} — spots decrease as bookings are confirmed.
+                        {departures.length} {departures.length === 1 ? t("book.s1.schedSubOne") : t("book.s1.schedSub")}
                       </div>
                       {departures.length === 0 && (
-                        <div style={{ color: MUTED, fontSize: 13, padding: "20px 0" }}>No upcoming departures scheduled yet. Contact us to arrange a custom date.</div>
+                        <div style={{ color: MUTED, fontSize: 13, padding: "20px 0" }}>{t("book.s1.empty")}</div>
                       )}
                       {departures.sort((a, b) => a.date.localeCompare(b.date)).map(dep => {
                         const confirmed = allBookings.filter(b => b.departureId === dep.id && b.status === "confirmed").length;
@@ -543,17 +537,17 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                             }}>
                             <div>
                               <div style={{ fontWeight: 700, color: isFull ? MUTED : WHITE }}>
-                                {new Date(dep.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
+                                {new Date(dep.date + "T12:00:00").toLocaleDateString(lang === "de" ? "de-DE" : "en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
                               </div>
                               <div style={{ fontSize: 12, color: MUTED, marginTop: 3 }}>
-                                {selectedTour?.duration} · departs Chișinău
+                                {selectedTour?.duration} · {t("book.s1.departs")}
                               </div>
                             </div>
                             <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 16 }}>
                               <div style={{ fontSize: 13, fontWeight: 800, color: isFull ? "#555" : left <= 2 ? "#eab308" : "#22c55e" }}>
-                                {isFull ? "FULL" : `${left} spot${left !== 1 ? "s" : ""} left`}
+                                {isFull ? t("book.s1.full") : `${left} ${left === 1 ? t("book.s1.spotLeft") : t("book.s1.spotsLeft")}`}
                               </div>
-                              <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>of {dep.maxSpots}</div>
+                              <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>{t("book.s1.of")} {dep.maxSpots}</div>
                             </div>
                           </div>
                         );
@@ -568,19 +562,19 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>{t("book.s2.q")}</div>
                   <div style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>
-                    {form.date ? "Showing bikes available for your selected dates." : "Select an available motorcycle from our fleet."}
+                    {form.date ? t("book.s2.subDate") : t("book.s2.subNoDate")}
                   </div>
                   {errors.bike && (
                     <div style={{ marginBottom: 14, padding: "12px 16px",
                       background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.35)",
                       borderRadius: 10, fontSize: 13, color: "#fca5a5", display: "flex", gap: 8, alignItems: "center" }}>
                       <span style={{ fontSize: 16 }}>⚠</span>
-                      <span>{errors.bike} — please choose a different motorcycle.</span>
+                      <span>{errors.bike} {t("book.s2.errSuffix")}</span>
                     </div>
                   )}
                   {fleet.filter(bikeAvailable).length === 0 && (
                     <div style={{ padding: "20px 16px", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, fontSize: 13, color: "#fca5a5" }}>
-                      No bikes available for your selected dates — all are booked. Please try different dates or contact us directly.
+                      {t("book.s2.empty")}
                     </div>
                   )}
                   {fleet.map(bike => {
@@ -604,7 +598,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                       <div style={{ padding: "16px 20px 18px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                           <div style={{ background: avail ? ORANGE : "#7f1d1d", color: "#fff", fontSize: 11, fontWeight: 800, padding: "3px 9px", borderRadius: 5, letterSpacing: "0.07em", textTransform: "uppercase" }}>
-                            {avail ? "Available" : "Booked"}
+                            {avail ? t("book.s2.avail") : t("book.s2.booked")}
                           </div>
                           <div style={{ fontSize: 17, fontWeight: 900, color: WHITE }}>{bike.name}</div>
                           <div style={{ fontSize: 12, color: MUTED, marginLeft: "auto" }}>{bike.color} · {bike.year}</div>
@@ -618,7 +612,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                         </div>
                           {!avail && conflicts.length > 0 && (
                             <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 6 }}>
-                              Booked {conflicts[0].date}{conflicts[0].dateTo ? ` → ${conflicts[0].dateTo}` : ""}
+                              {t("book.s2.bookedOn")} {conflicts[0].date}{conflicts[0].dateTo ? ` → ${conflicts[0].dateTo}` : ""}
                             </div>
                           )}
                       </div>
@@ -626,7 +620,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     );
                   })}
                   <div style={{ marginTop: 10, padding: "12px 16px", background: "rgba(255,107,0,0.08)", border: `1px solid rgba(255,107,0,0.25)`, borderRadius: 10, fontSize: 13, color: "#ffb27a" }}>
-                    All motorcycles include comprehensive insurance, gear rental option, and 24/7 roadside support.
+                    {t("book.s2.note")}
                   </div>
                 </div>
               )}
@@ -635,10 +629,10 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>{t("book.s3.q")}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                    {[["name", "Full Name", "text", "e.g. Hans Müller"],
-                      ["email", "Email Address", "email", "you@example.com"],
-                      ["phone", "Phone / WhatsApp", "tel", "+49 ..."],
-                      ["country", "Country", "text", "Germany"]
+                    {[["name",    t("book.s3.label.name"),    "text",  t("book.s3.ph.name")],
+                      ["email",   t("book.s3.label.email"),   "email", t("book.s3.ph.email")],
+                      ["phone",   t("book.s3.label.phone"),   "tel",   t("book.s3.ph.phone")],
+                      ["country", t("book.s3.label.country"), "text",  t("book.s3.ph.country")]
                     ].map(([key, label, type, ph]) => (
                       <div key={key}>
                         <label style={{ fontSize: 12, color: MUTED, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{label}</label>
@@ -648,13 +642,13 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                       </div>
                     ))}
                     <div style={{ gridColumn: "1 / -1" }}>
-                      <label style={{ fontSize: 12, color: MUTED, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Riding Experience</label>
+                      <label style={{ fontSize: 12, color: MUTED, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("book.s3.label.exp")}</label>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                         {[
-                          { v: "beginner",     label: "Beginner",     sub: "1–3 years" },
-                          { v: "intermediate", label: "Intermediate", sub: "3–7 years" },
-                          { v: "advanced",     label: "Advanced",     sub: "7+ years" },
-                          { v: "expert",       label: "Expert",       sub: "Track exp." },
+                          { v: "beginner",     label: t("book.s3.exp.beginner"),     sub: t("book.s3.exp.beginner.sub") },
+                          { v: "intermediate", label: t("book.s3.exp.intermediate"), sub: t("book.s3.exp.intermediate.sub") },
+                          { v: "advanced",     label: t("book.s3.exp.advanced"),     sub: t("book.s3.exp.advanced.sub") },
+                          { v: "expert",       label: t("book.s3.exp.expert"),       sub: t("book.s3.exp.expert.sub") },
                         ].map(({ v, label, sub }) => {
                           const sel = form.experience === v;
                           return (
@@ -677,7 +671,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 
               {step === 4 && (
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>Review & Confirm</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>{t("book.s4.title")}</div>
                   <div style={{ background: "#161616", border: `1px solid ${BORDER}`, borderRadius: 12, padding: "18px 20px", marginBottom: 18 }}>
                     {[
                       [t("book.s4.tour"), form.tour],
@@ -709,8 +703,8 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                       {form.license && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
                     <div style={{ fontSize: 14, color: "#ccc", lineHeight: 1.55 }}>
-                      <strong style={{ color: WHITE, display: "block", marginBottom: 3 }}>I confirm I hold a valid motorcycle license</strong>
-                      I understand that a motorcycle license (minimum Category A2) is required for all tours and will be verified at check-in. Riders without a valid license will not be permitted to participate.
+                      <strong style={{ color: WHITE, display: "block", marginBottom: 3 }}>{t("book.s4.licStrong")}</strong>
+                      {t("book.s4.licNote")}
                     </div>
                   </div>
                   {errors.license && <div style={{ color: "#ff4d4d", fontSize: 13, marginBottom: 8 }}>{errors.license}</div>}
@@ -730,7 +724,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     display: "flex", alignItems: "center", gap: 6, background: "none", border: `1.5px solid ${BORDER}`,
                     color: "#aaa", borderRadius: 10, padding: "12px 20px", cursor: "pointer", fontWeight: 700, fontSize: 14, fontFamily: "inherit"
                   }}>
-                    <IconArrow dir="left" /> Back
+                    <IconArrow dir="left" /> {t("book.btn.back")}
                   </button>
                 ) : <div />}
                 {step < 4 ? (
@@ -738,7 +732,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     display: "flex", alignItems: "center", gap: 8, background: ORANGE, border: "none",
                     color: "#fff", borderRadius: 10, padding: "12px 24px", cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "inherit"
                   }}>
-                    Continue <IconArrow />
+                    {t("book.btn.continue")} <IconArrow />
                   </button>
                 ) : (
                   <button onClick={submit} disabled={submitting} style={{
@@ -760,20 +754,20 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
               <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)",
                 borderRadius: 10, padding: "8px 16px", marginBottom: 16, fontSize: 12,
                 color: "#22c55e", fontWeight: 700, letterSpacing: "0.05em" }}>
-                BOOKING ID: {confirmedId}
+                {t("book.done.bookingId")} {confirmedId}
               </div>
             )}
             <div style={{ fontSize: 56, marginBottom: 16 }}>🏍️</div>
             <div style={{ fontSize: 26, fontWeight: 900, color: WHITE, marginBottom: 10 }}>{t("book.done.h")}</div>
             <div style={{ fontSize: 15, color: MUTED, maxWidth: 360, margin: "0 auto 28px", lineHeight: 1.65 }}>
-              Your reservation request for <strong style={{ color: ORANGE }}>{form.tour}</strong> has been received. We'll confirm within 24 hours via email to <strong style={{ color: WHITE }}>{form.email}</strong>.
+              {t("book.done.p1")} <strong style={{ color: ORANGE }}>{form.tour}</strong> {t("book.done.p2")} <strong style={{ color: WHITE }}>{form.email}</strong>.
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, padding: "14px 22px", marginBottom: 28 }}>
               <IconWA />
-              <span style={{ fontSize: 14, color: "#ffb27a" }}>WhatsApp us for faster confirmation: <strong>+373 69 765 298</strong></span>
+              <span style={{ fontSize: 14, color: "#ffb27a" }}>{t("book.done.waLine")} <strong>+373 69 765 298</strong></span>
             </div>
             <button onClick={onClose} style={{ background: ORANGE, border: "none", color: "#fff", borderRadius: 10, padding: "12px 28px", cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "inherit" }}>
-              Back to Tours
+              {t("book.done.backTours")}
             </button>
           </div>
         )}
@@ -1057,14 +1051,30 @@ export default function MoldovaMotorTours() {
             <Link to="/adventures" className="nav-link" style={{ color: ORANGE }}>{t("nav.adventures")}</Link>
           </div>
 
-          {/* Desktop book button — hidden on mobile */}
-          <button onClick={() => openBooking()} className="nav-book-btn cta-pulse" style={{
-            background: ORANGE, color: "#fff", border: "none", borderRadius: 10,
-            padding: "10px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer",
-            fontFamily: "inherit", letterSpacing: "0.04em", textTransform: "uppercase"
-          }}>
-            Book Your Tour
-          </button>
+          {/* Right side: language pill + book button */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+            <div className="lang-pill" style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {["en","de"].map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  style={{
+                    background: lang === l ? "rgba(255,107,0,0.15)" : "transparent",
+                    border: lang === l ? "1px solid rgba(255,107,0,0.5)" : "1px solid rgba(255,255,255,0.18)",
+                    borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700,
+                    color: lang === l ? ORANGE : "#bbb", cursor: "pointer", fontFamily: "inherit",
+                    textTransform: "uppercase", letterSpacing: "0.06em"
+                  }}>
+                  {l}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => openBooking()} className="nav-book-btn cta-pulse" style={{
+              background: ORANGE, color: "#fff", border: "none", borderRadius: 10,
+              padding: "10px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer",
+              fontFamily: "inherit", letterSpacing: "0.04em", textTransform: "uppercase"
+            }}>
+              {t("nav.book")}
+            </button>
+          </div>
 
           {/* Hamburger — mobile only, shown via CSS */}
           <button
@@ -1092,14 +1102,14 @@ export default function MoldovaMotorTours() {
           <div style={{ background: "rgba(10,10,10,0.98)", backdropFilter: "blur(16px)",
             borderTop: `1px solid ${BORDER}`, padding: "8px 0 16px",
             display: "flex", flexDirection: "column" }}>
-            {[["#tours","Tours"],["#experience","Experience"],["#fleet","Fleet"],
-              ["#map","Routes"],["#contact","Contact"]].map(([href, label]) => (
+            {[["#tours","nav.tours"],["#experience","nav.experience"],["#fleet","nav.fleet"],
+              ["#map","nav.routes"],["#contact","nav.contact"]].map(([href, key]) => (
               <a key={href} href={href}
                 onClick={() => setMenuOpen(false)}
                 style={{ padding: "14px 24px", fontSize: 15, fontWeight: 700,
                   color: "#ccc", textDecoration: "none", borderBottom: `1px solid ${BORDER}`,
                   letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                {label}
+                {t(key)}
               </a>
             ))}
             <Link to="/adventures"
@@ -1107,15 +1117,30 @@ export default function MoldovaMotorTours() {
               style={{ padding: "14px 24px", fontSize: 15, fontWeight: 700,
                 color: ORANGE, textDecoration: "none", borderBottom: `1px solid ${BORDER}`,
                 letterSpacing: "0.06em", textTransform: "uppercase" }}>
-              Adventures
+              {t("nav.adventures")}
             </Link>
+            <div style={{ display: "flex", gap: 8, padding: "14px 20px 0" }}>
+              {["en","de"].map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  style={{
+                    flex: 1,
+                    background: lang === l ? "rgba(255,107,0,0.15)" : "transparent",
+                    border: lang === l ? "1px solid rgba(255,107,0,0.5)" : "1px solid rgba(255,255,255,0.18)",
+                    borderRadius: 8, padding: "10px", fontSize: 13, fontWeight: 700,
+                    color: lang === l ? ORANGE : "#bbb", cursor: "pointer", fontFamily: "inherit",
+                    textTransform: "uppercase", letterSpacing: "0.08em"
+                  }}>
+                  {l}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => { setMenuOpen(false); openBooking(); }}
               style={{ margin: "14px 20px 0", background: ORANGE, color: "#fff",
                 border: "none", borderRadius: 10, padding: "15px", fontSize: 15,
                 fontWeight: 800, cursor: "pointer", fontFamily: "inherit",
                 letterSpacing: "0.04em" }}>
-              Book Your Tour →
+              {t("nav.book")} →
             </button>
           </div>
         )}
@@ -1134,27 +1159,27 @@ export default function MoldovaMotorTours() {
             🏍️ {t("hero.badge")}
           </div>
           <h1 className="hero-title hero-animate-2" style={{ fontSize: "clamp(44px, 7vw, 88px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.03em", marginBottom: 22, maxWidth: 780 }}>
-            Discover Moldova<br /><span style={{ color: ORANGE }}>on Two Wheels</span>
+            {t("hero.h1.line1")}<br /><span style={{ color: ORANGE }}>{t("hero.h1.line2")}</span>
           </h1>
           <p className="hero-sub hero-animate-3" style={{ fontSize: 20, color: "rgba(244,244,244,0.82)", maxWidth: 560, lineHeight: 1.65, marginBottom: 40, fontWeight: 400 }}>
-            Guided motorcycle tours through vineyards, cliff monasteries, and the hidden roads of Eastern Europe — on a premium adventure bike.
+            {t("hero.desc")}
           </p>
           <div className="hero-animate-4" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <button onClick={() => document.getElementById("tours").scrollIntoView({ behavior: "smooth" })}
               style={{ background: ORANGE, color: "#fff", border: "none", borderRadius: 12, padding: "16px 32px", fontWeight: 800, fontSize: 16, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.02em" }}>
-              Book Your Tour →
+              {t("hero.btn.book")}
             </button>
             <button onClick={() => document.getElementById("map").scrollIntoView({ behavior: "smooth" })}
               style={{ background: "rgba(255,255,255,0.1)", color: WHITE, border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "16px 32px", fontWeight: 700, fontSize: 16, cursor: "pointer", fontFamily: "inherit", backdropFilter: "blur(6px)" }}>
-              View Routes
+              {t("hero.btn.routes")}
             </button>
           </div>
           {/* Stats */}
           <div className="hero-animate-4" style={{ display: "flex", gap: 40, marginTop: 56, flexWrap: "wrap" }}>
-            {[["300+", "Riders Guided"], ["4.9★", "Average Rating"], ["3", "Tour Lengths"], ["100%", "Licensed Guides"]].map(([num, label]) => (
-              <div key={label}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: ORANGE, lineHeight: 1 }}>{num}</div>
-                <div style={{ fontSize: 13, color: "rgba(244,244,244,0.6)", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</div>
+            {[0,1,2,3].map(i => (
+              <div key={i}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: ORANGE, lineHeight: 1 }}>{t(`hero.stat.${i}.num`)}</div>
+                <div style={{ fontSize: 13, color: "rgba(244,244,244,0.6)", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{t(`hero.stat.${i}.label`)}</div>
               </div>
             ))}
           </div>
@@ -1162,7 +1187,7 @@ export default function MoldovaMotorTours() {
         {/* Scroll indicator */}
         <div style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.5 }}>
           <div style={{ width: 1, height: 40, background: WHITE, animation: "fadeIn 2s infinite alternate" }} />
-          <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: WHITE }}>Scroll</span>
+          <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: WHITE }}>{t("hero.scroll")}</span>
         </div>
       </section>
 
@@ -1170,10 +1195,10 @@ export default function MoldovaMotorTours() {
       <section id="experience" style={{ padding: "100px 5%", background: "#0d0d0d" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Why Moldova</div>
-            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em", lineHeight: 1.1, marginBottom: 18 }}>Europe's Best-Kept<br />Riding Secret</h2>
+            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("exp.kicker")}</div>
+            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em", lineHeight: 1.1, marginBottom: 18 }}>{t("exp.title.1")}<br />{t("exp.title.2")}</h2>
             <p style={{ fontSize: 17, color: MUTED, maxWidth: 520, margin: "0 auto", lineHeight: 1.7 }}>
-              Uncrowded roads, genuine hospitality, and scenery that rivals Tuscany — at a fraction of the price.
+              {t("exp.desc")}
             </p>
           </div>
           <div className="exp-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 28 }}>
@@ -1185,8 +1210,8 @@ export default function MoldovaMotorTours() {
                 }}>
                   {f.icon}
                 </div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>{f.title}</h3>
-                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7 }}>{f.desc}</p>
+                <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>{t(f.titleKey)}</h3>
+                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7 }}>{t(f.descKey)}</p>
               </div>
             ))}
           </div>
@@ -1197,45 +1222,45 @@ export default function MoldovaMotorTours() {
       <section id="tours" style={{ padding: "100px 5%", background: DARK }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ marginBottom: 56 }}>
-            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Choose Your Adventure</div>
-            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em" }}>Our Tours</h2>
+            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("tours.kicker")}</div>
+            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em" }}>{t("tours.h1")}</h2>
           </div>
           {liveTours.length === 0 && (
-            <div style={{ color: MUTED, fontSize: 16, padding: "40px 0" }}>Tours coming soon — check back shortly.</div>
+            <div style={{ color: MUTED, fontSize: 16, padding: "40px 0" }}>{t("tours.empty")}</div>
           )}
           <div className="tours-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
-            {liveTours.map((t, i) => (
-              <div key={t.id} className="tour-card" style={{
+            {liveTours.map((tour, i) => (
+              <div key={tour.id} className="tour-card" style={{
                 background: CARD, border: `1px solid ${BORDER}`, borderRadius: 20, overflow: "hidden",
                 transition: "transform 0.3s", display: "flex", flexDirection: "column"
               }}>
                 <div style={{ position: "relative", overflow: "hidden", height: 220 }}>
-                  <img className="tour-card-img" src={t.img} alt={t.title}
+                  <img className="tour-card-img" src={tour.img} alt={tour.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} />
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)" }} />
                   <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}>
-                    <span style={{ background: ORANGE, color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 6, letterSpacing: "0.06em", textTransform: "uppercase" }}>{t.tag}</span>
+                    <span style={{ background: ORANGE, color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 6, letterSpacing: "0.06em", textTransform: "uppercase" }}>{tour.tag}</span>
                   </div>
                   <div style={{ position: "absolute", bottom: 16, right: 16 }}>
-                    <span style={{ background: "rgba(0,0,0,0.75)", color: "#ccc", fontSize: 12, fontWeight: 700, padding: "5px 12px", borderRadius: 8, backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.1)" }}>⏱ {t.duration}</span>
+                    <span style={{ background: "rgba(0,0,0,0.75)", color: "#ccc", fontSize: 12, fontWeight: 700, padding: "5px 12px", borderRadius: 8, backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.1)" }}>⏱ {tour.duration}</span>
                   </div>
                 </div>
                 <div style={{ padding: "24px 24px 28px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>{t.title}</h3>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: ORANGE, flexShrink: 0, marginLeft: 10 }}>{t.price}</div>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>{tour.title}</h3>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: ORANGE, flexShrink: 0, marginLeft: 10 }}>{tour.price}</div>
                   </div>
-                  <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7, marginBottom: 18, flex: 1 }}>{t.desc}</p>
+                  <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7, marginBottom: 18, flex: 1 }}>{tour.desc}</p>
                   <div style={{ marginBottom: 20 }}>
-                    {t.highlights.map((h, j) => (
+                    {tour.highlights.map((h, j) => (
                       <div key={j} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontSize: 13, color: "#bbb" }}>
                         <span style={{ color: ORANGE, fontSize: 16 }}>›</span>{h}
                       </div>
                     ))}
                   </div>
-                  <button onClick={() => openBooking(t.title)}
+                  <button onClick={() => openBooking(tour.title)}
                     style={{ width: "100%", background: ORANGE, color: "#fff", border: "none", borderRadius: 12, padding: "13px", fontWeight: 800, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
-                    Book Now →
+                    {t("tours.bookNow")}
                   </button>
                 </div>
               </div>
@@ -1253,7 +1278,7 @@ export default function MoldovaMotorTours() {
               <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("fleet.tag")}</div>
               <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 20 }}>{t("fleet.h2a")}<br /><span style={{ color: ORANGE }}>{t("fleet.h2b")}</span></h2>
               <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.75, marginBottom: 36 }}>
-                The CFMOTO 800MT is our chosen mount for Moldova's diverse terrain — from smooth vineyard lanes to the rugged riverside tracks of the Nistru canyon. Powerful, comfortable, and loaded with touring tech.
+                {t("fleet.descLong")}
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px" }}>
                 {(liveFleet[0]?.features || fleetFeatures).map((f, i) => (
@@ -1263,7 +1288,7 @@ export default function MoldovaMotorTours() {
                 ))}
               </div>
               <div style={{ marginTop: 36, display: "flex", gap: 16, flexWrap: "wrap" }}>
-                {[["799cc", "Twin-Cylinder"], ["95hp", "Peak Power"], ["±200km", "Daily Range"]].map(([val, label]) => (
+                {[["799cc", t("fleet.spec.0.label")], ["95hp", t("fleet.spec.1.label")], ["±200km", t("fleet.spec.2.label")]].map(([val, label]) => (
                   <div key={label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "16px 24px" }}>
                     <div style={{ fontSize: 24, fontWeight: 900, color: ORANGE }}>{val}</div>
                     <div style={{ fontSize: 12, color: MUTED, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</div>
@@ -1307,9 +1332,9 @@ export default function MoldovaMotorTours() {
                 lineHeight: 1.4, textAlign: "center",
                 boxShadow: "0 8px 24px rgba(255,107,0,0.45)",
               }}>
-                All-Inclusive<br />
+                {t("fleet.allInclusive")}<br />
                 <span style={{ fontSize: 24 }}>€0</span><br />
-                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>{t("fleet.badge.sub")}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>{t("fleet.extraBike")}</span>
               </div>
             </div>
           </div>
@@ -1320,9 +1345,9 @@ export default function MoldovaMotorTours() {
       <section id="map" style={{ padding: "100px 5%", background: DARK }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
-            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Tour Routes</div>
-            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em" }}>The Moldova Map</h2>
-            <p style={{ color: MUTED, marginTop: 14, fontSize: 16 }}>Real map powered by OpenStreetMap. Click any stop to fly to it.</p>
+            <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("map.kicker")}</div>
+            <h2 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.025em" }}>{t("map.h1")}</h2>
+            <p style={{ color: MUTED, marginTop: 14, fontSize: 16 }}>{t("map.lead")}</p>
           </div>
 
           <div className="map-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 36, alignItems: "start" }}>
@@ -1331,13 +1356,13 @@ export default function MoldovaMotorTours() {
             <div style={{ borderRadius: 20, overflow: "hidden",
               border: `1px solid ${BORDER}`,
               position: "relative", height: 520 }}>
-              <LeafletMap stops={mapStops} activeIdx={mapHover} onHover={setMapHover} />
+              <LeafletMap stops={mapStops.map(s => ({ ...s, label: t(s.labelKey), sub: t(s.subKey), desc: t(s.descKey) }))} activeIdx={mapHover} onHover={setMapHover} />
             </div>
 
             {/* ── Stop detail cards ── */}
             <div>
               <div style={{ fontSize: 13, color: MUTED, marginBottom: 18, lineHeight: 1.6 }}>
-                Every pin is placed at its real GPS coordinates. Click a card or pin to zoom in.
+                {t("map.hint")}
               </div>
               {mapStops.map((stop, i) => (
                 <div key={i}
@@ -1361,14 +1386,14 @@ export default function MoldovaMotorTours() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 800, fontSize: 15, color: mapHover === i ? ORANGE : WHITE }}>{stop.name}</div>
                       <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
-                        {stop.label} · <span style={{ color: ORANGE }}>{stop.sub}</span>
+                        {t(stop.labelKey)} · <span style={{ color: ORANGE }}>{t(stop.subKey)}</span>
                       </div>
                     </div>
                     <div style={{ color: mapHover === i ? ORANGE : BORDER, fontSize: 18, fontWeight: 700, flexShrink: 0 }}>›</div>
                   </div>
                   {mapHover === i && (
                     <div style={{ padding: "0 18px 14px 72px", fontSize: 13, color: "#b0b8c8", lineHeight: 1.65, animation: "fadeIn 0.2s ease" }}>
-                      {stop.desc}
+                      {t(stop.descKey)}
                     </div>
                   )}
                 </div>
@@ -1377,9 +1402,9 @@ export default function MoldovaMotorTours() {
               {(()=>{
                 // Tour coverage rows — highlight row(s) that include the hovered stop
                 const coverageRows = [
-                  { dur:"1-Day",  route:"Chișinău → Cricova → Chișinău",          price:"€220",   stops:[0,2] },
-                  { dur:"3-Day",  route:"Chișinău → Orheiul Vechi → Saharna",      price:"€650",   stops:[0,1,3] },
-                  { dur:"5-Day",  route:"Full country — all 6 stops",              price:"€1,050", stops:[0,1,2,3,4,5] },
+                  { dur:t("map.cov.1d"), route:t("map.cov.1d.route"), price:"€220",   stops:[0,2] },
+                  { dur:t("map.cov.3d"), route:t("map.cov.3d.route"), price:"€650",   stops:[0,1,3] },
+                  { dur:t("map.cov.5d"), route:t("map.cov.5d.route"), price:"€1,050", stops:[0,1,2,3,4,5] },
                 ];
                 return(
                   <div style={{ marginTop: 20, padding: "16px 18px", background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14 }}>
@@ -1412,12 +1437,12 @@ export default function MoldovaMotorTours() {
       {/* ─── TESTIMONIALS ─── */}
       <section style={{ padding: "100px 5%", background: "#080808" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Rider Reviews</div>
-          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 56 }}>Straight from the Saddle</h2>
+          <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("testi.kicker")}</div>
+          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 56 }}>{t("testi.h1")}</h2>
           <div style={{ position: "relative", minHeight: 220 }}>
             <div key={testimonialIdx} style={{ animation: "fadeIn 0.5s ease" }}>
               <div style={{ fontSize: "clamp(18px, 3vw, 28px)", fontFamily: "Lora, serif", fontStyle: "italic", color: WHITE, lineHeight: 1.65, marginBottom: 32, maxWidth: 680, margin: "0 auto 32px" }}>
-                "{T.text}"
+                "{t(T.textKey)}"
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 32 }}>
                 <div style={{ width: 46, height: 46, borderRadius: "50%", background: ORANGE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18 }}>
@@ -1425,7 +1450,7 @@ export default function MoldovaMotorTours() {
                 </div>
                 <div style={{ textAlign: "left" }}>
                   <div style={{ fontWeight: 800, color: WHITE }}>{T.name}</div>
-                  <div style={{ fontSize: 13, color: MUTED }}>{T.country}</div>
+                  <div style={{ fontSize: 13, color: MUTED }}>{t(T.countryKey)}</div>
                 </div>
                 <div style={{ marginLeft: 8 }}>{"★".repeat(T.stars).split("").map((s, i) => <span key={i} className="testimonial-star">{s}</span>)}</div>
               </div>
@@ -1446,14 +1471,14 @@ export default function MoldovaMotorTours() {
       {/* ─── CTA BAND ─── */}
       <div style={{ background: ORANGE, padding: "60px 5%", textAlign: "center" }}>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 900, color: "#fff", marginBottom: 12, letterSpacing: "-0.02em" }}>
-          Your Adventure Starts Here
+          {t("cta.h1")}
         </h2>
-        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 17, marginBottom: 30 }}>Limited spots per departure. Reserve your seat before they're gone.</p>
+        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 17, marginBottom: 30 }}>{t("cta.desc")}</p>
         <button onClick={() => openBooking()} style={{
           background: "#fff", color: ORANGE, border: "none", borderRadius: 12, padding: "16px 36px",
           fontWeight: 900, fontSize: 17, cursor: "pointer", fontFamily: "inherit"
         }}>
-          Book Your Tour →
+          {t("cta.book")}
         </button>
       </div>
 
@@ -1471,12 +1496,12 @@ export default function MoldovaMotorTours() {
                     style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 900, fontSize: 18, color: WHITE, lineHeight: 1.1 }}>Moldova Moto Tours</div>
-                  <div style={{ fontSize: 11, color: MUTED, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>The Last Untamed Roads of Europe</div>
+                  <div style={{ fontWeight: 900, fontSize: 18, color: WHITE, lineHeight: 1.1 }}>{t("footer.brand.name")}</div>
+                  <div style={{ fontSize: 11, color: MUTED, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>{t("footer.brand.tag")}</div>
                 </div>
               </div>
               <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.75, marginBottom: 24 }}>
-                The premier guided motorcycle tour company in Moldova. Connecting international riders with Eastern Europe's most authentic hidden roads since 2019.
+                {t("footer.brand.desc")}
               </p>
               <div style={{ display: "flex", gap: 14 }}>
                 <a href="https://wa.me/37369765298" style={{ display: "flex", alignItems: "center", gap: 8, color: "#25D366", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>
@@ -1489,19 +1514,19 @@ export default function MoldovaMotorTours() {
             </div>
             {/* Tours */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>Tours</div>
-              {liveTours.map(t => (
-                <div key={t.id} style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>{t("footer.h.tours")}</div>
+              {liveTours.map(tour => (
+                <div key={tour.id} style={{ marginBottom: 10 }}>
                   <a href="#tours" style={{ color: MUTED, textDecoration: "none", fontSize: 14, transition: "color 0.2s" }}
                     onMouseEnter={e => e.target.style.color = WHITE} onMouseLeave={e => e.target.style.color = MUTED}>
-                    {t.title} — {t.price}
+                    {tour.title} — {tour.price}
                   </a>
                 </div>
               ))}
             </div>
             {/* Info */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>Info</div>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>{t("footer.h.info")}</div>
               {[
                 ["footer.info.about",  "/info#about", true],
                 ["footer.info.fleet",  "/info#fleet", true],
@@ -1520,26 +1545,26 @@ export default function MoldovaMotorTours() {
             </div>
             {/* Contact form */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>Send a Message</div>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>{t("footer.h.message")}</div>
               {!contactSent ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <input type="text" placeholder="Your name" className="form-input" value={contactForm.name}
+                  <input type="text" placeholder={t("footer.form.name")} className="form-input" value={contactForm.name}
                     onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))} style={{ fontSize: 14 }} />
-                  <input type="email" placeholder="Email address" className="form-input" value={contactForm.email}
+                  <input type="email" placeholder={t("footer.form.email")} className="form-input" value={contactForm.email}
                     onChange={e => setContactForm(f => ({ ...f, email: e.target.value }))} style={{ fontSize: 14 }} />
-                  <textarea placeholder="Your question or message…" className="form-input" rows={4} value={contactForm.message}
+                  <textarea placeholder={t("footer.form.msg")} className="form-input" rows={4} value={contactForm.message}
                     onChange={e => setContactForm(f => ({ ...f, message: e.target.value }))}
                     style={{ fontSize: 14, resize: "vertical", minHeight: 90 }} />
                   <button onClick={() => { if (contactForm.name && contactForm.email) { notifyContactForm(contactForm); setContactSent(true); } }}
                     style={{ background: ORANGE, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
-                    Send Message
+                    {t("footer.form.send")}
                   </button>
                 </div>
               ) : (
                 <div style={{ background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, padding: "24px 20px", textAlign: "center" }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
-                  <div style={{ color: ORANGE, fontWeight: 700 }}>Message sent!</div>
-                  <div style={{ color: MUTED, fontSize: 13, marginTop: 6 }}>We&apos;ll reply within 24 hours.</div>
+                  <div style={{ color: ORANGE, fontWeight: 700 }}>{t("footer.sent.h")}</div>
+                  <div style={{ color: MUTED, fontSize: 13, marginTop: 6 }}>{t("footer.sent.p")}</div>
                 </div>
               )}
             </div>
@@ -1547,10 +1572,10 @@ export default function MoldovaMotorTours() {
 
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} MoldovaMoto. {t("footer.copy")} · Chișinău, Republic of Moldova</div>
+            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} MoldovaMoto. {t("footer.copy")} · {t("footer.copyChisinau")}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <div style={{ fontSize: 12, color: "#444", letterSpacing: "0.08em" }}>
-                <span style={{ color: "#333" }}>SEO: </span>Motorcycle Tours Moldova · Adventure Riding Eastern Europe · CFMOTO Rental Moldova
+                <span style={{ color: "#333" }}>{t("footer.seo.label")} </span>{t("footer.seo.tags")}
               </div>
             </div>
           </div>

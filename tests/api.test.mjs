@@ -464,9 +464,9 @@ describe("Home.jsx booking flow uses API", () => {
   it("has submitting loading state",       () => assert.ok(src.includes("submitting") && src.includes("setSubmitting")));
   it("has apiError state",                 () => assert.ok(src.includes("apiError") && src.includes("setApiError")));
   it("has confirmedId state",              () => assert.ok(src.includes("confirmedId") && src.includes("setConfirmedId")));
-  it("button shows Booking... while loading", () => assert.ok(src.includes("Booking...")));
+  it("button shows submitting state via i18n",() => assert.ok(src.includes("t(\"book.s4.sending\")")));
   it("button disabled while submitting",   () => assert.ok(src.includes("disabled={submitting}")));
-  it("shows booking ID in confirmation",   () => assert.ok(src.includes("BOOKING ID:") && src.includes("confirmedId")));
+  it("shows booking ID in confirmation",   () => assert.ok(src.includes("book.done.bookingId") && src.includes("confirmedId")));
   it("jumps to step 3 on validation error",() => assert.ok(src.includes("setStep(3)")));
   it("shows API error banner",             () => assert.ok(src.includes("apiError &&")));
 });

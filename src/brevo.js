@@ -91,11 +91,31 @@ function sendWhatsApp(to, message) {
  */
 export async function notifyNewBooking(booking) {
   const isRental = booking.type === "rental";
-  const dateStr  = isRental
-    ? `${booking.date} → ${booking.dateTo || "?"} (${booking.rentalDays || 1} days)`
-    : booking.date;
 
-  const subject = `🏍️ New ${isRental ? "Rental" : "Tour"} Booking — ${booking.name}`;
+  // Escape every user-controlled field once, up front. Values flow into HTML
+  // attributes (mailto), text nodes, and the subject line — all need it.
+  const e = {
+    name:       escHtml(booking.name || ""),
+    email:      escHtml(booking.email || ""),
+    emailAttr:  encodeURIComponent(booking.email || ""),
+    tour:       escHtml(booking.tour || ""),
+    phone:      escHtml(booking.phone || ""),
+    country:    escHtml(booking.country || ""),
+    date:       escHtml(booking.date || ""),
+    dateTo:     escHtml(booking.dateTo || ""),
+    bike:       escHtml(booking.bike || ""),
+    experience: escHtml(booking.experience || ""),
+    id:         escHtml(booking.id || ""),
+    rentalDays: Number(booking.rentalDays) || 1,
+  };
+
+  const dateStr  = isRental
+    ? `${e.date} → ${e.dateTo || "?"} (${e.rentalDays} days)`
+    : e.date;
+
+  const subject = `🏍️ New ${isRental ? "Rental" : "Tour"} Booking — ${booking.name || ""}`;
+
+  const adminOrigin = (typeof window !== "undefined" && window.location && window.location.origin) || "";
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f0f0f;color:#f0f0f4;border-radius:12px">
@@ -106,21 +126,21 @@ export async function notifyNewBooking(booking) {
 
       <table style="width:100%;border-collapse:collapse;font-size:14px">
         ${row("Type",        isRental ? "🏍️ Free Motorcycle Rental" : "📅 Guided Tour")}
-        ${row("Tour",        booking.tour)}
-        ${row("Rider",       booking.name)}
-        ${row("Email",       `<a href="mailto:${booking.email}" style="color:#ff6b00">${booking.email}</a>`)}
-        ${row("Phone",       booking.phone || "—")}
-        ${row("Country",     booking.country || "—")}
+        ${row("Tour",        e.tour)}
+        ${row("Rider",       e.name)}
+        ${row("Email",       `<a href="mailto:${e.emailAttr}" style="color:#ff6b00">${e.email}</a>`)}
+        ${row("Phone",       e.phone || "—")}
+        ${row("Country",     e.country || "—")}
         ${row("Date",        dateStr)}
-        ${row("Bike",        booking.bike || "—")}
-        ${row("Experience",  booking.experience || "—")}
+        ${row("Bike",        e.bike || "—")}
+        ${row("Experience",  e.experience || "—")}
         ${row("Status",      `<span style="color:#eab308;font-weight:700">PENDING</span>`)}
-        ${row("Booking ID",  `<code style="font-size:11px;color:#888">${booking.id}</code>`)}
+        ${row("Booking ID",  `<code style="font-size:11px;color:#888">${e.id}</code>`)}
       </table>
 
       <div style="margin-top:24px;padding:16px;background:#1a1a1a;border-radius:8px;border-left:4px solid #ff6b00">
         <p style="margin:0;font-size:13px;color:#888">
-          Log in to the <a href="${window?.location?.origin || ""}/admin" style="color:#ff6b00">admin panel</a>
+          Log in to the <a href="${escHtml(adminOrigin)}/admin" style="color:#ff6b00">admin panel</a>
           to confirm or manage this booking.
         </p>
       </div>
@@ -128,9 +148,9 @@ export async function notifyNewBooking(booking) {
   `;
 
   const waText = `🏍️ NEW BOOKING — MoldovaMoto\n` +
-    `Rider: ${booking.name}\n` +
-    `Tour: ${booking.tour}\n` +
-    `Date: ${dateStr}\n` +
+    `Rider: ${booking.name || ""}\n` +
+    `Tour: ${booking.tour || ""}\n` +
+    `Date: ${booking.date || ""}${booking.dateTo ? " → " + booking.dateTo : ""}\n` +
     `Phone: ${booking.phone || "—"}\n` +
     `Status: PENDING ⏳`;
 
@@ -139,7 +159,6 @@ export async function notifyNewBooking(booking) {
     sendWhatsApp(null, waText),
   ]);
 
-  // Send confirmation email to the customer
   if (booking.email) {
     await sendEmail({
       to: booking.email,
@@ -151,20 +170,20 @@ export async function notifyNewBooking(booking) {
             <h1 style="margin:0;font-size:20px;color:#fff">✅ Booking Request Received</h1>
             <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:13px">MoldovaMoto</p>
           </div>
-          <p style="font-size:15px;line-height:1.6">Hi <strong>${booking.name}</strong>,</p>
+          <p style="font-size:15px;line-height:1.6">Hi <strong>${e.name}</strong>,</p>
           <p style="font-size:14px;line-height:1.6;color:#ccc">
             We've received your ${isRental ? "rental" : "tour"} booking request and will confirm it
             within <strong>24 hours</strong>. Our team will contact you at
-            <a href="mailto:${booking.email}" style="color:#ff6b00">${booking.email}</a>
-            ${booking.phone ? `or ${booking.phone}` : ""}.
+            <a href="mailto:${e.emailAttr}" style="color:#ff6b00">${e.email}</a>
+            ${e.phone ? `or ${e.phone}` : ""}.
           </p>
           <table style="width:100%;border-collapse:collapse;font-size:14px;margin:20px 0">
-            ${row("Tour",   booking.tour)}
+            ${row("Tour",   e.tour)}
             ${row("Date",   dateStr)}
-            ${row("Bike",   booking.bike || "CFMOTO 800MT")}
+            ${row("Bike",   e.bike || "CFMOTO 800MT")}
           </table>
           <p style="font-size:13px;color:#888;margin-top:24px">
-            Questions? Reply to this email or WhatsApp us at ${NOTIFY_WA || "+373 XX XXX XXX"}.
+            Questions? Reply to this email or WhatsApp us at ${escHtml(NOTIFY_WA || "+373 XX XXX XXX")}.
           </p>
           <p style="font-size:13px;color:#888">— The MoldovaMoto Team 🏍️</p>
         </div>
@@ -177,7 +196,10 @@ export async function notifyNewBooking(booking) {
  * Notify admin when a contact form message is submitted.
  */
 export async function notifyContactForm({ name, email, message }) {
-  const subject = `📩 New message from ${name} — MoldovaMoto`;
+  const subject = `📩 New message from ${name || "anonymous"} — MoldovaMoto`;
+  const eName    = escHtml(name || "");
+  const eEmail   = escHtml(email || "");
+  const eMailUrl = encodeURIComponent(email || "");
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f0f0f;color:#f0f0f4;border-radius:12px">
@@ -185,9 +207,9 @@ export async function notifyContactForm({ name, email, message }) {
         <h1 style="margin:0;font-size:20px;color:#fff">📩 Contact Form Message</h1>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:14px">
-        ${row("From",    name)}
-        ${row("Email",   `<a href="mailto:${email}" style="color:#ff6b00">${email}</a>`)}
-        ${row("Message", `<span style="white-space:pre-wrap">${escHtml(message)}</span>`)}
+        ${row("From",    eName)}
+        ${row("Email",   `<a href="mailto:${eMailUrl}" style="color:#ff6b00">${eEmail}</a>`)}
+        ${row("Message", `<span style="white-space:pre-wrap">${escHtml(message || "")}</span>`)}
       </table>
       <div style="margin-top:20px;padding:14px;background:#1a1a1a;border-radius:8px;border-left:4px solid #ff6b00">
         <p style="margin:0;font-size:13px;color:#888">Reply directly to this email to respond.</p>
@@ -195,7 +217,7 @@ export async function notifyContactForm({ name, email, message }) {
     </div>
   `;
 
-  const waText = `📩 CONTACT FORM — MoldovaMoto\nFrom: ${name}\nEmail: ${email}\nMessage: ${message.slice(0, 200)}`;
+  const waText = `📩 CONTACT FORM — MoldovaMoto\nFrom: ${name || ""}\nEmail: ${email || ""}\nMessage: ${(message || "").slice(0, 200)}`;
 
   await Promise.all([
     sendEmail({ subject, html, replyTo: email }),
@@ -213,9 +235,10 @@ function row(label, value) {
 }
 
 function escHtml(s) {
-  return String(s)
+  return String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

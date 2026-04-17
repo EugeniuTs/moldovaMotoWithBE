@@ -11,7 +11,15 @@ const { validateBooking } = require("./validate");
 
 const ADMIN_KEY = process.env.API_ADMIN_KEY || "dev-admin-key-change-in-prod";
 
-const uid = () => "b" + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+if (process.env.NODE_ENV === "production" &&
+    (ADMIN_KEY === "dev-admin-key-change-in-prod" || ADMIN_KEY.length < 32)) {
+  throw new Error(
+    "[FATAL] API_ADMIN_KEY must be set to a strong value (>=32 chars) in production. " +
+    "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+  );
+}
+
+const uid = () => "b" + crypto.randomBytes(8).toString("hex") + Date.now().toString(36);
 
 function toClient(row) {
   if (!row) return null;
@@ -26,29 +34,50 @@ function toClient(row) {
 
 function adminAuth(req, res, next) {
   const key = req.headers["x-admin-key"] || req.query.admin_key;
-  if (key && key === ADMIN_KEY) return next();
+  if (typeof key === "string" && key.length === ADMIN_KEY.length) {
+    const a = Buffer.from(key);
+    const b = Buffer.from(ADMIN_KEY);
+    if (crypto.timingSafeEqual(a, b)) return next();
+  }
   return res.status(401).json({ success: false, error: "Admin key required" });
 }
 
 const app = express();
 
-app.use(express.json({ limit: "50kb" }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: false, limit: "16kb" }));
 
 const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
   .split(",").map(s => s.trim());
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return cb(null, true);
+    // Exact match prevents `http://allowed.com.evil.com` from passing a startsWith check.
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error("CORS: origin not allowed"));
   },
   credentials: true,
 }));
 
 const publicLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 100, // generous in test/dev
+  windowMs: 15 * 60 * 1000, max: 100, // browse/availability lookups
   message: { success: false, error: "Too many requests. Please try again later." },
+  standardHeaders: true, legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
+});
+
+// Booking creation: tighter cap because each request hits DB + email/WhatsApp
+const bookingLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  message: { success: false, error: "Too many booking attempts. Please try again later." },
+  standardHeaders: true, legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
+});
+
+// Admin endpoints: rate-limit to slow brute-force of the admin key
+const adminLimit = rateLimit({
+  windowMs: 60 * 1000, max: 30,
+  message: { success: false, error: "Too many admin requests." },
   standardHeaders: true, legacyHeaders: false,
   skip: () => process.env.NODE_ENV === "test",
 });
@@ -83,7 +112,7 @@ const upload = multer({
 app.use("/uploads", express.static(UPLOADS_DIR));
 
 // POST /api/uploads — upload a file (admin only)
-app.post("/api/uploads", adminAuth, upload.single("file"), (req, res) => {
+app.post("/api/uploads", adminLimit, adminAuth, upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, error: "No file received" });
 
   const publicPath = "/uploads/" + req.file.filename;
@@ -97,7 +126,7 @@ app.post("/api/uploads", adminAuth, upload.single("file"), (req, res) => {
 });
 
 // POST /api/uploads/delete — delete a file (admin only)
-app.delete("/api/uploads/:filename", adminAuth, (req, res) => {
+app.delete("/api/uploads/:filename", adminLimit, adminAuth, (req, res) => {
   const filename = path.basename(req.params.filename); // prevent path traversal
   const filepath = path.join(UPLOADS_DIR, filename);
   if (!fs.existsSync(filepath)) return res.status(404).json({ success: false, error: "File not found" });
@@ -106,7 +135,7 @@ app.delete("/api/uploads/:filename", adminAuth, (req, res) => {
 });
 
 // GET /api/uploads — list all uploaded files (admin only)
-app.get("/api/uploads", adminAuth, (_req, res) => {
+app.get("/api/uploads", adminLimit, adminAuth, (_req, res) => {
   const files = fs.readdirSync(UPLOADS_DIR)
     .filter(f => !f.startsWith("."))
     .map(f => {
@@ -122,8 +151,8 @@ app.get("/api/health", (_req, res) =>
   res.json({ success: true, status: "ok", ts: new Date().toISOString() })
 );
 
-// POST /api/bookings — public, rate-limited
-app.post("/api/bookings", publicLimit, (req, res) => {
+// POST /api/bookings — public, rate-limited (tighter than browse limit)
+app.post("/api/bookings", bookingLimit, (req, res) => {
   const body = req.body || {};
   const { ok, errors } = validateBooking(body);
   if (!ok) return res.status(422).json({ success: false, errors });
@@ -181,7 +210,7 @@ app.get("/api/bookings/availability", (req, res) => {
 });
 
 // GET /api/bookings/stats/summary — admin
-app.get("/api/bookings/stats/summary", adminAuth, (_req, res) => {
+app.get("/api/bookings/stats/summary", adminLimit, adminAuth, (_req, res) => {
   const r = db.prepare(
     "SELECT COUNT(*) as total, SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) as pending, SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) as confirmed, SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END) as cancelled, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed FROM bookings"
   ).get() || {};
@@ -189,10 +218,10 @@ app.get("/api/bookings/stats/summary", adminAuth, (_req, res) => {
 });
 
 // GET /api/bookings — admin
-app.get("/api/bookings", adminAuth, (req, res) => {
+app.get("/api/bookings", adminLimit, adminAuth, (req, res) => {
   const { status, type, search, from, to } = req.query;
-  const limit  = Math.min(Number(req.query.limit) || 200, 500);
-  const offset = Number(req.query.offset) || 0;
+  const limit  = Math.min(Math.max(Number(req.query.limit)  || 50, 1), 100);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
   let sql = "SELECT * FROM bookings WHERE 1=1";
   const args = [];
   if (status) { sql += " AND status = ?";  args.push(status); }
@@ -211,14 +240,14 @@ app.get("/api/bookings", adminAuth, (req, res) => {
 });
 
 // GET /api/bookings/:id — admin
-app.get("/api/bookings/:id", adminAuth, (req, res) => {
+app.get("/api/bookings/:id", adminLimit, adminAuth, (req, res) => {
   const row = db.prepare("SELECT * FROM bookings WHERE id = ?").get(req.params.id);
   if (!row) return res.status(404).json({ success: false, error: "Booking not found" });
   return res.json({ success: true, booking: toClient(row) });
 });
 
 // PUT /api/bookings/:id — admin
-app.put("/api/bookings/:id", adminAuth, (req, res) => {
+app.put("/api/bookings/:id", adminLimit, adminAuth, (req, res) => {
   const row = db.prepare("SELECT * FROM bookings WHERE id = ?").get(req.params.id);
   if (!row) return res.status(404).json({ success: false, error: "Booking not found" });
   const allowed = ["status","bike","notes","name","email","phone","country",
@@ -236,7 +265,7 @@ app.put("/api/bookings/:id", adminAuth, (req, res) => {
 });
 
 // DELETE /api/bookings/:id — admin
-app.delete("/api/bookings/:id", adminAuth, (req, res) => {
+app.delete("/api/bookings/:id", adminLimit, adminAuth, (req, res) => {
   const row = db.prepare("SELECT id FROM bookings WHERE id = ?").get(req.params.id);
   if (!row) return res.status(404).json({ success: false, error: "Booking not found" });
   db.prepare("DELETE FROM bookings WHERE id = ?").run([req.params.id]);
