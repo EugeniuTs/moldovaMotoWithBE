@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
 import { notifyNewBooking, notifyContactForm } from "../brevo.js";
 import { createBooking, fetchBookings } from "../api.js";
+import { useLang, setLang } from "../i18n.js";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Lora:ital@0;1&display=swap');
@@ -218,9 +219,10 @@ const mapStops = [
 // ============================================================
 // BOOKING MODAL
 // ============================================================
-const STEP_LABELS = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
+const STEP_LABELS_EN = ["Tour", "Date", "Bike", "Rider Info", "Confirm"];
+  const STEP_LABELS_DE = ["Tour", "Datum", "Motorrad", "Fahrerdaten", "Best\u00E4tigen"];
 
-function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [], onRefreshBookings }) {
+function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBookings = [], onRefreshBookings, t = k=>k, lang = "en" }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     tour: defaultTour, date: "", dateTo: "", departureId: "", bike: "", rentalDays: 1,
@@ -378,7 +380,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
         {/* Header */}
         <div className="modal-header" style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: "20px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div style={{ fontSize: 11, color: ORANGE, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>Reservation Request</div>
+            <div style={{ fontSize: 11, color: ORANGE, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>{t("book.badge")}</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: WHITE }}>Book Your Tour</div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: MUTED, cursor: "pointer", padding: 4 }}><IconClose /></button>
@@ -406,7 +408,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 
               {step === 0 && (
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 16 }}>Which tour calls to you?</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 16 }}>{t("book.s0.q")}</div>
                   {tours.length === 0 && (
                     <div style={{ color: MUTED, fontSize: 14, padding: "20px 0" }}>No active tours available right now.</div>
                   )}
@@ -564,7 +566,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 
               {step === 2 && (
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>Choose Your Ride</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 6 }}>{t("book.s2.q")}</div>
                   <div style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>
                     {form.date ? "Showing bikes available for your selected dates." : "Select an available motorcycle from our fleet."}
                   </div>
@@ -631,7 +633,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
 
               {step === 3 && (
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>Your Rider Profile</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>{t("book.s3.q")}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                     {[["name", "Full Name", "text", "e.g. Hans Müller"],
                       ["email", "Email Address", "email", "you@example.com"],
@@ -678,14 +680,14 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                   <div style={{ fontSize: 18, fontWeight: 700, color: WHITE, marginBottom: 18 }}>Review & Confirm</div>
                   <div style={{ background: "#161616", border: `1px solid ${BORDER}`, borderRadius: 12, padding: "18px 20px", marginBottom: 18 }}>
                     {[
-                      ["Tour", form.tour],
-                      ["Date", form.date],
-                      ["Motorcycle", form.bike],
-                      ["Rider", form.name],
-                      ["Email", form.email],
-                      ["Phone", form.phone],
-                      ["Country", form.country],
-                      ["Experience", form.experience]
+                      [t("book.s4.tour"), form.tour],
+                      [t("book.s4.date"), form.date],
+                      [t("book.s4.moto"), form.bike],
+                      [t("book.s4.rider"), form.name],
+                      [t("book.s4.email"), form.email],
+                      [t("book.s4.phone"), form.phone],
+                      [t("book.s4.country"), form.country],
+                      [t("book.s4.exp"), form.experience]
                     ].map(([label, val]) => val && (
                       <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${BORDER}`, fontSize: 14 }}>
                         <span style={{ color: MUTED }}>{label}</span>
@@ -746,7 +748,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
                     fontWeight: 800, fontSize: 15, fontFamily: "inherit",
                     opacity: submitting ? 0.75 : 1
                   }}>
-                    {submitting ? "Booking..." : "Send Reservation Request ✓"}
+                    {submitting ? t("book.s4.sending") : t("book.s4.confirm")}
                   </button>
                 )}
               </div>
@@ -762,7 +764,7 @@ function BookingModal({ onClose, defaultTour = "", tours = [], fleet = [], allBo
               </div>
             )}
             <div style={{ fontSize: 56, marginBottom: 16 }}>🏍️</div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: WHITE, marginBottom: 10 }}>You're In the Queue!</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: WHITE, marginBottom: 10 }}>{t("book.done.h")}</div>
             <div style={{ fontSize: 15, color: MUTED, maxWidth: 360, margin: "0 auto 28px", lineHeight: 1.65 }}>
               Your reservation request for <strong style={{ color: ORANGE }}>{form.tour}</strong> has been received. We'll confirm within 24 hours via email to <strong style={{ color: WHITE }}>{form.email}</strong>.
             </div>
@@ -971,6 +973,7 @@ export default function MoldovaMotorTours() {
   const [contactSent, setContactSent] = useState(false);
 
   // ── Live data from shared store ──────────────────────────────
+  const { lang, t } = useLang();
   const [liveTours, setLiveTours] = useState([]);
   const [liveFleet, setLiveFleet] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
@@ -1048,10 +1051,10 @@ export default function MoldovaMotorTours() {
 
           {/* Desktop links — hidden on mobile via CSS */}
           <div className="nav-links" style={{ display: "flex", gap: 32 }}>
-            {[["#tours","Tours"],["#experience","Experience"],["#fleet","Fleet"],["#map","Routes"],["#contact","Contact"]].map(([href, label]) => (
-              <a key={href} href={href} className="nav-link">{label}</a>
+            {[["#tours","nav.tours"],["#experience","nav.experience"],["#fleet","nav.fleet"],["#map","nav.routes"],["#contact","nav.contact"]].map(([href, key]) => (
+              <a key={href} href={href} className="nav-link">{t(key)}</a>
             ))}
-            <Link to="/adventures" className="nav-link" style={{ color: ORANGE }}>Adventures</Link>
+            <Link to="/adventures" className="nav-link" style={{ color: ORANGE }}>{t("nav.adventures")}</Link>
           </div>
 
           {/* Desktop book button — hidden on mobile */}
@@ -1128,7 +1131,7 @@ export default function MoldovaMotorTours() {
 
         <div style={{ position: "relative", padding: "0 5%", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-animate" style={{ display: "inline-block", background: ORANGE, color: "#fff", fontSize: 11, fontWeight: 800, padding: "5px 14px", borderRadius: 6, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 22 }}>
-            🏍️ Guided Tours · Moldova · Eastern Europe
+            🏍️ {t("hero.badge")}
           </div>
           <h1 className="hero-title hero-animate-2" style={{ fontSize: "clamp(44px, 7vw, 88px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.03em", marginBottom: 22, maxWidth: 780 }}>
             Discover Moldova<br /><span style={{ color: ORANGE }}>on Two Wheels</span>
@@ -1247,8 +1250,8 @@ export default function MoldovaMotorTours() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div className="fleet-inner" style={{ display: "flex", gap: 64, alignItems: "center" }}>
             <div style={{ flex: 1 }}>
-              <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>Your Ride Awaits</div>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 20 }}>CFMOTO 800MT<br /><span style={{ color: ORANGE }}>Adventure Class</span></h2>
+              <div style={{ color: ORANGE, fontSize: 12, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 14 }}>{t("fleet.tag")}</div>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 20 }}>{t("fleet.h2a")}<br /><span style={{ color: ORANGE }}>{t("fleet.h2b")}</span></h2>
               <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.75, marginBottom: 36 }}>
                 The CFMOTO 800MT is our chosen mount for Moldova's diverse terrain — from smooth vineyard lanes to the rugged riverside tracks of the Nistru canyon. Powerful, comfortable, and loaded with touring tech.
               </p>
@@ -1306,7 +1309,7 @@ export default function MoldovaMotorTours() {
               }}>
                 All-Inclusive<br />
                 <span style={{ fontSize: 24 }}>€0</span><br />
-                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>Extra Bike Fee</span>
+                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>{t("fleet.badge.sub")}</span>
               </div>
             </div>
           </div>
@@ -1380,7 +1383,7 @@ export default function MoldovaMotorTours() {
                 ];
                 return(
                   <div style={{ marginTop: 20, padding: "16px 18px", background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>Tour Coverage</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>{t("map.coverage")}</div>
                     {coverageRows.map(({ dur, route, price, stops }) => {
                       const active = mapHover !== null && stops.includes(mapHover);
                       return(
@@ -1500,17 +1503,17 @@ export default function MoldovaMotorTours() {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: ORANGE, marginBottom: 18 }}>Info</div>
               {[
-                ["About Us",           "/info#about"],
-                ["Our Fleet",          "/info#fleet"],
-                ["Route Map",          "/info#routes"],
-                ["Safety & Licensing", "/info#safety"],
-                ["FAQ",                "/info#faq"],
-                ["Terms & Conditions", "/info#terms"],
-              ].map(([l, href]) => (
-                <div key={l} style={{ marginBottom: 10 }}>
+                ["footer.info.about",  "/info#about", true],
+                ["footer.info.fleet",  "/info#fleet", true],
+                ["footer.info.routes", "/info#routes", true],
+                ["footer.info.safety", "/info#safety", true],
+                ["footer.info.faq",    "/info#faq", true],
+                ["footer.info.terms",  "/info#terms", true],
+              ].map(([key, href]) => (
+                <div key={key} style={{ marginBottom: 10 }}>
                   <Link to={href} style={{ color: MUTED, textDecoration: "none", fontSize: 14 }}
                     onMouseEnter={e => e.target.style.color = WHITE} onMouseLeave={e => e.target.style.color = MUTED}>
-                    {l}
+                    {t(key)}
                   </Link>
                 </div>
               ))}
@@ -1544,7 +1547,7 @@ export default function MoldovaMotorTours() {
 
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} MoldovaMoto. All rights reserved. · Chișinău, Republic of Moldova</div>
+            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} MoldovaMoto. {t("footer.copy")} · Chișinău, Republic of Moldova</div>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <div style={{ fontSize: 12, color: "#444", letterSpacing: "0.08em" }}>
                 <span style={{ color: "#333" }}>SEO: </span>Motorcycle Tours Moldova · Adventure Riding Eastern Europe · CFMOTO Rental Moldova
@@ -1555,7 +1558,7 @@ export default function MoldovaMotorTours() {
       </footer>
 
       {/* ─── BOOKING MODAL ─── */}
-      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} allBookings={allBookings} onRefreshBookings={setAllBookings} />}
+      {showBooking && <BookingModal onClose={() => setShowBooking(false)} defaultTour={defaultTour} tours={liveTours} fleet={liveFleet} allBookings={allBookings} onRefreshBookings={setAllBookings} t={t} lang={lang} />}
     </div>
   );
 }

@@ -306,13 +306,13 @@ describe("Info page mobile layout", () => {
     );
   });
 
-  it("Info page imports only from react and react-router-dom", () => {
+  it("Info page imports only from react, react-router-dom, and i18n", () => {
     const imports = info.match(/^import .+ from ['"](.+)['"]/gm) || [];
     imports.forEach(imp => {
       const mod = imp.match(/from ['"](.+)['"]/)[1];
       assert.ok(
-        mod === "react" || mod === "react-router-dom",
-        `Info.jsx has unexpected import: ${mod}`
+        mod === "react" || mod === "react-router-dom" || mod.includes("i18n"),
+        "Info.jsx has unexpected import: " + mod
       );
     });
   });
