@@ -17,6 +17,7 @@ const toServerBooking = (r) => ({
   rental_days:  r.rentalDays || null,
   experience:   r.experience,
   bike:         r.bike || null,
+  status:       r.status,
   notes:        r.notes || null,
 });
 import { Link as RLink } from "react-router-dom";
