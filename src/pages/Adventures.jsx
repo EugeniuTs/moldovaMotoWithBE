@@ -308,10 +308,6 @@ export default function Adventures() {
           <div style={{ textAlign: "center", padding: "80px 0", color: MUTED }}>
             <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>🏍️</div>
             <div style={{ fontSize: 16, fontWeight: 600 }}>No media yet</div>
-            <div style={{ fontSize: 13, marginTop: 8 }}>
-              Add photos and videos from the{" "}
-              <Link to="/admin" style={{ color: ORANGE }}>Admin panel → Adventures</Link>
-            </div>
           </div>
         ) : (
           <div className="masonry" style={{ columnCount: 3, columnGap: 16 }}>
