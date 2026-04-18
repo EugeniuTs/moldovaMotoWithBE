@@ -1,7 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft } from "../store.js";
-import { fetchBookings, updateBooking, deleteBooking, uploadMedia } from "../api.js";
+import { fetchBookings, createBooking, updateBooking, deleteBooking, uploadMedia } from "../api.js";
+
+// Frontend uses camelCase; backend PUT/POST expect snake_case for these fields.
+const toServerBooking = (r) => ({
+  type:         r.type,
+  tour:         r.tour,
+  departure_id: r.departureId || null,
+  name:         r.name,
+  email:        r.email,
+  phone:        r.phone || null,
+  country:      r.country || null,
+  date:         r.date || null,
+  date_to:      r.dateTo || null,
+  rental_days:  r.rentalDays || null,
+  experience:   r.experience,
+  bike:         r.bike || null,
+  notes:        r.notes || null,
+});
 import { Link as RLink } from "react-router-dom";
 
 /* ── Design tokens ───────────────────────────────────────────── */
@@ -2365,14 +2382,24 @@ export default function MoldovaMotoAdmin(){
 
   const handleSave = entity => async (record, isEdit) => {
     if (entity === "bookings" && adminKey) {
-      // Bookings go to API
       try {
-        const updated = await updateBooking(record.id, record, adminKey);
+        let saved;
+        if (isEdit) {
+          saved = await updateBooking(record.id, toServerBooking(record), adminKey);
+        } else {
+          // Create via public POST (server assigns id + forces status="pending"),
+          // then PATCH status if admin set a non-pending status on creation.
+          const res  = await createBooking(toServerBooking(record));
+          saved = res.booking;
+          if (record.status && record.status !== "pending") {
+            saved = await updateBooking(saved.id, { status: record.status }, adminKey);
+          }
+        }
         setDb(prev => ({
           ...prev,
           bookings: isEdit
-            ? prev.bookings.map(b => b.id === updated.id ? updated : b)
-            : [...prev.bookings, updated],
+            ? prev.bookings.map(b => b.id === saved.id ? saved : b)
+            : [...prev.bookings, saved],
         }));
         notify(isEdit ? "Updated successfully." : "Created successfully.");
         return;
