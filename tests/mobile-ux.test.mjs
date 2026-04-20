@@ -491,7 +491,7 @@ describe("Footer links active and pointing to Info page", () => {
     "Our Fleet":          "/info#fleet",
     "Route Map":          "/info#routes",
     "Safety & Licensing": "/info#safety",
-    "FAQ":                "/info#faq",
+    "FAQ":                "/faq",
     "Terms & Conditions": "/info#terms",
   };
 

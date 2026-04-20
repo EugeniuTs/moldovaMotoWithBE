@@ -2325,6 +2325,22 @@ function Sidebar({active,setActive,onLogout,bookings}){
 
 /* ── Root Admin App ──────────────────────────────────────────────────────── */
 export default function MoldovaMotoAdmin(){
+  // Keep admin out of search indexes.
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = "Admin · MoldovaMoto";
+    let m = document.head.querySelector('meta[name="robots"]');
+    const created = !m;
+    const prev = m ? m.getAttribute("content") : null;
+    if (!m) { m = document.createElement("meta"); m.setAttribute("name","robots"); document.head.appendChild(m); }
+    m.setAttribute("content","noindex,nofollow,noarchive");
+    return () => {
+      document.title = prevTitle;
+      if (created) m.parentNode && m.parentNode.removeChild(m);
+      else if (prev != null) m.setAttribute("content", prev);
+    };
+  }, []);
+
   const [authed,setAuthed]=useState(false);
   const [tab,setTab]=useState("dashboard");
   const [db,setDb]=useState(null);
