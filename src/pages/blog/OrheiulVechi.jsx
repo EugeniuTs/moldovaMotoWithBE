@@ -107,7 +107,7 @@ export default function OrheiulVechi() {
         <p>Best conditions May–June and September–early October. Avoid religious holidays (tour buses). Weekdays always beat weekends. Rain days make the canyon paths slick but the ride itself stays rideable — just skip the dirt Butuceni loop.</p>
 
         <h2>Ride it with a guide</h2>
-        <p>Our <strong>3-Day Moldova Adventure</strong> includes Orheiul Vechi plus Saharna, Curchi, and a night in a Butuceni guesthouse — the overnight is what turns this from a day trip into a proper weekend. <Link to="/#tours">See the 3-Day Adventure →</Link></p>
+        <p>Our <strong>3-Day Moldova Adventure</strong> includes Orheiul Vechi plus Saharna, Curchi, and a night in a Butuceni guesthouse — the overnight is what turns this from a day trip into a proper weekend. <Link to="/tours/3-day-moldova-adventure">See the 3-Day Adventure →</Link></p>
 
         <h2>Related reading</h2>
         <ul>

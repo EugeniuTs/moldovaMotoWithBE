@@ -84,9 +84,9 @@ export default function MoldovaGuide() {
         <h3>1-Day Wine Ride — Cricova</h3>
         <p>The classic introduction. 180 km, mostly vineyards, cellar visit and winery lunch. Beginner-friendly. <Link to="/tours/1-day-wine-ride">Tour details</Link>.</p>
         <h3>3-Day Moldova Adventure — Orheiul Vechi + Nistru</h3>
-        <p>Cliff monasteries carved into limestone, winding river roads, a night in a village guesthouse. The canonical Moldova ride. Intermediate.</p>
+        <p>Cliff monasteries carved into limestone, winding river roads, a night in a village guesthouse. The canonical Moldova ride. Intermediate. <Link to="/tours/3-day-moldova-adventure">Tour details</Link>.</p>
         <h3>5-Day Grand Moldova Tour — full country traverse</h3>
-        <p>North to south: Soroca fortress on the Ukrainian border, Saharna waterfalls, Belcresti winery, Bender fortress. Includes a 20 km hardpack gravel section. Advanced.</p>
+        <p>North to south: Soroca fortress on the Ukrainian border, Saharna waterfalls, Purcari winery, Bender fortress. Includes a 20 km hardpack gravel section. Advanced. <Link to="/tours/5-day-grand-moldova">Tour details</Link>.</p>
         <h3>Open-date motorcycle rental</h3>
         <p>CFMOTO 800MT with luggage for €120/day. Route briefing on request (€80) with GPX files. For self-guided riders who want to explore on their own pace.</p>
 
@@ -131,8 +131,8 @@ export default function MoldovaGuide() {
         <h2>Plan your trip</h2>
         <ul>
           <li><strong>Got a Saturday?</strong> <Link to="/tours/1-day-wine-ride">1-Day Wine Ride →</Link></li>
-          <li><strong>Got a long weekend?</strong> 3-Day Moldova Adventure — book on the <Link to="/#tours">tours page</Link>.</li>
-          <li><strong>Got a week?</strong> 5-Day Grand Moldova Tour plus a day of recovery.</li>
+          <li><strong>Got a long weekend?</strong> <Link to="/tours/3-day-moldova-adventure">3-Day Moldova Adventure →</Link></li>
+          <li><strong>Got a week?</strong> <Link to="/tours/5-day-grand-moldova">5-Day Grand Moldova Tour →</Link> plus a day of recovery.</li>
           <li><strong>Rider who prefers solo?</strong> Open-date rental — we'll hand you the GPX.</li>
         </ul>
 
