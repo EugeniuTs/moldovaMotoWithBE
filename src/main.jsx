@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Admin from './pages/Admin'
 import Adventures from './pages/Adventures'
@@ -13,9 +13,21 @@ import MoldovaGuide from './pages/blog/MoldovaGuide'
 import OrheiulVechi from './pages/blog/OrheiulVechi'
 import HomeDe from './pages/de/Home'
 
+// On route change, scroll to the top — unless the URL has a #hash,
+// in which case let the browser handle the anchor.
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname, hash]);
+  return null;
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
       <Routes>
         <Route path="/"       element={<Home />} />
         <Route path="/de"     element={<HomeDe />} />
