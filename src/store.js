@@ -131,9 +131,30 @@ export const SEED = {
   ],
 };
 
+/**
+ * Store model
+ * ------------
+ * Routes/fleet/gallery are authoritative on the server (see
+ * server/app.js /api/content endpoints). The client keeps a localStorage
+ * cache so the UI renders immediately while the live fetch resolves, but
+ * writes always go to the server.
+ *
+ * - `loadDB()` stays synchronous — it returns the cached snapshot (or SEED).
+ *   Callers should additionally invoke `refreshContent()` on mount to pull
+ *   the authoritative server copy and update the cache.
+ * - `saveDB(db)` writes the cache AND, when an admin key has been set via
+ *   `setAdminKey(key)`, pushes routes/fleet/gallery to the server.
+ */
+
+let _adminKey = "";
+export function setAdminKey(key) { _adminKey = String(key || ""); }
+export function getAdminKey()     { return _adminKey; }
+
+const API_BASE = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) || "/api";
+
 export function loadDB() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = typeof localStorage !== "undefined" && localStorage.getItem(STORAGE_KEY);
     if (!raw) return JSON.parse(JSON.stringify(SEED));
     const db = JSON.parse(raw);
     if (db.routes) {
@@ -148,8 +169,79 @@ export function loadDB() {
   }
 }
 
+/**
+ * Fetch the public content view from the server and update the localStorage
+ * cache. Returns the merged DB (with whatever bookings were already cached).
+ * Silent on network failure — the cached copy stays usable.
+ */
+export async function refreshContent() {
+  try {
+    const res = await fetch(`${API_BASE}/content`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const cached = loadDB();
+    const next = {
+      ...cached,
+      routes:  Array.isArray(data.routes)  ? data.routes  : cached.routes,
+      fleet:   Array.isArray(data.fleet)   ? data.fleet   : cached.fleet,
+      gallery: Array.isArray(data.gallery) ? data.gallery : cached.gallery,
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    // Notify other tabs/components so they pick up the server-authoritative copy.
+    try { window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY })); } catch {}
+    return next;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Admin variant — returns unfiltered content (includes hidden/inactive)
+ * for the admin panel. Requires a valid admin key via setAdminKey().
+ */
+export async function refreshAdminContent() {
+  if (!_adminKey) return null;
+  try {
+    const res = await fetch(`${API_BASE}/admin/content`, {
+      headers: { "x-admin-key": _adminKey },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const cached = loadDB();
+    const next = {
+      ...cached,
+      routes:  Array.isArray(data.routes)  ? data.routes  : cached.routes,
+      fleet:   Array.isArray(data.fleet)   ? data.fleet   : cached.fleet,
+      gallery: Array.isArray(data.gallery) ? data.gallery : cached.gallery,
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    return next;
+  } catch {
+    return null;
+  }
+}
+
 export function saveDB(db) {
+  // Always keep the cache in sync (bookings stay local-only here; they
+  // roundtrip through the bookings API elsewhere).
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch {}
+
+  // Push the admin-managed collections to the server when an admin key is
+  // available. Fire-and-forget — a network failure still leaves the cache
+  // coherent, and the admin will see an online indicator.
+  if (_adminKey && typeof fetch === "function") {
+    const payload = {};
+    if (Array.isArray(db.routes))  payload.routes  = db.routes;
+    if (Array.isArray(db.fleet))   payload.fleet   = db.fleet;
+    if (Array.isArray(db.gallery)) payload.gallery = db.gallery;
+    if (Object.keys(payload).length) {
+      fetch(`${API_BASE}/admin/content`, {
+        method:  "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-key": _adminKey },
+        body:    JSON.stringify(payload),
+      }).catch(err => console.warn("[store] saveDB → server failed:", err.message));
+    }
+  }
 }
 
 export function spotsLeft(departure, bookings) {

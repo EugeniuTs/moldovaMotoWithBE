@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft } from "../store.js";
+import { loadDB, saveDB, routeToTour, uid, STORAGE_KEY, spotsLeft, refreshContent } from "../store.js";
 import { notifyNewBooking, notifyContactForm } from "../brevo.js";
 import { createBooking, fetchBookings } from "../api.js";
 import { useLang, setLang } from "../i18n.js";
@@ -972,9 +972,11 @@ export default function MoldovaMotorTours() {
   const [liveFleet, setLiveFleet] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
 
-  // Load routes/fleet from localStorage, bookings from real API
+  // Load routes/fleet from server (authoritative), falling back to the
+  // localStorage cache when offline. Bookings come from the availability API.
   const reloadStore = async () => {
-    const db = loadDB();
+    const fresh = await refreshContent();
+    const db    = fresh || loadDB();
     setLiveTours((db.routes || []).filter(r => r.status === "active" && r.visible !== false).map(routeToTour));
     setLiveFleet(db.fleet || []);
 

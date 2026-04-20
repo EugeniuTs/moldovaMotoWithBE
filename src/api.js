@@ -76,6 +76,39 @@ export async function deleteBooking(id, adminKey = "") {
   return data;
 }
 
+/**
+ * Fetch public content (routes/fleet/gallery). Server applies the active+visible
+ * filter to routes so the frontend doesn't have to.
+ */
+export async function fetchContent() {
+  const res = await fetch(`${API_BASE}/content`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to fetch content");
+  return data; // { success, routes, fleet, gallery }
+}
+
+/** Fetch admin content (unfiltered — includes hidden/inactive). */
+export async function fetchAdminContent(adminKey = "") {
+  const res = await fetch(`${API_BASE}/admin/content`, {
+    headers: { "x-admin-key": adminKey },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to fetch admin content");
+  return data; // { success, routes, fleet, gallery }
+}
+
+/** Replace one or more content collections (admin). */
+export async function saveContent(partial, adminKey = "") {
+  const res = await fetch(`${API_BASE}/admin/content`, {
+    method:  "PUT",
+    headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+    body:    JSON.stringify(partial),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Save failed");
+  return data;
+}
+
 /** API health check */
 export async function healthCheck() {
   try {

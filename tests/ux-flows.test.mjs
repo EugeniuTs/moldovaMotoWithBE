@@ -133,18 +133,23 @@ describe("Public site layout & navigation", () => {
   });
 
   it("has sticky nav with all 5 main links", () => {
-    const links = ["Tours", "Experience", "Fleet", "Routes", "Contact"];
-    links.forEach(l => assert.ok(home.includes(l), `Nav link "${l}" missing`));
+    // Nav labels are i18n'd; assert the keys and section anchors exist.
+    const keys = ["nav.tours", "nav.experience", "nav.fleet", "nav.routes", "nav.contact"];
+    keys.forEach(k => assert.ok(home.includes(k), `Nav key "${k}" missing`));
+    ["#tours", "#experience", "#fleet", "#map", "#contact"]
+      .forEach(a => assert.ok(home.includes(a), `Nav anchor "${a}" missing`));
   });
 
   it("has Adventures nav link in orange", () => {
-    assert.ok(home.includes("Adventures"), "Adventures link must be in nav");
+    assert.ok(home.includes('to="/adventures"'), "Adventures <Link> must exist");
+    assert.ok(home.includes("nav.adventures"),   "nav.adventures key must be used");
   });
 
   it("has experience section with 4 feature cards", () => {
     assert.ok(home.includes('id="experience"'), "experience section must exist");
-    ["Adventure Riding", "Local Expert Guide", "Premium Motorcycles", "Unique Routes"]
-      .forEach(t => assert.ok(home.includes(t), `Feature card "${t}" missing`));
+    for (let i = 0; i < 4; i++) {
+      assert.ok(home.includes(`feature.${i}.title`), `Feature ${i} title key missing`);
+    }
   });
 
   it("has fleet section showing CFMOTO 800MT", () => {

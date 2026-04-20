@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { loadDB, STORAGE_KEY } from "../store.js";
+import { loadDB, STORAGE_KEY, refreshContent } from "../store.js";
 
 /* ── tokens ── */
 const ORANGE = "#ff6b00";
@@ -156,8 +156,11 @@ export default function Adventures() {
   const [lightbox, setLightbox] = useState(null);
   const [scrolled, setScrolled] = useState(false);
 
-  const load = useCallback(() => {
-    const db = loadDB();
+  const load = useCallback(async () => {
+    // Pull the latest from the server so admin edits show up without a
+    // full-app reload. Cache fallback keeps the page usable offline.
+    const fresh = await refreshContent();
+    const db    = fresh || loadDB();
     setItems(db.gallery || []);
     setTours((db.routes || []).map(r => r.name));
   }, []);

@@ -8,6 +8,7 @@ const fs        = require("fs");
 const crypto    = require("crypto");
 const db        = require("./db");
 const { validateBooking } = require("./validate");
+const { notifyNewBooking, notifyContactForm } = require("./brevo");
 
 const ADMIN_KEY = process.env.API_ADMIN_KEY || "dev-admin-key-change-in-prod";
 
@@ -98,18 +99,47 @@ const storage = multer.diskStorage({
   },
 });
 
+// Strict ext + MIME whitelist. Both must match an allowed entry, so names like
+// "evil.jpg.exe" (ext .exe) or a .png claiming mimetype image/svg+xml are rejected.
+const ALLOWED_UPLOADS = {
+  ".jpg":  ["image/jpeg"],
+  ".jpeg": ["image/jpeg"],
+  ".png":  ["image/png"],
+  ".gif":  ["image/gif"],
+  ".webp": ["image/webp"],
+  ".avif": ["image/avif"],
+  ".mp4":  ["video/mp4"],
+  ".mov":  ["video/quicktime"],
+  ".avi":  ["video/x-msvideo", "video/avi"],
+  ".mkv":  ["video/x-matroska"],
+  ".webm": ["video/webm"],
+};
+
 const upload = multer({
   storage,
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max
   fileFilter: (_req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp|avif|mp4|mov|avi|mkv|webm/;
-    const ok = allowed.test(file.mimetype) || allowed.test(path.extname(file.originalname).toLowerCase().slice(1));
-    cb(ok ? null : new Error("File type not allowed"), ok);
+    const ext  = path.extname(file.originalname).toLowerCase();
+    const mime = (file.mimetype || "").toLowerCase();
+    const mimes = ALLOWED_UPLOADS[ext];
+    if (!mimes || !mimes.includes(mime)) {
+      return cb(new Error("File type not allowed"), false);
+    }
+    cb(null, true);
   },
 });
 
-// Serve uploaded files as static (admin-protected for listing, but files are public by URL)
-app.use("/uploads", express.static(UPLOADS_DIR));
+// Serve uploaded files as static, with hardened response headers.
+// - X-Content-Type-Options: nosniff — browsers won't MIME-sniff arbitrary types.
+// - Content-Disposition: attachment — images still render when embedded via <img>,
+//   but direct navigation downloads rather than rendering (defends against HTML/SVG-in-image XSS).
+app.use("/uploads", express.static(UPLOADS_DIR, {
+  setHeaders: (res, filePath) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    const safeName = path.basename(filePath).replace(/[^\w.\-]/g, "_");
+    res.setHeader("Content-Disposition", 'inline; filename="' + safeName + '"');
+  },
+}));
 
 // POST /api/uploads — upload a file (admin only)
 app.post("/api/uploads", adminLimit, adminAuth, upload.single("file"), (req, res) => {
@@ -151,6 +181,64 @@ app.get("/api/health", (_req, res) =>
   res.json({ success: true, status: "ok", ts: new Date().toISOString() })
 );
 
+// ── Content (routes / fleet / gallery) ────────────────────────────────────────
+// Server is now authoritative for admin-managed content, replacing the former
+// localStorage-only store. Each collection is stored as a JSON blob under a
+// single row in `content`.
+const CONTENT_KEYS = ["routes", "fleet", "gallery"];
+
+function readContent(key) {
+  const row = db.prepare("SELECT value FROM content WHERE key = ?").get(key);
+  if (!row) return [];
+  try { return JSON.parse(row.value); } catch { return []; }
+}
+
+function writeContent(key, value) {
+  const now = new Date().toISOString();
+  // Upsert: sql.js doesn't support INSERT OR REPLACE on every build, so do it
+  // the portable way — delete + insert inside the same flushed write.
+  db.prepare("DELETE FROM content WHERE key = ?").run([key]);
+  db.prepare("INSERT INTO content (key, value, updated_at) VALUES (?, ?, ?)")
+    .run([key, JSON.stringify(value), now]);
+}
+
+// GET /api/content — public. Returns filtered view (active + visible routes only).
+// Fleet and gallery are returned as-is; their own UI decides display.
+app.get("/api/content", publicLimit, (_req, res) => {
+  const routes  = readContent("routes").filter(r => r.status === "active" && r.visible !== false);
+  const fleet   = readContent("fleet");
+  const gallery = readContent("gallery");
+  return res.json({ success: true, routes, fleet, gallery });
+});
+
+// GET /api/admin/content — admin. Returns every record, including hidden ones.
+app.get("/api/admin/content", adminLimit, adminAuth, (_req, res) => {
+  return res.json({
+    success: true,
+    routes:  readContent("routes"),
+    fleet:   readContent("fleet"),
+    gallery: readContent("gallery"),
+  });
+});
+
+// PUT /api/admin/content — admin. Accepts a partial { routes?, fleet?, gallery? }
+// and replaces those collections atomically. Uses a larger body limit than the
+// default because gallery arrays can carry long captions + many entries.
+app.put("/api/admin/content", adminLimit, adminAuth, express.json({ limit: "1mb" }), (req, res) => {
+  const body = req.body || {};
+  const updated = [];
+  for (const key of CONTENT_KEYS) {
+    if (Array.isArray(body[key])) {
+      writeContent(key, body[key]);
+      updated.push(key);
+    }
+  }
+  if (!updated.length) {
+    return res.status(400).json({ success: false, error: "No valid content keys provided" });
+  }
+  return res.json({ success: true, updated });
+});
+
 // POST /api/bookings — public, rate-limited (tighter than browse limit)
 app.post("/api/bookings", bookingLimit, (req, res) => {
   const body = req.body || {};
@@ -184,11 +272,39 @@ app.post("/api/bookings", bookingLimit, (req, res) => {
   ]);
 
   const booking = db.prepare("SELECT * FROM bookings WHERE id = ?").get(id);
+  const payload = toClient(booking);
+
+  // Fire-and-forget notifications. Never block the response or leak Brevo errors
+  // to the client; brevo.js already logs failures.
+  if (process.env.NODE_ENV !== "test") {
+    notifyNewBooking(payload).catch(e => console.error("[notify] booking", e.message));
+  }
+
   return res.status(201).json({
     success: true, booking_id: id, status: "pending",
     message: "Booking received. We will confirm within 24 hours.",
-    booking: toClient(booking),
+    booking: payload,
   });
+});
+
+// POST /api/contact — public contact form. Rate-limited like booking creation.
+app.post("/api/contact", bookingLimit, (req, res) => {
+  const b = req.body || {};
+  const name    = String(b.name    || "").trim().slice(0, 120);
+  const email   = String(b.email   || "").trim().slice(0, 160);
+  const message = String(b.message || "").trim().slice(0, 4000);
+
+  const errors = {};
+  if (!name)    errors.name    = "Name is required";
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Valid email required";
+  if (!message) errors.message = "Message is required";
+  if (Object.keys(errors).length) return res.status(422).json({ success: false, errors });
+
+  if (process.env.NODE_ENV !== "test") {
+    notifyContactForm({ name, email, message })
+      .catch(e => console.error("[notify] contact", e.message));
+  }
+  return res.status(201).json({ success: true, message: "Message received" });
 });
 
 // GET /api/bookings/availability — PUBLIC, minimal data for client-side availability checks
