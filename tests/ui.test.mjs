@@ -16,6 +16,7 @@ const home       = read("src/pages/Home.jsx");
 const admin      = read("src/pages/Admin.jsx");
 const adventures = read("src/pages/Adventures.jsx");
 const store      = read("src/store.js");
+const i18n       = read("src/i18n.js");
 
 // =============================================================================
 // 1. Icon tests
@@ -70,10 +71,15 @@ describe("Experience section icons", () => {
   });
 
   it("all 4 features are rendered in the Experience section", () => {
-    assert.ok(home.includes("Adventure Riding"),    "Missing 'Adventure Riding' card");
-    assert.ok(home.includes("Local Expert Guide"),  "Missing 'Local Expert Guide' card");
-    assert.ok(home.includes("Premium Motorcycles"), "Missing 'Premium Motorcycles' card");
-    assert.ok(home.includes("Unique Routes"),       "Missing 'Unique Routes' card");
+    // Feature titles are i18n'd; verify the keys are referenced in Home.jsx
+    // and the English copy exists in i18n.js.
+    for (let i = 0; i < 4; i++) {
+      assert.ok(home.includes(`feature.${i}.title`), `Home missing feature.${i}.title key`);
+      assert.ok(home.includes(`feature.${i}.desc`),  `Home missing feature.${i}.desc key`);
+      assert.ok(i18n.includes(`"feature.${i}.title"`), `i18n missing feature.${i}.title`);
+    }
+    ["Adventure Riding", "Local Expert Guide", "Premium Motorcycles", "Unique Routes"]
+      .forEach(label => assert.ok(i18n.includes(label), `i18n missing English label "${label}"`));
   });
 });
 
@@ -318,10 +324,13 @@ describe("Navigation and routing", () => {
   });
 
   it("Adventures link in navbar is orange (active indicator)", () => {
-    assert.ok(
-      home.includes("Adventures") && home.includes("ORANGE"),
-      "Adventures nav link should use orange color"
-    );
+    assert.ok(home.includes('to="/adventures"'), "Adventures <Link> must exist");
+    assert.ok(home.includes("nav.adventures"),   "nav.adventures i18n key must be used");
+    assert.ok(home.includes("ORANGE"),           "ORANGE color token must be present");
+    // The <Link to="/adventures" ...> must carry the ORANGE color inline.
+    const linkLine = home.split("\n").find(l => l.includes('to="/adventures"') && l.includes("nav-link"));
+    assert.ok(linkLine && linkLine.includes("ORANGE"),
+      "Adventures nav link must use ORANGE color");
   });
 });
 

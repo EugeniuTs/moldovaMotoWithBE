@@ -52,7 +52,29 @@ async function initDB() {
     CREATE INDEX IF NOT EXISTS idx_bookings_date    ON bookings(date);
     CREATE INDEX IF NOT EXISTS idx_bookings_email   ON bookings(email);
     CREATE INDEX IF NOT EXISTS idx_bookings_created ON bookings(created_at);
+
+    -- Admin-managed content (routes, fleet, gallery) stored as JSON blobs
+    -- keyed by collection name. One row per collection keeps the schema
+    -- flexible while the admin UI treats each as an ordered list.
+    CREATE TABLE IF NOT EXISTS content (
+      key        TEXT PRIMARY KEY,
+      value      TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
+
+  // First-boot seed: populate routes/fleet/gallery only if the rows don't
+  // already exist. Never overwrites edits made by the admin.
+  const SEED = require("./seed");
+  const now  = new Date().toISOString();
+  for (const key of ["routes", "fleet", "gallery"]) {
+    const existing = _db.exec("SELECT 1 FROM content WHERE key = '" + key + "'");
+    if (!existing.length || !existing[0].values.length) {
+      const stmt = _db.prepare("INSERT INTO content (key, value, updated_at) VALUES (?, ?, ?)");
+      stmt.run([key, JSON.stringify(SEED[key] || []), now]);
+      stmt.free();
+    }
+  }
 
   flush();
   console.log("[DB] SQLite ready at " + DB_PATH);

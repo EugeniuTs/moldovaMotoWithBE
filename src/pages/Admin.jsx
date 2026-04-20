@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft } from "../store.js";
+import { SEED, STORAGE_KEY, loadDB, saveDB, uid, spotsLeft, setAdminKey, refreshAdminContent } from "../store.js";
 import { fetchBookings, createBooking, updateBooking, deleteBooking, uploadMedia } from "../api.js";
 
 // Frontend uses camelCase; backend PUT/POST expect snake_case for these fields.
@@ -17,6 +17,7 @@ const toServerBooking = (r) => ({
   rental_days:  r.rentalDays || null,
   experience:   r.experience,
   bike:         r.bike || null,
+  status:       r.status,
   notes:        r.notes || null,
 });
 import { Link as RLink } from "react-router-dom";
@@ -2333,24 +2334,31 @@ export default function MoldovaMotoAdmin(){
   // Admin API key — stored in env (for Brevo/admin use in dev)
   const adminKey = import.meta.env.VITE_API_ADMIN_KEY || "";
 
-  // Load local data (routes, fleet, gallery) from localStorage
-  // Load bookings from API if available, fall back to localStorage
+  // Register the admin key with the store module so saveDB() can push
+  // routes/fleet/gallery writes to the server.
+  useEffect(() => { setAdminKey(adminKey); }, [adminKey]);
+
+  // Load bookings + routes/fleet/gallery from API. Falls back to the
+  // localStorage cache when the server is unreachable so the UI keeps
+  // working offline. Content on the server is authoritative.
   const loadAll = useCallback(async () => {
     const local = loadDB();
 
     if (!adminKey) {
-      // No API key set — use localStorage bookings (dev fallback)
       setDb(local);
       return;
     }
 
     try {
-      const { bookings } = await fetchBookings({}, adminKey);
-      // Merge: use API bookings, local routes/fleet/gallery
-      setDb({ ...local, bookings });
+      const [{ bookings }, content] = await Promise.all([
+        fetchBookings({}, adminKey),
+        refreshAdminContent(),
+      ]);
+      const base = content || local;
+      setDb({ ...base, bookings });
       setApiOnline(true);
     } catch (err) {
-      console.warn("[Admin] API unavailable, using localStorage bookings:", err.message);
+      console.warn("[Admin] API unavailable, using localStorage cache:", err.message);
       setApiOnline(false);
       setDb(local);
     }

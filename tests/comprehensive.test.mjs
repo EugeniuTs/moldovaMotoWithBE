@@ -97,8 +97,11 @@ describe("Public site structure", () => {
   });
 
   it("✅ all 5 nav links present", () => {
-    ["Tours", "Experience", "Fleet", "Routes", "Contact"]
-      .forEach(l => assert.ok(home.includes(l), `Missing nav: ${l}`));
+    // Labels are i18n'd; verify keys + section anchors.
+    ["nav.tours", "nav.experience", "nav.fleet", "nav.routes", "nav.contact"]
+      .forEach(k => assert.ok(home.includes(k), `Missing nav key: ${k}`));
+    ["#tours", "#experience", "#fleet", "#map", "#contact"]
+      .forEach(a => assert.ok(home.includes(a), `Missing nav anchor: ${a}`));
   });
 
   it("✅ hamburger button exists in DOM", () => {
@@ -125,8 +128,11 @@ describe("Public site structure", () => {
   });
 
   it("✅ hero stats show real numbers", () => {
-    assert.ok(home.includes("300+"), "rider count stat must be present");
-    assert.ok(home.includes("4.9"), "rating stat must be present");
+    // Numbers live in i18n.js under hero.stat.N.num.
+    const i18nSrc = src("src/i18n.js");
+    assert.ok(home.includes("hero.stat."), "home must reference hero.stat.* keys");
+    assert.ok(i18nSrc.includes("300+"), "rider count stat must be present in i18n");
+    assert.ok(i18nSrc.includes("4.9") || i18nSrc.includes("4,9"), "rating stat must be present in i18n");
   });
 
   it("❌ no hardcoded admin credentials visible in public source", () => {
