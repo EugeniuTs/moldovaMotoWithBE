@@ -9,7 +9,7 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": "Motorcycle Tour of Moldova: The Complete 2026 Ride Guide",
-    "description": "Everything you need to ride Moldova: best months, top routes, license rules, border crossings, weather, costs and the roads locals actually use.",
+    "description": "Everything you need to ride Moldova: best months, top routes, license rules, border crossings, weather, costs, and the roads locals actually use.",
     "image": "https://moldovamoto.com/og-cover.jpg",
     "author": { "@type": "Organization", "name": "MoldovaMoto" },
     "publisher": {
@@ -38,7 +38,7 @@ export default function MoldovaGuide() {
     <PageShell>
       <SeoHead
         title="Motorcycle Tour of Moldova: The Complete 2026 Ride Guide"
-        description="Everything you need to ride Moldova: best months, top routes, license rules, border crossings, weather, costs and the roads locals actually use."
+        description="Everything you need to ride Moldova: best months, top routes, license rules, border crossings, weather, costs, and the roads locals actually use."
         canonical="https://moldovamoto.com/blog/moldova-motorcycle-tour-guide"
         ogType="article"
         ogImage="https://moldovamoto.com/og-cover.jpg"
@@ -70,7 +70,7 @@ export default function MoldovaGuide() {
         <p>Winter (November–March) is off-season — roads get salted and the lovely gravel connectors turn to mud. Don't bother.</p>
 
         <h2>Getting there</h2>
-        <p>Fly into Chișinău International (<abbr title="Chișinău">KIV</abbr>). Direct flights from Frankfurt, Vienna, Istanbul, London and several regional European hubs. €5 Uber from the airport to our garage, 25 minutes. Shipping your own bike via ADAC or Knopf works (we've seen it done plenty of times), but unless you're on a multi-country trip it's not worth the hassle — our CFMOTO 800MT fleet covers the same terrain.</p>
+        <p>Fly into Chișinău International (<abbr title="Chișinău">KIV</abbr>). Direct flights from Frankfurt, Vienna, Istanbul, London, and several regional European hubs. €5 Uber from the airport to our garage, 25 minutes. Shipping your own bike via ADAC or Knopf works (we've seen it done plenty of times), but unless you're on a multi-country trip it's not worth the hassle — our CFMOTO 800MT fleet covers the same terrain.</p>
 
         <h2>Licensing & documents for tourists</h2>
         <ul>
@@ -107,7 +107,7 @@ export default function MoldovaGuide() {
           <li>Beers you'll buy the guide: budget €15</li>
         </ul>
 
-        <h2>Safety, roads and what to expect</h2>
+        <h2>Safety, roads, and what to expect</h2>
         <p>Main highways (M1, M2, M3) are good tarmac. Secondary roads vary from excellent to Soviet-era potholed — we know which ones to avoid. Livestock on rural roads is real; you'll slow-ride past a herd at least once. Drivers in Moldova are more cautious than Italy or France; lane discipline is imperfect but aggression is low. Speed enforcement exists but not stings-on-straightaways; stay reasonable and you'll be fine.</p>
 
         <h2>Packing list</h2>

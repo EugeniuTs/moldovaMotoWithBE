@@ -73,8 +73,8 @@ const T = {
 
   // Hero
   "hero.badge": { en:"Guided Tours \u00B7 Moldova \u00B7 Eastern Europe",
-                  de:"Gef\u00FChrte Touren \u00B7 Moldau \u00B7 Osteuropa" },
-  "hero.h1a":   { en:"Discover Moldova",   de:"Entdecken Sie Moldau" },
+                  de:"Gef\u00FChrte Touren \u00B7 Moldawien \u00B7 Osteuropa" },
+  "hero.h1a":   { en:"Discover Moldova",   de:"Entdecken Sie Moldawien" },
   "hero.h1b":   { en:"on Two Wheels",      de:"auf zwei R\u00E4dern" },
   "hero.sub":   { en:"Ride the last untamed roads of Europe. Expert-guided motorcycle tours through vineyards, cliff monasteries, and river canyons.",
                   de:"Fahren Sie auf den letzten wilden Stra\u00DFen Europas. Expertengeführte Motorradtouren durch Weinberge, Felsenkl\u00F6ster und Flussschluchten." },
@@ -105,12 +105,12 @@ const T = {
   "fleet.h2a":         { en:"CFMOTO 800MT",        de:"CFMOTO 800MT" },
   "fleet.h2b":         { en:"Adventure Class",     de:"Adventure-Klasse" },
   "fleet.desc":        { en:"The CFMOTO 800MT is our chosen mount for Moldova\u2019s diverse terrain \u2014 from smooth vineyard lanes to the rugged riverside tracks of the Nistru canyon. Powerful, comfortable, and loaded with touring tech.",
-                         de:"Die CFMOTO 800MT ist unser Motorrad f\u00FCr Moldaus vielf\u00E4ltiges Gel\u00E4nde \u2013 von glatten Weinbergstra\u00DFen bis zu den rauen Flusswegen des Nistru-Canyons. Leistungsstark, komfortabel und mit modernster Touring-Technik." },
+                         de:"Die CFMOTO 800MT ist unser Motorrad f\u00FCr Moldawiens vielf\u00E4ltiges Gel\u00E4nde \u2013 von glatten Weinbergstra\u00DFen bis zu den rauen Flusswegen des Nistru-Canyons. Leistungsstark, komfortabel und mit modernster Touring-Technik." },
   "fleet.badge.title": { en:"All-Inclusive",       de:"Alles inklusive" },
   "fleet.badge.sub":   { en:"Extra Bike Fee",       de:"Aufpreis Motorrad" },
 
   // Map
-  "map.tag":      { en:"The Moldova Map",           de:"Die Moldau-Karte" },
+  "map.tag":      { en:"The Moldova Map",           de:"Die Moldawien-Karte" },
   "map.h2a":      { en:"Six Stops.",                de:"Sechs Stopps." },
   "map.h2b":      { en:"One Unforgettable Journey", de:"Eine unvergessliche Reise" },
   "map.coverage": { en:"Tour Coverage",             de:"Tourenabdeckung" },
@@ -139,7 +139,7 @@ const T = {
   "cta.h2a":  { en:"The Road Is Waiting.",   de:"Die Stra\u00DFe wartet." },
   "cta.h2b":  { en:"Are You?",               de:"Sind Sie bereit?" },
   "cta.sub":  { en:"Limited spots per departure. Secure your place on Moldova\u2019s most iconic motorcycle journey.",
-                de:"Begrenzte Pl\u00E4tze pro Abfahrt. Sichern Sie sich Ihren Platz auf Moldaus ikonischster Motorradreise." },
+                de:"Begrenzte Pl\u00E4tze pro Abfahrt. Sichern Sie sich Ihren Platz auf Moldawiens ikonischster Motorradreise." },
   "cta.btn":  { en:"Book Your Tour Now",     de:"Jetzt Tour buchen" },
 
   // Footer
@@ -233,13 +233,13 @@ const T = {
   "info.about.h1a":   { en:"The Last Authentic",       de:"Die letzten authentischen" },
   "info.about.h1b":   { en:"Roads of Europe",          de:"Stra\u00DFen Europas" },
   "info.about.lead":  { en:"Moldova Moto Tours was created for riders who want to discover one of the last genuinely untouched regions of Europe - not a postcard version of it, but the real thing.",
-                        de:"Moldova Moto Tours wurde f\u00FCr Fahrer gegr\u00FCndet, die eine der letzten wirklich unber\u00FChrten Regionen Europas entdecken m\u00F6chten \u2013 nicht die Hochglanzversion, sondern das echte Moldau." },
+                        de:"Moldova Moto Tours wurde f\u00FCr Fahrer gegr\u00FCndet, die eine der letzten wirklich unber\u00FChrten Regionen Europas entdecken m\u00F6chten \u2013 nicht die Hochglanzversion, sondern das echte Moldawien." },
   "info.about.do.title":      { en:"What We Do",    de:"Was wir tun" },
   "info.about.do.body":       { en:"We organise motorcycle tours and rentals through Moldova's hidden roads, authentic villages, vineyard landscapes, and wild river canyons.",
-                                 de:"Wir organisieren Motorradtouren und -vermietungen durch Moldaus versteckte Stra\u00DFen, authentische D\u00F6rfer, Weinlandschaften und wilde Flussschluchten." },
+                                 de:"Wir organisieren Motorradtouren und -vermietungen durch Moldawiens versteckte Stra\u00DFen, authentische D\u00F6rfer, Weinlandschaften und wilde Flussschluchten." },
   "info.about.mission.title": { en:"Our Mission",   de:"Unsere Mission" },
   "info.about.mission.body":  { en:"To show riders the Moldova that travel guides miss - the untouched roads, real culture, genuine hospitality, and scenery that rivals anywhere in Europe.",
-                                 de:"Wir zeigen Fahrern das Moldau, das Reisef\u00FChrer \u00FCbersehen \u2013 unber\u00FChrte Stra\u00DFen, echte Kultur, herzliche Gastfreundschaft und Landschaften, die es mit ganz Europa aufnehmen k\u00F6nnen." },
+                                 de:"Wir zeigen Fahrern das Moldawien, das Reisef\u00FChrer \u00FCbersehen \u2013 unber\u00FChrte Stra\u00DFen, echte Kultur, herzliche Gastfreundschaft und Landschaften, die es mit ganz Europa aufnehmen k\u00F6nnen." },
   "info.about.included":      { en:"Every Tour Includes",  de:"Jede Tour beinhaltet" },
   "info.about.promise.title": { en:"Our Promise",   de:"Unser Versprechen" },
   "info.about.promise.body":  { en:"We don't run crowded bus tours. We ride. Every route has been personally tested to find the perfect balance between adventure, safety, and unforgettable scenery.",
@@ -258,7 +258,7 @@ const T = {
   "info.routes.h2a":      { en:"Roads No GPS",         de:"Stra\u00DFen, die kein GPS" },
   "info.routes.h2b":      { en:"Will Ever Suggest",    de:"je vorschlagen wird" },
   "info.routes.lead":     { en:"Moldova offers empty roads, dramatic scenery, world-class wine culture, and monastery landscapes - without the crowds or the price tag.",
-                            de:"Moldau bietet leere Stra\u00DFen, dramatische Landschaften, erstklassige Weinkultur und Klosterlandschaften \u2013 ohne Menschenmassen und \u00FCberh\u00F6hte Preise." },
+                            de:"Moldawien bietet leere Stra\u00DFen, dramatische Landschaften, erstklassige Weinkultur und Klosterlandschaften \u2013 ohne Menschenmassen und \u00FCberh\u00F6hte Preise." },
   "info.routes.notsure":  { en:"Not sure which tour suits you?", de:"Unsicher, welche Tour zu Ihnen passt?" },
   "info.routes.notsure.sub": { en:"Message us on WhatsApp and we will help you pick the perfect route.",
                                de:"Schreiben Sie uns auf WhatsApp und wir helfen Ihnen, die perfekte Route zu finden." },
@@ -279,7 +279,7 @@ const T = {
                                de:"Ein Begleitfahrzeug folgt jeder mehrt\u00E4gigen Tour. Unsere F\u00FChrer tragen Erste-Hilfe-Ausr\u00FCstung und haben Notfallprotokolle f\u00FCr jeden Streckenabschnitt." },
   "info.safety.rental": { en:"Rentals",             de:"Vermietungen" },
   "info.safety.rental.body": { en:"24/7 roadside assistance. 2-hour response guarantee anywhere in Moldova. A replacement motorcycle can be dispatched for longer breakdowns.",
-                               de:"24/7 Pannenhilfe. Garantierte 2-Stunden-Reaktionszeit in ganz Moldau. Ein Ersatzmotorrad kann f\u00FCr l\u00E4ngere Pannen bereitgestellt werden." },
+                               de:"24/7 Pannenhilfe. Garantierte 2-Stunden-Reaktionszeit in ganz Moldawien. Ein Ersatzmotorrad kann f\u00FCr l\u00E4ngere Pannen bereitgestellt werden." },
   "info.safety.insurance": { en:"Insurance Coverage",  de:"Versicherungsschutz" },
   "info.safety.insurance.body": { en:"All motorcycles include mandatory third-party liability insurance. Additional comprehensive coverage is available. We strongly recommend personal travel insurance covering motorcycle touring.",
                                   de:"Alle Motorr\u00E4der sind mit der gesetzlich vorgeschriebenen Haftpflichtversicherung ausgestattet. Zus\u00E4tzlicher Vollkaskoversicherungsschutz ist verf\u00FCgbar. Wir empfehlen dringend eine pers\u00F6nliche Reiseversicherung, die Motorradtouren abdeckt." },
@@ -369,7 +369,7 @@ const T = {
   "info.route.0.name": { en:"Wine Roads Tour",     de:"Weinstra\u00DFen-Tour" },
   "info.route.0.tag":  { en:"1 Day - 220 EUR",     de:"1 Tag \u2013 220 EUR" },
   "info.route.0.desc": { en:"Start in Chisinau and ride through Moldova's famous wine heartland. Descend into the legendary Cricova underground wine cellars - 120 km of subterranean galleries housing millions of bottles.",
-                         de:"Start in Chi\u0219in\u0103u und Fahrt durch Moldaus ber\u00FChmtes Weinland. Abstieg in die legend\u00E4ren unterirdischen Weinkeller von Cricova \u2013 120 km Galerien mit Millionen Flaschen." },
+                         de:"Start in Chi\u0219in\u0103u und Fahrt durch Moldawiens ber\u00FChmtes Weinland. Abstieg in die legend\u00E4ren unterirdischen Weinkeller von Cricova \u2013 120 km Galerien mit Millionen Flaschen." },
   "info.route.0.i.0":  { en:"Cricova underground wine cellars", de:"Unterirdische Weinkeller Cricova" },
   "info.route.0.i.1":  { en:"Scenic vineyard roads",            de:"Landschaftliche Weinbergstra\u00DFen" },
   "info.route.0.i.2":  { en:"Traditional winery lunch",         de:"Traditionelles Mittagessen im Weingut" },
@@ -385,10 +385,10 @@ const T = {
   "info.route.1.i.3":  { en:"Village overnight stays",          de:"\u00DCbernachtungen in D\u00F6rfern" },
   "info.route.1.i.4":  { en:"Full board included",              de:"Vollpension inklusive" },
 
-  "info.route.2.name": { en:"The Grand Moldova Tour",           de:"Die gro\u00DFe Moldau-Tour" },
+  "info.route.2.name": { en:"The Grand Moldova Tour",           de:"Die gro\u00DFe Moldawien-Tour" },
   "info.route.2.tag":  { en:"5 Days - 1,050 EUR",               de:"5 Tage \u2013 1.050 EUR" },
   "info.route.2.desc": { en:"The full country traverse. Wine roads, cliff monasteries, a medieval Genoese fortress on the Ukrainian border, and a massive Ottoman citadel on the Dniester. Everything Moldova has to offer.",
-                         de:"Die komplette Landesdurchquerung. Weinstra\u00DFen, Felsenkl\u00F6ster, eine mittelalterliche genuesische Festung an der ukrainischen Grenze und eine gewaltige osmanische Zitadelle am Dnjestr. Alles, was Moldau zu bieten hat." },
+                         de:"Die komplette Landesdurchquerung. Weinstra\u00DFen, Felsenkl\u00F6ster, eine mittelalterliche genuesische Festung an der ukrainischen Grenze und eine gewaltige osmanische Zitadelle am Dnjestr. Alles, was Moldawien zu bieten hat." },
   "info.route.2.i.0":  { en:"All 6 iconic stops",               de:"Alle 6 ikonischen Stopps" },
   "info.route.2.i.1":  { en:"Soroca medieval fortress",         de:"Mittelalterliche Festung Soroca" },
   "info.route.2.i.2":  { en:"Bender Ottoman citadel",           de:"Osmanische Zitadelle Bender" },
@@ -428,7 +428,7 @@ const T = {
   "info.terms.updated":  { en:"Last updated: April 2026. For full legal document contact",
                            de:"Zuletzt aktualisiert: April 2026. F\u00FCr das vollst\u00E4ndige Rechtsdokument kontaktieren Sie" },
 
-  "info.final.h":    { en:"Ready to Ride Moldova?",   de:"Bereit, Moldau zu erkunden?" },
+  "info.final.h":    { en:"Ready to Ride Moldova?",   de:"Bereit, Moldawien zu erkunden?" },
   "info.final.p":    { en:"Limited spots available. Book early to secure your place on the road less travelled.",
                        de:"Begrenzte Pl\u00E4tze verf\u00FCgbar. Buchen Sie fr\u00FChzeitig und sichern Sie sich Ihren Platz auf der Stra\u00DFe, die kaum jemand kennt." },
   "info.final.book": { en:"Book Your Tour",   de:"Tour buchen" },
@@ -454,7 +454,7 @@ const T = {
   "faq.q5":  { en:"What happens in case of breakdown?",
                de:"Was passiert bei einer Panne?" },
   "faq.a5":  { en:"We provide roadside assistance and a support vehicle on all guided tours. For rentals, we respond within 2 hours anywhere in Moldova.",
-               de:"Wir bieten Pannenhilfe und ein Begleitfahrzeug bei allen gef\u00FChrten Touren. Bei Vermietungen reagieren wir innerhalb von 2 Stunden in ganz Moldau." },
+               de:"Wir bieten Pannenhilfe und ein Begleitfahrzeug bei allen gef\u00FChrten Touren. Bei Vermietungen reagieren wir innerhalb von 2 Stunden in ganz Moldawien." },
   "faq.q6":  { en:"Can beginners join the tours?",
                de:"K\u00F6nnen Anf\u00E4nger an den Touren teilnehmen?" },
   "faq.a6":  { en:"Tours are designed for riders with at least 2 years of experience on bikes over 400cc. If you are a complete beginner, contact us and we will help you find the right option.",
@@ -464,7 +464,7 @@ const T = {
   "faq.a7":  { en:"Groups are capped at 6-8 riders to keep the experience personal. No crowded convoys - just a small group of passionate riders.",
                de:"Gruppen sind auf 6-8 Fahrer begrenzt, um ein pers\u00F6nliches Erlebnis zu gew\u00E4hrleisten. Keine \u00FCberf\u00FCllten Konvois \u2013 nur eine kleine Gruppe leidenschaftlicher Fahrer." },
   "faq.q8":  { en:"When is the best time to visit Moldova?",
-               de:"Wann ist die beste Zeit, Moldau zu besuchen?" },
+               de:"Wann ist die beste Zeit, Moldawien zu besuchen?" },
   "faq.a8":  { en:"April through October is the ideal riding season. Late May through September offers the best weather. September harvest season is our personal favourite.",
                de:"April bis Oktober ist die ideale Fahrsaison. Von Ende Mai bis September ist das Wetter am besten. Die Erntezeit im September ist unser pers\u00F6nlicher Favorit." },
 
@@ -491,7 +491,7 @@ const T = {
                             de:"Alle Vermietungen beinhalten die nach moldauischem Recht vorgeschriebene Haftpflichtversicherung. Eine Vollkaskoversicherung liegt in der Verantwortung des Fahrers, sofern kein Upgrade erworben wird. Wir empfehlen dringend eine pers\u00F6nliche Reiseversicherung, die Motorradaktivit\u00E4ten abdeckt." },
 
   // Hero (extra)
-  "hero.h1.line1": { en:"Discover Moldova",     de:"Entdecken Sie Moldau" },
+  "hero.h1.line1": { en:"Discover Moldova",     de:"Entdecken Sie Moldawien" },
   "hero.h1.line2": { en:"on Two Wheels",        de:"auf zwei R\u00E4dern" },
   "hero.desc":     { en:"Guided motorcycle tours through vineyards, cliff monasteries, and the hidden roads of Eastern Europe \u2014 on a premium adventure bike.",
                      de:"Gef\u00FChrte Motorradtouren durch Weinberge, Felsenkl\u00F6ster und die versteckten Stra\u00DFen Osteuropas \u2014 auf einem Premium-Adventure-Motorrad." },
@@ -508,7 +508,7 @@ const T = {
   "hero.scroll":       { en:"Scroll", de:"Scrollen" },
 
   // Experience section
-  "exp.kicker":  { en:"Why Moldova",         de:"Warum Moldau" },
+  "exp.kicker":  { en:"Why Moldova",         de:"Warum Moldawien" },
   "exp.title.1": { en:"Europe's Best-Kept",   de:"Europas bestgeh\u00FCtetes" },
   "exp.title.2": { en:"Riding Secret",        de:"Fahrgeheimnis" },
   "exp.desc":    { en:"Uncrowded roads, genuine hospitality, and scenery that rivals Tuscany \u2014 at a fraction of the price.",
@@ -517,7 +517,7 @@ const T = {
   // Feature cards
   "feature.0.title": { en:"Adventure Riding",     de:"Adventure-Fahren" },
   "feature.0.desc":  { en:"Tackle Moldova's secret backroads, limestone ridges, and river canyon passes \u2014 routes you won't find on any travel blog.",
-                       de:"Erobern Sie Moldaus geheime Nebenstra\u00DFen, Kalksteinkanten und Flussschluchten-P\u00E4sse \u2014 Routen, die in keinem Reiseblog stehen." },
+                       de:"Erobern Sie Moldawiens geheime Nebenstra\u00DFen, Kalksteinkanten und Flussschluchten-P\u00E4sse \u2014 Routen, die in keinem Reiseblog stehen." },
   "feature.1.title": { en:"Local Expert Guide",   de:"Lokaler Experten-Guide" },
   "feature.1.desc":  { en:"Your guide is a native Moldovan rider who knows every shortcut, every hidden winery, and every story behind the ruins.",
                        de:"Ihr Guide ist ein einheimischer moldauischer Fahrer, der jede Abk\u00FCrzung, jedes versteckte Weingut und jede Geschichte hinter den Ruinen kennt." },
@@ -526,7 +526,7 @@ const T = {
                        de:"Fahren Sie die CFMOTO 800MT \u2014 ein Touring-Adventure-Motorrad mit ABS, Traktionskontrolle und Heizgriffen f\u00FCr maximalen Komfort." },
   "feature.3.title": { en:"Unique Routes",        de:"Einzigartige Routen" },
   "feature.3.desc":  { en:"Every itinerary is handcrafted. Avoid tourist trails entirely and discover the Moldova that 99% of visitors never see.",
-                       de:"Jede Route ist handverlesen. Meiden Sie Touristenpfade und entdecken Sie das Moldau, das 99\u202F% der Besucher nie zu sehen bekommen." },
+                       de:"Jede Route ist handverlesen. Meiden Sie Touristenpfade und entdecken Sie das Moldawien, das 99\u202F% der Besucher nie zu sehen bekommen." },
 
   // Tours section
   "tours.kicker":   { en:"Choose Your Adventure", de:"W\u00E4hlen Sie Ihr Abenteuer" },
@@ -537,7 +537,7 @@ const T = {
 
   // Fleet (extra)
   "fleet.descLong": { en:"The CFMOTO 800MT is our chosen mount for Moldova's diverse terrain \u2014 from smooth vineyard lanes to the rugged riverside tracks of the Nistru canyon. Powerful, comfortable, and loaded with touring tech.",
-                      de:"Die CFMOTO 800MT ist unser Motorrad f\u00FCr Moldaus vielf\u00E4ltiges Gel\u00E4nde \u2014 von glatten Weinbergstra\u00DFen bis zu den rauen Flusswegen des Nistru-Canyons. Leistungsstark, komfortabel und vollgepackt mit Touring-Technik." },
+                      de:"Die CFMOTO 800MT ist unser Motorrad f\u00FCr Moldawiens vielf\u00E4ltiges Gel\u00E4nde \u2014 von glatten Weinbergstra\u00DFen bis zu den rauen Flusswegen des Nistru-Canyons. Leistungsstark, komfortabel und vollgepackt mit Touring-Technik." },
   "fleet.spec.0.label": { en:"Twin-Cylinder", de:"Zweizylinder" },
   "fleet.spec.1.label": { en:"Peak Power",    de:"Spitzenleistung" },
   "fleet.spec.2.label": { en:"Daily Range",   de:"Tagesreichweite" },
@@ -546,7 +546,7 @@ const T = {
 
   // Map section
   "map.kicker":   { en:"Tour Routes",      de:"Tour-Routen" },
-  "map.h1":       { en:"The Moldova Map",  de:"Die Moldau-Karte" },
+  "map.h1":       { en:"The Moldova Map",  de:"Die Moldawien-Karte" },
   "map.lead":     { en:"Real map powered by OpenStreetMap. Click any stop to fly to it.",
                     de:"Echte Karte mit OpenStreetMap. Klicken Sie auf einen Stopp, um dorthin zu fliegen." },
   "map.hint":     { en:"Every pin is placed at its real GPS coordinates. Click a card or pin to zoom in.",
@@ -565,7 +565,7 @@ const T = {
   "map.stop.0.label": { en:"Capital City",              de:"Hauptstadt" },
   "map.stop.0.sub":   { en:"Tour Start / End",          de:"Tour Start / Ende" },
   "map.stop.0.desc":  { en:"Your tour begins in Moldova's vibrant capital. Pick up your CFMOTO 800MT, meet your guide, and ride out.",
-                        de:"Ihre Tour beginnt in Moldaus lebendiger Hauptstadt. Holen Sie Ihre CFMOTO 800MT ab, treffen Sie Ihren Guide und fahren Sie los." },
+                        de:"Ihre Tour beginnt in Moldawiens lebendiger Hauptstadt. Holen Sie Ihre CFMOTO 800MT ab, treffen Sie Ihren Guide und fahren Sie los." },
   "map.stop.1.label": { en:"Cliff Monastery",           de:"Felsenkloster" },
   "map.stop.1.sub":   { en:"\u2605 Unmissable",         de:"\u2605 Unverzichtbar" },
   "map.stop.1.desc":  { en:"A 6th-century monastery carved into limestone cliffs above the R\u0103ut River \u2014 one of Europe's most dramatic natural amphitheatres.",
@@ -581,7 +581,7 @@ const T = {
   "map.stop.4.label": { en:"Medieval Fortress",         de:"Mittelalterliche Festung" },
   "map.stop.4.sub":   { en:"5-Day Tour",                de:"5-Tages-Tour" },
   "map.stop.4.desc":  { en:"Moldova's perfectly preserved 16th-century Genoese-Ottoman fortress, sitting on the Dniester riverbank at the Ukrainian border.",
-                        de:"Moldaus perfekt erhaltene genuesisch-osmanische Festung aus dem 16. Jahrhundert am Ufer des Dnjestr an der ukrainischen Grenze." },
+                        de:"Moldawiens perfekt erhaltene genuesisch-osmanische Festung aus dem 16. Jahrhundert am Ufer des Dnjestr an der ukrainischen Grenze." },
   "map.stop.5.label": { en:"Ottoman Fortress",          de:"Osmanische Festung" },
   "map.stop.5.sub":   { en:"5-Day Tour",                de:"5-Tages-Tour" },
   "map.stop.5.desc":  { en:"A massive 16th-century Ottoman citadel commanding the Dniester with centuries of turbulent history etched into every stone bastion.",
@@ -594,7 +594,7 @@ const T = {
                      de:"Eine der besten Motorradtouren in ganz Europa. Der Abschnitt bei Orheiul Vechi im Sonnenuntergang war absolut atemberaubend. Wir planen bereits die R\u00FCckkehr f\u00FCr die 5-Tages-Tour." },
   "testi.0.country": { en:"Germany \uD83C\uDDE9\uD83C\uDDEA", de:"Deutschland \uD83C\uDDE9\uD83C\uDDEA" },
   "testi.1.text":  { en:"I was skeptical about Moldova, but this experience completely changed my view of Eastern Europe. The CFMOTO handled the roads perfectly, and our guide was outstanding.",
-                     de:"Ich war skeptisch gegen\u00FCber Moldau, aber diese Erfahrung hat mein Bild von Osteuropa v\u00F6llig ver\u00E4ndert. Die CFMOTO meisterte die Stra\u00DFen perfekt, und unser Guide war herausragend." },
+                     de:"Ich war skeptisch gegen\u00FCber Moldawien, aber diese Erfahrung hat mein Bild von Osteuropa v\u00F6llig ver\u00E4ndert. Die CFMOTO meisterte die Stra\u00DFen perfekt, und unser Guide war herausragend." },
   "testi.1.country": { en:"France \uD83C\uDDEB\uD83C\uDDF7", de:"Frankreich \uD83C\uDDEB\uD83C\uDDF7" },
   "testi.2.text":  { en:"Excellent organisation, premium bike, genuine local experiences. The Cricova wine cellar visit was surreal \u2014 120km of underground wine roads. Unforgettable.",
                      de:"Hervorragende Organisation, Premium-Motorrad, authentische lokale Erlebnisse. Der Besuch im Weinkeller von Cricova war surreal \u2014 120 km unterirdische Weinstra\u00DFen. Unvergesslich." },
@@ -611,7 +611,7 @@ const T = {
   "footer.brand.tag":  { en:"The Last Untamed Roads of Europe",
                          de:"Die letzten wilden Stra\u00DFen Europas" },
   "footer.brand.desc": { en:"The premier guided motorcycle tour company in Moldova. Connecting international riders with Eastern Europe's most authentic hidden roads since 2019.",
-                         de:"Der f\u00FChrende Anbieter f\u00FCr gef\u00FChrte Motorradtouren in Moldau. Verbindet internationale Fahrer seit 2019 mit Osteuropas authentischsten versteckten Stra\u00DFen." },
+                         de:"Der f\u00FChrende Anbieter f\u00FCr gef\u00FChrte Motorradtouren in Moldawien. Verbindet internationale Fahrer seit 2019 mit Osteuropas authentischsten versteckten Stra\u00DFen." },
   "footer.h.tours":   { en:"Tours",         de:"Touren" },
   "footer.h.info":    { en:"Info",          de:"Info" },
   "footer.h.message": { en:"Send a Message", de:"Nachricht senden" },
@@ -684,7 +684,7 @@ const T = {
                            de:"Chi\u0219in\u0103u, Republik Moldau" },
   "footer.seo.label":    { en:"SEO:", de:"SEO:" },
   "footer.seo.tags":     { en:"Motorcycle Tours Moldova \u00B7 Adventure Riding Eastern Europe \u00B7 CFMOTO Rental Moldova",
-                           de:"Motorradtouren Moldau \u00B7 Adventure-Riding Osteuropa \u00B7 CFMOTO-Vermietung Moldau" },
+                           de:"Motorradtouren Moldawien \u00B7 Adventure-Riding Osteuropa \u00B7 CFMOTO-Vermietung Moldawien" },
 };
 
 export default T;

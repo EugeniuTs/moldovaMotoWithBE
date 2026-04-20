@@ -78,7 +78,7 @@ export default function OrheiulVechi() {
         <p><strong>GPX file:</strong> available on request — email us or join a guided departure and we'll send it.</p>
 
         <h2>Where to park</h2>
-        <p>There's a gravel lot at the base of the cliff, next to the visitor center — coordinates <code>47.3047, 28.9572</code>. Bring a disc lock. Helmets and jackets fit in the visitor center lockers for a small tip. You can leave panniers on the bike — we've done it dozens of times, never lost anything.</p>
+        <p>There's a gravel lot at the base of the cliff, next to the visitor center — coordinates <code>47.3047, 28.9572</code>. Bring a disc lock. Helmets and jackets fit in the visitor center lockers for a small tip. Take wallets, phones, and documents with you; the lot is generally quiet but it's unattended, so don't treat panniers as a safe.</p>
 
         <h2>The cave monastery — what to know</h2>
         <ul>

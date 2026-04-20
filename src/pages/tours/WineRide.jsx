@@ -108,7 +108,7 @@ export default function WineRide() {
         <p>A scenic detour along the river before looping back into Chișinău. Arrive at the garage around 17:30, bikes returned, group photo, beer on us.</p>
 
         <h2>About Cricova — why the cellars matter</h2>
-        <p>Cricova's cellars were carved out of limestone over two centuries of quarrying. The temperature inside never varies, which is why the winery stores 1.3 million bottles here — including the personal cellars of Vladimir Putin and (allegedly) Yuri Gagarin's. You don't have to be a wine person for this to feel special; it's closer to catacombs than a cellar door.</p>
+        <p>Cricova's cellars were carved out of limestone over two centuries of quarrying. The temperature inside never varies, which is why the winery stores 1.3 million bottles here, including private cellars belonging to heads of state, cosmonauts, and a long list of public figures you'll recognise from the plaques. You don't have to be a wine person for this to feel special; it's closer to catacombs than a cellar door.</p>
 
         <h2>The motorcycle</h2>
         <p>The CFMOTO 800MT is a touring-class adventure bike — 95 hp, 800 cc parallel-twin, upright ergonomics, ABS with an off-road mode, traction control, cruise control, and heated grips. At 835 mm it's manageable for riders 5'7" and up; we carry a low-seat option too. Panniers + top box come standard.</p>
