@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://moldovamoto.com/</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moldovamoto.com/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://moldovamoto.com/de" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moldovamoto.com/" />
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/de</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moldovamoto.com/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://moldovamoto.com/de" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moldovamoto.com/" />
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/tours/1-day-wine-ride</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/faq</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/blog/moldova-motorcycle-tour-guide</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/blog/orheiul-vechi-motorcycle-guide</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/adventures</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://moldovamoto.com/info</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

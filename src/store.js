@@ -187,8 +187,12 @@ export async function refreshContent() {
       gallery: Array.isArray(data.gallery) ? data.gallery : cached.gallery,
     };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
-    // Notify other tabs/components so they pick up the server-authoritative copy.
-    try { window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY })); } catch {}
+    // NOTE: do NOT dispatch a synthetic `storage` event here. Consumers
+    // (Home.jsx, Adventures.jsx) listen for `storage` and re-invoke
+    // refreshContent() in response, which would create an infinite fetch
+    // loop and trip the server rate limit. Real cross-tab `storage`
+    // events still fire from the browser when another tab writes to
+    // localStorage — that's the intended sync path.
     return next;
   } catch {
     return null;

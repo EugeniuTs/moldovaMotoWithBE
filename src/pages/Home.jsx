@@ -1534,8 +1534,12 @@ export default function MoldovaMotorTours() {
                 ["footer.info.fleet",  "/info#fleet", true],
                 ["footer.info.routes", "/info#routes", true],
                 ["footer.info.safety", "/info#safety", true],
-                ["footer.info.faq",    "/info#faq", true],
+                ["footer.info.faq",    "/faq", true],
                 ["footer.info.terms",  "/info#terms", true],
+                ["Moldova ride guide",         "/blog/moldova-motorcycle-tour-guide", true],
+                ["Orheiul Vechi route",        "/blog/orheiul-vechi-motorcycle-guide", true],
+                ["1-Day Wine Ride",            "/tours/1-day-wine-ride", true],
+                ["Deutsch",                    "/de", true],
               ].map(([key, href]) => (
                 <div key={key} style={{ marginBottom: 10 }}>
                   <Link to={href} style={{ color: MUTED, textDecoration: "none", fontSize: 14 }}
