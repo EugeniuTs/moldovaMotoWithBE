@@ -1046,10 +1046,10 @@ export default function MoldovaMotorTours() {
 
           {/* Logo */}
           <a href="#hero" style={{ textDecoration: "none", flexShrink: 0 }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fff",
-              padding: 3, boxShadow: "0 0 0 2px #ff6b00, 0 0 16px rgba(255,107,0,0.45)" }}>
-              <img src="/logo.png" alt="Moldova Moto Tours"
-                style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />
+            <div style={{ width: 48, height: 48, borderRadius: "50%", overflow: "hidden",
+              boxShadow: "0 0 0 2px #ff6b00, 0 0 16px rgba(255,107,0,0.45)" }}>
+              <img src="/logo.png" alt="ETI Moto Tours"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           </a>
 
@@ -1285,7 +1285,7 @@ export default function MoldovaMotorTours() {
                   </button>
                   {slug && (
                     <Link to={slug} style={{ display: "block", textAlign: "center", marginTop: 10, color: ORANGE, fontSize: 13, fontWeight: 700 }}>
-                      View full tour details →
+                      {t("tours.viewDetails")}
                     </Link>
                   )}
                 </div>
@@ -1339,7 +1339,7 @@ export default function MoldovaMotorTours() {
                   pointerEvents: "none",
                 }} />
                 <img
-                  src="https://www.cfmoto.com/content/dam/cfmoto/site/global/product/motorcycle/mt----mult-touring/800mt-x/selling-point-map/pc/pc7.png"
+                  src="/cfmoto-800mt.jpg"
                   alt="CFMOTO 800MT Adventure"
                   style={{
                     width: "100%", height: 440,
@@ -1516,11 +1516,10 @@ export default function MoldovaMotorTours() {
             {/* Brand */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-                <div style={{ width: 70, height: 70, borderRadius: "50%", background: "#fff",
-                  padding: 3, flexShrink: 0,
+                <div style={{ width: 70, height: 70, borderRadius: "50%", overflow: "hidden", flexShrink: 0,
                   boxShadow: "0 0 0 2px #ff6b00, 0 0 20px rgba(255,107,0,0.4)" }}>
-                  <img src="/logo.png" alt="Moldova Moto Tours"
-                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />
+                  <img src="/logo.png" alt="ETI Moto Tours"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
                 <div>
                   <div style={{ fontWeight: 900, fontSize: 18, color: WHITE, lineHeight: 1.1 }}>{t("footer.brand.name")}</div>
@@ -1603,7 +1602,7 @@ export default function MoldovaMotorTours() {
 
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} MoldovaMoto. {t("footer.copy")} · {t("footer.copyChisinau")}</div>
+            <div style={{ fontSize: 13, color: MUTED }}>© {new Date().getFullYear()} ETI Moto Tours. {t("footer.copy")} · {t("footer.copyChisinau")}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <div style={{ fontSize: 12, color: "#444", letterSpacing: "0.08em" }}>
                 <span style={{ color: "#333" }}>{t("footer.seo.label")} </span>{t("footer.seo.tags")}

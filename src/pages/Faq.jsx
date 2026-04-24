@@ -131,7 +131,7 @@ export default function Faq() {
   return (
     <PageShell>
       <SeoHead
-        title="Motorcycle Tour FAQ — License, Weather, Safety | MoldovaMoto"
+        title="Motorcycle Tour FAQ — License, Weather, Safety | ETI Moto Tours"
         description="Answers to every question our riders ask before booking: licenses, age limits, weather windows, gear, safety, payment, cancellation, and more."
         canonical="https://moldovamoto.com/faq"
         ogImage="https://moldovamoto.com/og-cover.jpg"

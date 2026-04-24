@@ -11,10 +11,10 @@ const jsonLd = [
     "headline": "Motorcycle Tour of Moldova: The Complete 2026 Ride Guide",
     "description": "Everything you need to ride Moldova: best months, top routes, license rules, border crossings, weather, costs, and the roads locals actually use.",
     "image": "https://moldovamoto.com/og-cover.jpg",
-    "author": { "@type": "Organization", "name": "MoldovaMoto" },
+    "author": { "@type": "Organization", "name": "ETI Moto Tours" },
     "publisher": {
       "@type": "Organization",
-      "name": "MoldovaMoto",
+      "name": "ETI Moto Tours",
       "logo": { "@type": "ImageObject", "url": "https://moldovamoto.com/logo.png" }
     },
     "datePublished": "2026-04-20",

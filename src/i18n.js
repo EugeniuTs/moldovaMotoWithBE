@@ -1,5 +1,5 @@
 /**
- * i18n.js - EN/DE translations for MoldovaMoto
+ * i18n.js - EN/DE translations for ETI Moto Tours
  * Security: getLang() strips all non-a-z chars and validates against
  * SUPPORTED list. The lang value never touches SQL or any server.
  */
@@ -54,8 +54,8 @@ export function useLang() {
 const T = {
   // SEO
   "seo.title": {
-    en: "MoldovaMoto \u2013 Guided Motorcycle Tours in Moldova",
-    de: "MoldovaMoto \u2013 Gef\u00FChrte Motorradtouren in Moldawien",
+    en: "ETI Moto Tours \u2013 Guided Motorcycle Tours in Moldova",
+    de: "ETI Moto Tours \u2013 Gef\u00FChrte Motorradtouren in Moldawien",
   },
   "seo.description": {
     en: "Premium guided motorcycle tours through Moldova's vineyards, cliff monasteries, and hidden roads of Eastern Europe. Ride the CFMOTO 800MT Adventure.",
@@ -226,14 +226,14 @@ const T = {
   "err.license":   { en:"Please confirm your license",       de:"Bitte best\u00E4tigen Sie Ihren F\u00FChrerschein" },
 
   // Info page
-  "info.back":        { en:"\u2190 MoldovaMoto",       de:"\u2190 MoldovaMoto" },
+  "info.back":        { en:"\u2190 ETI Moto Tours",       de:"\u2190 ETI Moto Tours" },
   "info.book":        { en:"Book a Tour",              de:"Tour buchen" },
   "info.ready":       { en:"Ready to ride?",           de:"Bereit zu fahren?" },
   "info.about.tag":   { en:"Our Story",                de:"Unsere Geschichte" },
   "info.about.h1a":   { en:"The Last Authentic",       de:"Die letzten authentischen" },
   "info.about.h1b":   { en:"Roads of Europe",          de:"Stra\u00DFen Europas" },
-  "info.about.lead":  { en:"Moldova Moto Tours was created for riders who want to discover one of the last genuinely untouched regions of Europe - not a postcard version of it, but the real thing.",
-                        de:"Moldova Moto Tours wurde f\u00FCr Fahrer gegr\u00FCndet, die eine der letzten wirklich unber\u00FChrten Regionen Europas entdecken m\u00F6chten \u2013 nicht die Hochglanzversion, sondern das echte Moldawien." },
+  "info.about.lead":  { en:"ETI Moto Tours was created for riders who want to discover one of the last genuinely untouched regions of Europe - not a postcard version of it, but the real thing.",
+                        de:"ETI Moto Tours wurde f\u00FCr Fahrer gegr\u00FCndet, die eine der letzten wirklich unber\u00FChrten Regionen Europas entdecken m\u00F6chten \u2013 nicht die Hochglanzversion, sondern das echte Moldawien." },
   "info.about.do.title":      { en:"What We Do",    de:"Was wir tun" },
   "info.about.do.body":       { en:"We organise motorcycle tours and rentals through Moldova's hidden roads, authentic villages, vineyard landscapes, and wild river canyons.",
                                  de:"Wir organisieren Motorradtouren und -vermietungen durch Moldawiens versteckte Stra\u00DFen, authentische D\u00F6rfer, Weinlandschaften und wilde Flussschluchten." },
@@ -483,8 +483,8 @@ const T = {
                             de:"Sie sind verantwortlich f\u00FCr die Einhaltung der lokalen Verkehrsregeln, sicheres und n\u00FCchternes Fahren sowie die R\u00FCckgabe des Motorrads im gleichen Zustand. Durch Fahrl\u00E4ssigkeit oder riskantes Fahren verursachte Sch\u00E4den werden dem Mieter in voller H\u00F6he der Reparaturkosten berechnet." },
   "terms.liability.title":{ en:"Liability",
                             de:"Haftung" },
-  "terms.liability.body": { en:"Participants acknowledge that motorcycle riding carries inherent risks and agree to participate at their own responsibility. Moldova Moto Tours cannot be held liable for accidents resulting from rider negligence or violation of traffic laws.",
-                            de:"Teilnehmer erkennen an, dass das Motorradfahren inhärente Risiken birgt, und stimmen der Teilnahme auf eigene Verantwortung zu. Moldova Moto Tours haftet nicht f\u00FCr Unf\u00E4lle, die auf Fahrl\u00E4ssigkeit des Fahrers oder Verletzung von Verkehrsregeln zur\u00FCckzuf\u00FChren sind." },
+  "terms.liability.body": { en:"Participants acknowledge that motorcycle riding carries inherent risks and agree to participate at their own responsibility. ETI Moto Tours cannot be held liable for accidents resulting from rider negligence or violation of traffic laws.",
+                            de:"Teilnehmer erkennen an, dass das Motorradfahren inhärente Risiken birgt, und stimmen der Teilnahme auf eigene Verantwortung zu. ETI Moto Tours haftet nicht f\u00FCr Unf\u00E4lle, die auf Fahrl\u00E4ssigkeit des Fahrers oder Verletzung von Verkehrsregeln zur\u00FCckzuf\u00FChren sind." },
   "terms.insurance.title":{ en:"Insurance",
                             de:"Versicherung" },
   "terms.insurance.body": { en:"All rentals include mandatory third-party insurance as required by Moldovan law. Comprehensive coverage is the rider's responsibility unless an upgrade is purchased. We strongly recommend personal travel insurance covering motorcycle activities.",
@@ -534,6 +534,7 @@ const T = {
   "tours.empty":    { en:"Tours coming soon \u2014 check back shortly.",
                       de:"Touren in K\u00FCrze verf\u00FCgbar \u2014 schauen Sie bald wieder vorbei." },
   "tours.bookNow":  { en:"Book Now \u2192",        de:"Jetzt buchen \u2192" },
+  "tours.viewDetails": { en:"View full tour details \u2192", de:"Alle Tourdetails ansehen \u2192" },
 
   // Fleet (extra)
   "fleet.descLong": { en:"The CFMOTO 800MT is our chosen mount for Moldova's diverse terrain \u2014 from smooth vineyard lanes to the rugged riverside tracks of the Nistru canyon. Powerful, comfortable, and loaded with touring tech.",
@@ -607,7 +608,7 @@ const T = {
   "cta.book": { en:"Book Your Tour \u2192",     de:"Tour buchen \u2192" },
 
   // Footer
-  "footer.brand.name": { en:"Moldova Moto Tours", de:"Moldova Moto Tours" },
+  "footer.brand.name": { en:"ETI Moto Tours", de:"ETI Moto Tours" },
   "footer.brand.tag":  { en:"The Last Untamed Roads of Europe",
                          de:"Die letzten wilden Stra\u00DFen Europas" },
   "footer.brand.desc": { en:"The premier guided motorcycle tour company in Moldova. Connecting international riders with Eastern Europe's most authentic hidden roads since 2019.",

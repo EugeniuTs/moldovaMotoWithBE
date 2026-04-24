@@ -8,7 +8,7 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "MoldovaMoto",
+    "name": "ETI Moto Tours",
     "legalName": "MotoTour SRL",
     "url": "https://moldovamoto.com/de",
     "logo": "https://moldovamoto.com/logo.png",
@@ -39,7 +39,7 @@ export default function HomeDe() {
   return (
     <PageShell locale="de">
       <SeoHead
-        title="Motorradreisen Moldawien — Geführte Touren auf CFMOTO 800MT | MoldovaMoto"
+        title="Motorradreisen Moldawien — Geführte Touren auf CFMOTO 800MT | ETI Moto Tours"
         description="Geführte Motorradtouren durch Moldawien: leere Landstraßen, Weingüter, Höhlenklöster. Deutschsprachige Guides, CFMOTO 800MT, Kleingruppen. Ab €220."
         canonical="https://moldovamoto.com/de"
         ogImage="https://moldovamoto.com/og-cover.jpg"
@@ -63,7 +63,7 @@ export default function HomeDe() {
         </p>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", margin: "24px 0 8px" }}>
-          <Link to="/tours/1-day-wine-ride" style={{ background: ORANGE, color: "#fff", padding: "14px 22px", borderRadius: 10, fontWeight: 800 }}>
+          <Link to="/tours/1-day-wine-ride?lang=de" style={{ background: ORANGE, color: "#fff", padding: "14px 22px", borderRadius: 10, fontWeight: 800 }}>
             1-Tages-Weintour ansehen →
           </Link>
           <a href="#tours" style={{ background: "transparent", color: WHITE, padding: "14px 22px", borderRadius: 10, fontWeight: 800, border: `1px solid ${BORDER}` }}>
@@ -76,7 +76,7 @@ export default function HomeDe() {
 
         <h2>Unsere Touren</h2>
         <h3 id="tours">1-Tages-Weintour — Cricova</h3>
-        <p>Der Klassiker. 180 km durch Weinberge, Führung durch die Cricova-Kellerei (einer von nur zwei Weingütern weltweit, die man mit dem Fahrzeug befahren kann), Mittagessen bei einem Familienweingut. Einsteigerfreundlich. €220 all-inclusive. <Link to="/tours/1-day-wine-ride">Details →</Link></p>
+        <p>Der Klassiker. 180 km durch Weinberge, Führung durch die Cricova-Kellerei (einer von nur zwei Weingütern weltweit, die man mit dem Fahrzeug befahren kann), Mittagessen bei einem Familienweingut. Einsteigerfreundlich. €220 all-inclusive. <Link to="/tours/1-day-wine-ride?lang=de">Details →</Link></p>
 
         <h3>3-Tages-Moldawien-Abenteuer — Orheiul Vechi + Nistru</h3>
         <p>Die kanonische Moldawien-Tour. Höhlenklöster im Kalksteinkanyon, serpentinenreiche Flussstraßen, Übernachtung in einem traditionellen Gasthaus. Mittelstufe. €650 all-inclusive.</p>
@@ -130,11 +130,11 @@ export default function HomeDe() {
           <summary style={{ cursor: "pointer", fontWeight: 700 }}>Was, wenn es regnet?</summary>
           <p style={{ marginTop: 8 }}>Wir fahren bei leichtem Regen — die CFMOTO hat Heizgriffe, die Ausrüstung ist wasserdicht. Bei Gewitter pausieren wir in einem Café und passen den Tagesablauf an.</p>
         </details>
-        <p style={{ marginTop: 12 }}>Mehr? <Link to="/faq">Vollständige FAQ (Englisch)</Link> oder <a href="mailto:hello@moldovamoto.com">schreib uns auf Deutsch</a>.</p>
+        <p style={{ marginTop: 12 }}>Mehr? <Link to="/faq?lang=de">Vollständige FAQ (Englisch)</Link> oder <a href="mailto:hello@moldovamoto.com">schreib uns auf Deutsch</a>.</p>
 
         <h2>Bereit für die Buchung?</h2>
         <p>Schreib uns eine kurze Nachricht mit Wunschtour und Zeitraum — wir antworten auf Deutsch innerhalb von 24 Stunden.</p>
-        <Link to="/tours/1-day-wine-ride" style={{ display: "inline-block", marginTop: 10, background: ORANGE, color: "#fff", padding: "14px 26px", borderRadius: 10, fontWeight: 800, fontSize: 15 }}>
+        <Link to="/tours/1-day-wine-ride?lang=de" style={{ display: "inline-block", marginTop: 10, background: ORANGE, color: "#fff", padding: "14px 26px", borderRadius: 10, fontWeight: 800, fontSize: 15 }}>
           Weintour reservieren →
         </Link>
       </article>

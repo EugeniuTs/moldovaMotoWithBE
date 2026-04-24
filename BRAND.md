@@ -1,4 +1,4 @@
-# MoldovaMoto Brand Voice
+# ETI Moto Tours Brand Voice
 
 A short reference for anyone writing copy for the site, email, social, or sales collateral. Read before you write; paste new copy into the checklist at the bottom before shipping.
 

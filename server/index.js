@@ -19,14 +19,14 @@ const app = require("./app");
 
 const server = db.dbReady.then(() => {
   return app.listen(PORT, "0.0.0.0", () =>
-    console.log("[MoldovaMoto API] listening on :" + PORT)
+    console.log("[ETI Moto Tours API] listening on :" + PORT)
   );
 }).catch(err => { console.error("[DB] Failed:", err); process.exit(1); });
 
 // Graceful shutdown — important when running under Docker/systemd so the DB
 // flush completes before the process is killed.
 function shutdown(signal) {
-  console.log(`[MoldovaMoto API] ${signal} received, shutting down...`);
+  console.log(`[ETI Moto Tours API] ${signal} received, shutting down...`);
   server.then(s => s && s.close(() => process.exit(0)));
   setTimeout(() => process.exit(1), 10000).unref();
 }

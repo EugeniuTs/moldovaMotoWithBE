@@ -162,7 +162,7 @@ export default function InfoPage() {
           justifyContent: "space-between", height: 64, gap: 16 }}>
           <Link to="/" style={{ color: WH, fontWeight: 800, fontSize: 14,
             flexShrink: 0, textDecoration: "none" }}>
-            &larr; MoldovaMoto
+            &larr; ETI Moto Tours
           </Link>
           <div style={{display:"flex",gap:4,alignItems:"center"}}>
             {["en","de"].map(l => (
