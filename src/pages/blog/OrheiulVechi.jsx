@@ -11,8 +11,8 @@ const jsonLd = [
     "headline": "Orheiul Vechi by Motorcycle: Route, Tips & What to Expect",
     "description": "How to ride from Chișinău to Orheiul Vechi — the best road, where to park, the cave monastery timing, food stops and what not to miss.",
     "image": "https://moldovamoto.com/og-cover.jpg",
-    "author":    { "@type": "Organization", "name": "MoldovaMoto" },
-    "publisher": { "@type": "Organization", "name": "MoldovaMoto",
+    "author":    { "@type": "Organization", "name": "ETI Moto Tours" },
+    "publisher": { "@type": "Organization", "name": "ETI Moto Tours",
       "logo": { "@type": "ImageObject", "url": "https://moldovamoto.com/logo.png" } },
     "datePublished": "2026-04-20",
     "dateModified":  "2026-04-20",
@@ -78,7 +78,7 @@ export default function OrheiulVechi() {
         <p><strong>GPX file:</strong> available on request — email us or join a guided departure and we'll send it.</p>
 
         <h2>Where to park</h2>
-        <p>There's a gravel lot at the base of the cliff, next to the visitor center — coordinates <code>47.3047, 28.9572</code>. Bring a disc lock. Helmets and jackets fit in the visitor center lockers for a small tip. You can leave panniers on the bike — we've done it dozens of times, never lost anything.</p>
+        <p>There's a gravel lot at the base of the cliff, next to the visitor center — coordinates <code>47.3047, 28.9572</code>. Bring a disc lock. Helmets and jackets fit in the visitor center lockers for a small tip. Take wallets, phones, and documents with you; the lot is generally quiet but it's unattended, so don't treat panniers as a safe.</p>
 
         <h2>The cave monastery — what to know</h2>
         <ul>
@@ -107,7 +107,7 @@ export default function OrheiulVechi() {
         <p>Best conditions May–June and September–early October. Avoid religious holidays (tour buses). Weekdays always beat weekends. Rain days make the canyon paths slick but the ride itself stays rideable — just skip the dirt Butuceni loop.</p>
 
         <h2>Ride it with a guide</h2>
-        <p>Our <strong>3-Day Moldova Adventure</strong> includes Orheiul Vechi plus Saharna, Curchi, and a night in a Butuceni guesthouse — the overnight is what turns this from a day trip into a proper weekend. <Link to="/#tours">See the 3-Day Adventure →</Link></p>
+        <p>Our <strong>3-Day Moldova Adventure</strong> includes Orheiul Vechi plus Saharna, Curchi, and a night in a Butuceni guesthouse — the overnight is what turns this from a day trip into a proper weekend. <Link to="/tours/3-day-moldova-adventure">See the 3-Day Adventure →</Link></p>
 
         <h2>Related reading</h2>
         <ul>

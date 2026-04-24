@@ -1501,7 +1501,7 @@ function DashboardTab({routes,bookings,fleet}){
     <>
       <div style={{marginBottom:28}}>
         <h2 style={{fontSize:20,fontWeight:800,color:T.text,margin:"0 0 4px"}}>Dashboard</h2>
-        <p style={{fontSize:13,color:T.muted,margin:0}}>Live overview of MoldovaMoto operations.</p>
+        <p style={{fontSize:13,color:T.muted,margin:0}}>Live overview of ETI Moto Tours operations.</p>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:28}}>
@@ -1812,11 +1812,11 @@ function LoginScreen({onLogin}){
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:36,gap:12}}>
           <div style={{width:108,height:108,borderRadius:"50%",background:"#fff",
             padding:4,boxShadow:`0 0 0 3px ${T.orange}, 0 0 32px rgba(255,107,0,0.5)`,flexShrink:0}}>
-            <img src="/logo.png" alt="Moldova Moto Tours"
+            <img src="/logo.png" alt="ETI Moto Tours"
               style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover",display:"block"}}/>
           </div>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:20,fontWeight:900,color:T.text,letterSpacing:"-0.02em"}}>Moldova Moto Tours</div>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,letterSpacing:"-0.02em"}}>ETI Moto Tours</div>
             <div style={{fontSize:11,color:T.muted,marginTop:3,letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin Portal</div>
           </div>
         </div>
@@ -2328,7 +2328,7 @@ export default function MoldovaMotoAdmin(){
   // Keep admin out of search indexes.
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = "Admin · MoldovaMoto";
+    document.title = "Admin · ETI Moto Tours";
     let m = document.head.querySelector('meta[name="robots"]');
     const created = !m;
     const prev = m ? m.getAttribute("content") : null;
@@ -2473,7 +2473,7 @@ export default function MoldovaMotoAdmin(){
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
           marginBottom:32,paddingBottom:20,borderBottom:`1px solid ${T.border}`}}>
           <div style={{fontSize:12,color:T.muted}}>
-            <span style={{color:T.dim}}>MoldovaMoto /</span>
+            <span style={{color:T.dim}}>ETI Moto Tours /</span>
             <span style={{color:T.text,fontWeight:600,marginLeft:6}}>{tab.charAt(0).toUpperCase()+tab.slice(1)}</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:14}}>

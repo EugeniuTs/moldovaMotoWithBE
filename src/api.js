@@ -1,5 +1,5 @@
 /**
- * api.js — Frontend API client for the MoldovaMoto backend
+ * api.js — Frontend API client for the ETI Moto Tours backend
  *
  * All booking data flows through this module.
  */

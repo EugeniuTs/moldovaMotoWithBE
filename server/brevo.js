@@ -21,7 +21,7 @@ const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL         || "";
 const NOTIFY_WA    = process.env.NOTIFY_WHATSAPP      || "";
 const WA_SENDER    = process.env.NOTIFY_WHATSAPP_SENDER || "";
 const FROM_EMAIL   = process.env.FROM_EMAIL           || "no-reply@moldovamoto.com";
-const FROM_NAME    = process.env.FROM_NAME            || "MoldovaMoto";
+const FROM_NAME    = process.env.FROM_NAME            || "ETI Moto Tours";
 const PUBLIC_ORIGIN = process.env.PUBLIC_ORIGIN       || "";
 
 const BREVO_EMAIL = "https://api.brevo.com/v3/smtp/email";
@@ -128,7 +128,7 @@ async function notifyNewBooking(booking) {
       '</div>' +
     '</div>';
 
-  const waText = "🏍️ NEW BOOKING — MoldovaMoto\n" +
+  const waText = "🏍️ NEW BOOKING — ETI Moto Tours\n" +
     "Rider: " + (booking.name || "") + "\n" +
     "Tour: "  + (booking.tour || "") + "\n" +
     "Date: "  + (booking.date || "") + (booking.dateTo ? " → " + booking.dateTo : "") + "\n" +
@@ -152,11 +152,11 @@ async function notifyNewBooking(booking) {
         '<table style="width:100%;border-collapse:collapse;font-size:14px;margin:20px 0">' +
           row("Tour", e.tour) + row("Date", dateStr) + row("Bike", e.bike || "CFMOTO 800MT") +
         '</table>' +
-        '<p style="font-size:13px;color:#888">— The MoldovaMoto Team 🏍️</p>' +
+        '<p style="font-size:13px;color:#888">— The ETI Moto Tours Team 🏍️</p>' +
       '</div>';
     tasks.push(sendEmail({
       to: booking.email,
-      subject: "✅ Your booking request received — MoldovaMoto",
+      subject: "✅ Your booking request received — ETI Moto Tours",
       replyTo: NOTIFY_EMAIL,
       html: confirmHtml,
     }));
@@ -169,7 +169,7 @@ async function notifyContactForm({ name, email, message }) {
   const eName  = escHtml(name || "");
   const eEmail = escHtml(email || "");
   const eUrl   = encodeURIComponent(email || "");
-  const subject = "📩 New message from " + (name || "anonymous") + " — MoldovaMoto";
+  const subject = "📩 New message from " + (name || "anonymous") + " — ETI Moto Tours";
 
   const html = '' +
     '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f0f0f;color:#f0f0f4;border-radius:12px">' +
@@ -183,7 +183,7 @@ async function notifyContactForm({ name, email, message }) {
       '</table>' +
     '</div>';
 
-  const waText = "📩 CONTACT FORM — MoldovaMoto\nFrom: " + (name || "") +
+  const waText = "📩 CONTACT FORM — ETI Moto Tours\nFrom: " + (name || "") +
     "\nEmail: " + (email || "") + "\nMessage: " + String(message || "").slice(0, 200);
 
   await Promise.all([

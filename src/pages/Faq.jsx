@@ -86,7 +86,7 @@ const FAQ = [
       { q: "What if my bike breaks down?",
         a: "Our van (following the 3- and 5-day tours) carries a spare bike. On day tours, Moldova is small enough that our support team can reach any route in under 90 minutes with a replacement." },
       { q: "Is Moldova safe?",
-        a: "Yes. Moldova has a lower violent-crime rate than most of Western Europe and the riders on our tours have never had a safety incident. The only area we deliberately avoid is immediate border regions with Transnistria — we route around them." },
+        a: "Yes. Moldova is a safe country to travel in — violent crime is rare and our guides have operated these routes without serious incident for years. The only area we deliberately avoid is the immediate border with Transnistria, which we route around." },
     ],
   },
   {
@@ -131,8 +131,8 @@ export default function Faq() {
   return (
     <PageShell>
       <SeoHead
-        title="Motorcycle Tour FAQ — License, Weather, Safety | MoldovaMoto"
-        description="Answers to every question our riders ask before booking: licenses, age limits, weather windows, gear, safety, payment, cancellation and more."
+        title="Motorcycle Tour FAQ — License, Weather, Safety | ETI Moto Tours"
+        description="Answers to every question our riders ask before booking: licenses, age limits, weather windows, gear, safety, payment, cancellation, and more."
         canonical="https://moldovamoto.com/faq"
         ogImage="https://moldovamoto.com/og-cover.jpg"
         jsonLd={jsonLd}
